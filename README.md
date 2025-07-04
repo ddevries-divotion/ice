@@ -140,6 +140,33 @@ The demo uses the TinyMCE Cloud CDN, which requires an API key for production us
 
 ---
 
+## Automated Testing
+
+This project uses [Playwright](https://playwright.dev/) for automated end-to-end and integration testing.
+
+### Running Tests
+
+To run the test suite:
+
+```sh
+npm install  # if you haven't already
+npx playwright install  # install browser dependencies
+npm test     # or: npx playwright test
+```
+
+Test files are located in the `__tests__/playwright/` directory. Playwright will generate a detailed HTML report in the `playwright-report/` directory after each run. To view the report:
+
+```sh
+npx playwright show-report
+```
+
+### Notes
+- The test suite is being actively updated to reflect recent code changes.
+- Some tests may be skipped or marked as outdated; see test source for details.
+- Contributions to improve test coverage and reliability are welcome.
+
+---
+
 ## Limitations / Notes
 
 - Requires DOM ready before initialization
@@ -152,7 +179,7 @@ The demo uses the TinyMCE Cloud CDN, which requires an API key for production us
 ## Known Issues
 
 - **`icesearchreplace` plugin does not work:** The current implementation of the `icesearchreplace` plugin is non-functional, as it does not correctly hook into the [TinyMCE `searchreplace` plugin](https://github.com/tinymce/tinymce/tree/release/6.7/modules/tinymce/src/plugins/searchreplace). It has only been updated for compatibility with TinyMCE version 7, and redundant logic has been removed. This is a known issue, and contributions to fix or modernize this plugin are welcome.
-- **Outdated tests:** The tests in this project have not been updated to reflect recent changes. Test coverage and reliability are currently limited.
+- **Outdated tests:** The tests in this project have not been updated to reflect all recent changes. Test coverage and reliability are currently limited.
 
 ---
 
