@@ -1,6 +1,5 @@
-// playwright test for jQuery-based dom.js functions
-const { test, expect } = require('@playwright/test');
-const path = require('path');
+import { test, expect } from '@playwright/test';
+import path from 'path';
 
 test.describe('jQuery-based dom.js functions', () => {
   test.beforeEach(async ({ page }) => {
