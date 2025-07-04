@@ -9,10 +9,10 @@ test.describe('InlineChangeEditor.deleteContents', () => {
   test('deletes left through different user insert', async ({ page }) => {
     await page.setContent('<div id="el"><p>a <em>left<span class="ins cts-1" userid="1" cid="1">ist</span></em> paragraph</p></div>');
     await page.evaluate(() => {
-      const el = jQuery('#el');
+      const el = document.querySelector('#el');
       const changeEditor = getIce(el);
       const range = changeEditor.env.selection.createRange();
-      range.setStartAfter(el.find('em')[0]);
+      range.setStartAfter(el.querySelector('em'));
       range.moveStart('character', 2);
       range.collapse(true);
       for (let i = 0; i < 12; i++) changeEditor.deleteContents(false, range);
@@ -27,10 +27,10 @@ test.describe('InlineChangeEditor.deleteContents', () => {
   test('deletes right through different user insert', async ({ page }) => {
     await page.setContent('<div id="el"><p>a <em>right<span class="ins cts-1" userid="1" cid="1">ist</span></em> paragraph</p></div>');
     await page.evaluate(() => {
-      const el = jQuery('#el');
+      const el = document.querySelector('#el');
       const changeEditor = getIce(el);
       const range = changeEditor.env.selection.createRange();
-      range.setStart(el.find('p')[0], 0);
+      range.setStart(el.querySelector('p'), 0);
       range.collapse(true);
       for (let i = 0; i < 12; i++) changeEditor.deleteContents(true, range);
     });
@@ -43,10 +43,10 @@ test.describe('InlineChangeEditor.deleteContents', () => {
   test('deletes left through different user insert and delete', async ({ page }) => {
     await page.setContent('<div id="el"><p>a <em>l<span class="ins cts-1" userid="1" cid="1">ef</span><span class="del cts-1" userid="1" cid="1">ti</span>st</em> paragraph</p></div>');
     await page.evaluate(() => {
-      const el = jQuery('#el');
+      const el = document.querySelector('#el');
       const changeEditor = getIce(el);
       const range = changeEditor.env.selection.createRange();
-      range.setStartAfter(el.find('em')[0]);
+      range.setStartAfter(el.querySelector('em'));
       range.moveStart('character', 2);
       range.collapse(true);
       for (let i = 0; i < 9; i++) changeEditor.deleteContents(false, range);
@@ -60,10 +60,10 @@ test.describe('InlineChangeEditor.deleteContents', () => {
   test('deletes right through different user insert and delete', async ({ page }) => {
     await page.setContent('<div id="el"><p>a <em>r<span class="ins cts-1" userid="1" cid="1">ig</span><span class="del cts-1" userid="1" cid="1">hte</span>st</em> paragraph</p></div>');
     await page.evaluate(() => {
-      const el = jQuery('#el');
+      const el = document.querySelector('#el');
       const changeEditor = getIce(el);
       const range = changeEditor.env.selection.createRange();
-      range.setStart(el.find('p')[0], 0);
+      range.setStart(el.querySelector('p'), 0);
       range.collapse(true);
       for (let i = 0; i < 9; i++) changeEditor.deleteContents(true, range);
     });
@@ -83,17 +83,17 @@ test.describe('InlineChangeEditor.deleteContents', () => {
     }
     await page.setContent('<div id="el"><p>a <em><span class="ins cts-1" userid="4" cid="1">left</span>ist</em> paragraph</p></div>');
     const result = await page.evaluate(() => {
-      const el = jQuery('#el');
+      const el = document.querySelector('#el');
       const changeEditor = getIce(el);
       const range = changeEditor.env.selection.createRange();
-      range.setStartAfter(el.find('em')[0]);
+      range.setStartAfter(el.querySelector('em'));
       range.moveStart('character', 10);
       range.collapse(true);
       for (let i = 0; i < 20; i++) changeEditor.deleteContents(false, range);
       return {
-        text: el.text(),
-        dels: Array.from(el[0].querySelectorAll('.del')).map(e => e.textContent),
-        html: el.html()
+        text: el.textContent,
+        dels: Array.from(el.querySelectorAll('.del')).map(e => e.textContent),
+        html: el.innerHTML
       };
     });
     expect(result.text).toBe('a ist paragraph');
@@ -103,10 +103,10 @@ test.describe('InlineChangeEditor.deleteContents', () => {
   test('deletes right through same user insert', async ({ page }) => {
     await page.setContent('<div id="el"><p>a <em><span class="ins cts-1" userid="4" cid="1">right</span>ist</em> paragraph</p></div>');
     await page.evaluate(() => {
-      const el = jQuery('#el');
+      const el = document.querySelector('#el');
       const changeEditor = getIce(el);
       const range = changeEditor.env.selection.createRange();
-      range.setStart(el.find('p')[0], 0);
+      range.setStart(el.querySelector('p'), 0);
       range.collapse(true);
       for (let i = 0; i < 20; i++) changeEditor.deleteContents(true, range);
     });
