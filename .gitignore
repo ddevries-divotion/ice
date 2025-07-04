@@ -1,0 +1,16 @@
+dist
+build
+*.diff
+*.patch
+*.bak
+*.log
+*.swp
+.DS_Store
+.project
+.idea
+node_modules
+.env
+
+# Demo files
+demo/dist
+demo/lib

@@ -1,0 +1,44 @@
+{
+  "name": "@divotion/ice",
+  "description": "Track changes in JavaScript. Compatible with TinyMCE up to version 6.8.6. Forked from NYTimes/ice.",
+  "version": "1.0.1",
+  "author": "Dennis de Vries <dennis.de.vries@divotion.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ddevries-divotion/ice.git"
+  },
+  "main": "dist/ice.min.js",
+  "files": [
+    "dist/",
+    "LICENSE",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "grunt build",
+    "prepare": "npm run build",
+    "prepare:demo": "grunt demo:prepare",
+    "clean": "grunt clean"
+  },
+  "keywords": [
+    "tinymce",
+    "track changes",
+    "contenteditable",
+    "editor",
+    "ice"
+  ],
+  "devDependencies": {
+    "grunt": "^1.6.1",
+    "grunt-cli": "^1.5.0",
+    "grunt-contrib-clean": "^2.0.1",
+    "grunt-contrib-compress": "^2.0.0",
+    "grunt-contrib-concat": "^2.1.0",
+    "grunt-contrib-connect": "^5.0.1",
+    "grunt-contrib-jshint": "^3.2.0",
+    "grunt-contrib-qunit": "^10.1.1",
+    "grunt-contrib-uglify": "^5.2.2"
+  },
+  "bugs": {
+    "url": "https://github.com/ddevries-divotion/ice/issues"
+  },
+  "license": "GPL-2.0-or-later"
+}
