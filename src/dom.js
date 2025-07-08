@@ -261,12 +261,6 @@ dom.getSiblings = (element, dir, elementNodesOnly, stopElem) => {
  */
 dom.getNodeTextContent = node => node ? (node.textContent || '') : '';
 /**
- * Returns the stub content of a node using jQuery.
- * @param {Node} node - The node to search.
- * @returns {jQuery} jQuery collection of stub elements.
- */
-dom.getNodeStubContent = node => jQuery(node).find(dom.CONTENT_STUB_ELEMENTS.join(', '));
-/**
  * Checks if a node has no text or stub content.
  * @param {Node} node - The node to check.
  * @returns {boolean} True if no text or stub content.
@@ -283,28 +277,11 @@ dom.hasNoTextOrStubContent = node => {
  */
 dom.getNodeCharacterLength = node => dom.getNodeTextContent(node).length + jQuery(node).find(dom.STUB_ELEMENTS.join(', ')).length;
 /**
- * Sets the text content of a node using jQuery.text().
- * @param {Node} node - The node to set text on.
- * @param {string} txt - The text to set.
- */
-dom.setNodeTextContent = (node, txt) => jQuery(node).text(txt);
-/**
  * Returns the tag name of a node in lowercase.
  * @param {Node} node - The node to get the tag name from.
  * @returns {string|null} The tag name or null.
  */
 dom.getTagName = node => node && node.tagName ? node.tagName.toLowerCase() : null;
-/**
- * Returns the document of an iframe, supporting multiple browser APIs.
- * @param {HTMLIFrameElement} iframe - The iframe element.
- * @returns {Document|null} The iframe's document or null.
- */
-dom.getIframeDocument = iframe => {
-  if (iframe.contentDocument) return iframe.contentDocument;
-  if (iframe.contentWindow) return iframe.contentWindow.document;
-  if (iframe.document) return iframe.document;
-  return null;
-};
 /**
  * Checks if an element is a block element by tag name.
  * @param {Element} element - The element to check.
@@ -378,21 +355,6 @@ dom.isChildOfTagNames = (el, names) => {
           if (tagName === names[i]) return el.parentNode;
         }
       }
-      el = el.parentNode;
-    }
-  } catch (e) { }
-  return null;
-};
-/**
- * Checks if an element is a child of a parent with the specified class name using jQuery.
- * @param {Element} el - The element to check.
- * @param {string} name - The class name.
- * @returns {Element|null} The parent element or null.
- */
-dom.isChildOfClassName = (el, name) => {
-  try {
-    while (el && el.parentNode) {
-      if (jQuery(el.parentNode).hasClass(name)) return el.parentNode;
       el = el.parentNode;
     }
   } catch (e) { }
@@ -476,20 +438,6 @@ dom.getElementsBetween = (fromElem, toElem) => {
   return elements;
 };
 /**
- * Returns the closest common ancestor of two nodes.
- * @param {Node} a - The first node.
- * @param {Node} b - The second node.
- * @returns {Node|null} The common ancestor or null.
- */
-dom.getCommonAncestor = (a, b) => {
-  let node = a;
-  while (node) {
-    if (dom.isChildOf(b, node)) return node;
-    node = node.parentNode;
-  }
-  return null;
-};
-/**
  * Returns the next node in the container.
  * @param {Node} node - The node to start from.
  * @param {Node} container - The container node.
@@ -529,28 +477,6 @@ dom.getNextContentNode = (node, container) => {
         return node.nextSibling;
       } else if (node.nextElementSibling) {
         return node.nextElementSibling;
-      }
-      node = node.parentNode;
-    }
-  }
-  return null;
-};
-/**
- * Returns the previous node in the container.
- * @param {Node} node - The node to start from.
- * @param {Node} container - The container node.
- * @returns {Node|null} The previous node or null.
- */
-dom.getPrevNode = (node, container) => {
-  if (node) {
-    while (node.parentNode) {
-      if (node === container) return null;
-      if (node.previousSibling) {
-        if (node.previousSibling.nodeType === dom.TEXT_NODE && node.previousSibling.length === 0) {
-          node = node.previousSibling;
-          continue;
-        }
-        return dom.getLastChild(node.previousSibling);
       }
       node = node.parentNode;
     }
@@ -691,24 +617,6 @@ dom.walk = (elem, callback, lvl = 0) => {
   }
 };
 /**
- * Walks the DOM tree in reverse order and applies the callback function to each element recursively.
- * @param {Node} elem - The node to start from.
- * @param {Function} callback - The function to call for each node.
- * @see __tests__/playwright/dom.spec.js
- */
-dom.revWalk = (elem, callback) => {
-  if (!elem) return;
-  const retVal = callback.call(this, elem);
-  if (retVal === false) return;
-  if (elem.childNodes && elem.childNodes.length > 0) {
-    dom.walk(elem.lastChild, callback);
-  } else if (elem.previousSibling) {
-    dom.walk(elem.previousSibling, callback);
-  } else if (elem.parentNode && elem.parentNode.previousSibling) {
-    dom.walk(elem.parentNode.previousSibling, callback);
-  }
-};
-/**
  * Sets a CSS property for an element.
  * @param {Element} element - The element to style.
  * @param {string} property - The CSS property.
@@ -787,19 +695,6 @@ dom.each = (val, callback) => {
   jQuery.each(val, function (i, el) {
     callback.call(this, i, el);
   });
-};
-/**
- * Iterates over an array-like or object-like value and applies the callback function to each item.
- * @param {Array|NodeList|Object} value - The value to iterate.
- * @param {Function} cb - The function to call for each item.
- * @see __tests__/playwright/dom.spec.js
- */
-dom.foreach = (value, cb) => {
-  if (Array.isArray(value) || value instanceof NodeList || (typeof value.length === 'number' && typeof value !== 'string')) {
-    Array.from(value).some((el, i) => cb.call(value, i, el) === false);
-  } else if (typeof value === 'object' && value !== null) {
-    return Object.keys(value).some(key => cb.call(value, key, value[key]) === false);
-  }
 };
 /**
  * Checks if a value is set (not undefined or null).

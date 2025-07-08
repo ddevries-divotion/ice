@@ -29,20 +29,6 @@ test.describe('dom.js utility functions', () => {
         expect(nodes).toContain('B');
     });
 
-    test('dom.revWalk traverses DOM tree in reverse', async ({ page }) => {
-        const nodes = await page.evaluate(() => {
-            const dom = window.ice.dom;
-            const div = document.createElement('div');
-            div.innerHTML = '<span><b></b></span>';
-            const nodes = [];
-            dom.revWalk(div, (el) => { nodes.push(el.nodeName); });
-            return nodes;
-        });
-        expect(nodes).toContain('DIV');
-        expect(nodes).toContain('SPAN');
-        expect(nodes).toContain('B');
-    });
-
     test('dom.setStyle and dom.getStyle set and get CSS', async ({ page }) => {
         const color = await page.evaluate(() => {
             const dom = window.ice.dom;
@@ -94,22 +80,6 @@ test.describe('dom.js utility functions', () => {
             const obj = { a: 1, b: 2 };
             let keys = [];
             dom.each(obj, (i, el) => { keys.push(i); });
-            return { sum, keys };
-        });
-        expect(sum).toBe(6);
-        expect(keys).toContain('a');
-        expect(keys).toContain('b');
-    });
-
-    test('dom.foreach iterates over arrays, NodeLists, and objects', async ({ page }) => {
-        const { sum, keys } = await page.evaluate(() => {
-            const dom = window.ice.dom;
-            const arr = [1, 2, 3];
-            let sum = 0;
-            dom.foreach(arr, (i, el) => { sum += el; });
-            const obj = { a: 1, b: 2 };
-            let keys = [];
-            dom.foreach(obj, (i) => { keys.push(i); });
             return { sum, keys };
         });
         expect(sum).toBe(6);
