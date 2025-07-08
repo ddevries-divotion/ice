@@ -70,14 +70,17 @@ dom.STUB_ELEMENTS = [...dom.CONTENT_STUB_ELEMENTS, dom.BREAK_ELEMENT];
  * @param {Element} [startElement=document.body]
  * @returns {Element[]}
  */
-dom.getClass = (className, startElement = document.body) =>
-  Array.from(startElement.getElementsByClassName(className));
+dom.getClass = (className, element = document.body) => {
+  // For backwards compatibility, add a dot prefix if the className does not start with one.
+  const prefix = className.startsWith('.') ? '' : '.';
+  return element.querySelectorAll(`${prefix}${className}`)
+}
 /**
  * Removes all children from an element.
  * @param {Element} element
  * @returns {jQuery|undefined}
  */
-dom.empty = element => element ? jQuery(element).empty() : undefined;
+dom.empty = element => element ? element.innerHTML = '' : undefined;
 /**
  * Removes the element from the DOM.
  * @param {Element} element
@@ -89,13 +92,13 @@ dom.remove = element => element ? jQuery(element).remove() : undefined;
  * @param {Element} parent
  * @param {Element} elem
  */
-dom.prepend = (parent, elem) => jQuery(parent).prepend(elem);
+dom.prepend = (parent, elem) => parent.prepend(elem);
 /**
  * Appends an element as the last child.
  * @param {Element} parent
  * @param {Element} elem
  */
-dom.append = (parent, elem) => jQuery(parent).append(elem);
+dom.append = (parent, elem) => parent.append(elem);
 /**
  * Inserts an element before the reference node.
  * @param {Element} before
@@ -409,12 +412,12 @@ dom.bind = (element, event, callback) => jQuery(element).bind(event, callback);
 dom.unbind = (element, event, callback) => jQuery(element).unbind(event, callback);
 /**
  * Gets or sets an attribute value for the given elements.
- * @param {Element|Element[]} elements
+ * @param {Element|Element[]} element
  * @param {string} key
  * @param {string} [val]
  * @returns {string|undefined}
  */
-dom.attr = (elements, key, val) => val ? jQuery(elements).attr(key, val) : jQuery(elements).attr(key);
+dom.attr = (element, key, val) => val ? element?.setAttribute(key, val) : element?.getAttribute(key);
 /**
  * Replaces a node with the given replacement.
  * @param {Node} node
@@ -639,13 +642,6 @@ dom.find = (parent, exp) => jQuery(parent).find(exp);
  */
 dom.children = (parent, exp) => jQuery(parent).children(exp);
 /**
- * Returns the parent of the child element that matches the selector.
- * @param {Element} child
- * @param {string} exp
- * @returns {Element}
- */
-dom.parent = (child, exp) => jQuery(child).parent(exp)[0];
-/**
  * Returns the ancestors of the child element that match the selector.
  * @param {Element} child
  * @param {string} exp
@@ -725,19 +721,13 @@ dom.getStyle = (element, property) => jQuery(element).css(property);
  * @param {string} className
  * @returns {boolean}
  */
-dom.hasClass = (element, className) => jQuery(element).hasClass(className);
+dom.hasClass = (element, className) => element.classList.contains(className);
 /**
  * Adds the specified class to an element.
  * @param {Element} element
  * @param {string} classNames
  */
-dom.addClass = (element, classNames) => jQuery(element).addClass(classNames);
-/**
- * Removes the specified class from an element.
- * @param {Element} element
- * @param {string} classNames
- */
-dom.removeClass = (element, classNames) => jQuery(element).removeClass(classNames);
+dom.addClass = (element, classNames) => element.classList.add(...classNames.split(' '));
 /**
  * Prevents the default action of an event.
  * @param {Event} e
