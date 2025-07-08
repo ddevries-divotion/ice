@@ -20,7 +20,9 @@
     "clean": "grunt clean",
     "test": "playwright test",
     "lint": "eslint ./src/",
-    "lint:fix": "eslint ./src/ --fix"
+    "lint:fix": "eslint ./src/ --fix",
+    "format": "prettier --check ./src/**/*.js",
+    "format:fix": "prettier --write ./src/**/*.js"
   },
   "keywords": [
     "tinymce",
@@ -43,7 +45,8 @@
     "grunt-contrib-connect": "^5.0.1",
     "grunt-contrib-jshint": "^3.2.0",
     "grunt-contrib-qunit": "^10.1.1",
-    "grunt-contrib-uglify": "^5.2.2"
+    "grunt-contrib-uglify": "^5.2.2",
+    "prettier": "3.6.2"
   },
   "bugs": {
     "url": "https://github.com/ddevries-divotion/ice/issues"
