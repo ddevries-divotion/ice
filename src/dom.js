@@ -66,9 +66,9 @@ dom.STUB_ELEMENTS = [...dom.CONTENT_STUB_ELEMENTS, dom.BREAK_ELEMENT];
 
 /**
  * Returns elements with the given class name.
- * @param {string} className
- * @param {Element} [startElement=document.body]
- * @returns {Element[]}
+ * @param {string} className - The class name to search for.
+ * @param {Element} [startElement=document.body] - The element to start the search from.
+ * @returns {Element[]} Array of elements with the given class name.
  * @see __tests__/playwright/dom.spec.js
  */
 dom.getClass = (className, element = document.body) => {
@@ -78,49 +78,49 @@ dom.getClass = (className, element = document.body) => {
 }
 /**
  * Removes all children from an element.
- * @param {Element} element
- * @returns {jQuery|undefined}
+ * @param {Element} element - The element to empty.
+ * @returns {undefined}
  * @see __tests__/playwright/dom.spec.js
  */
 dom.empty = element => element ? element.innerHTML = '' : undefined;
 /**
  * Removes the element from the DOM.
- * @param {Element} element
- * @returns {jQuery|undefined}
+ * @param {Element} element - The element to remove.
+ * @returns {undefined}
  * @see __tests__/playwright/dom.spec.js
  */
 dom.remove = element => element ? jQuery(element).remove() : undefined;
 /**
  * Prepends an element as the first child.
- * @param {Element} parent
- * @param {Element} elem
+ * @param {Element} parent - The parent element.
+ * @param {Element} elem - The element to prepend.
  * @see __tests__/playwright/dom.spec.js
  */
 dom.prepend = (parent, elem) => parent.prepend(elem);
 /**
  * Appends an element as the last child.
- * @param {Element} parent
- * @param {Element} elem
+ * @param {Element} parent - The parent element.
+ * @param {Element} elem - The element to append.
  * @see __tests__/playwright/dom.spec.js
  */
 dom.append = (parent, elem) => parent.append(elem);
 /**
  * Inserts an element before the reference node.
- * @param {Element} before
- * @param {Element} elem
+ * @param {Element} before - The reference node.
+ * @param {Element} elem - The element to insert.
  * @see __tests__/playwright/dom.spec.js
  */
 dom.insertBefore = (before, elem) => jQuery(before).before(elem);
 /**
  * Inserts an element after the reference node.
- * @param {Element} after
- * @param {Element} elem
+ * @param {Element} after - The reference node.
+ * @param {Element} elem - The element to insert.
  * @see __tests__/playwright/dom.spec.js
  */
 dom.insertAfter = (after, elem) => jQuery(after).after(elem);
 /**
- * Removes whitespace and newlines between nested block elements.
- * @param {Element} element
+ * Removes whitespace and newlines between nested block elements using jQuery.
+ * @param {Element} element - The element to clean.
  */
 dom.removeWhitespace = element => {
   jQuery(element).contents().filter(function () {
@@ -136,14 +136,14 @@ dom.removeWhitespace = element => {
 };
 /**
  * Returns the child nodes as an array.
- * @param {Element} el
- * @returns {Node[]}
+ * @param {Element} el - The element whose child nodes to return.
+ * @returns {Node[]} Array of child nodes.
  * @see __tests__/playwright/dom.spec.js
  */
 dom.contents = el => el ? Array.from(el.childNodes) : [];
 /**
  * Returns the inner contents of el as a DocumentFragment.
- * @param {Element} el
+ * @param {Element} el - The element to extract content from.
  * @returns {DocumentFragment}
  */
 dom.extractContent = el => {
@@ -156,17 +156,17 @@ dom.extractContent = el => {
 };
 /**
  * Returns the closest ancestor of the given node that matches the selector.
- * @param {Node} node
- * @param {string} selector
- * @returns {Node|null}
+ * @param {Node} node - The node to start from.
+ * @param {string} selector - The selector to match.
+ * @returns {Node|null} The matching ancestor or null.
  */
 dom.getNode = (node, selector) => dom.is(node, selector) ? node : dom.parents(node, selector)[0] || null;
 /**
- * Returns the parents of the given elements up to the stop element, filtered by the given selector.
- * @param {Element|Element[]} elements
- * @param {string} filter
- * @param {Element} stopEl
- * @returns {Element[]}
+ * Returns the parents of the given elements up to the stop element, filtered by the given selector using jQuery.parents().
+ * @param {Element|Element[]} elements - The elements to start from.
+ * @param {string} filter - The selector to filter parents.
+ * @param {Element} stopEl - The element to stop at.
+ * @returns {Element[]} Array of parent elements.
  */
 dom.getParents = (elements, filter, stopEl) => {
   const res = jQuery(elements).parents(filter);
@@ -179,8 +179,8 @@ dom.getParents = (elements, filter, stopEl) => {
 };
 /**
  * Checks if the parent element has block-level children.
- * @param {Element} parent
- * @returns {boolean}
+ * @param {Element} parent - The parent element.
+ * @returns {boolean} True if block-level children exist.
  */
 dom.hasBlockChildren = parent => {
   for (let i = 0; i < parent.childNodes.length; i++) {
@@ -191,10 +191,10 @@ dom.hasBlockChildren = parent => {
   return false;
 };
 /**
- * Removes the specified tag from the element, replacing it with its children.
- * @param {Element} element
- * @param {string} selector
- * @returns {Element}
+ * Removes the specified tag from the element, replacing it with its children using jQuery.
+ * @param {Element} element - The element to modify.
+ * @param {string} selector - The tag selector to remove.
+ * @returns {Element} The modified element.
  */
 dom.removeTag = (element, selector) => {
   jQuery(element).find(selector).replaceWith(function () {
@@ -203,10 +203,10 @@ dom.removeTag = (element, selector) => {
   return element;
 };
 /**
- * Strips enclosing tags from the content, allowing only the specified tags.
- * @param {Element} content
- * @param {string[]} allowedTags
- * @returns {Element}
+ * Strips enclosing tags from the content, allowing only the specified tags using jQuery.
+ * @param {Element} content - The content element.
+ * @param {string[]} allowedTags - Array of allowed tag names.
+ * @returns {Element} The cleaned element.
  */
 dom.stripEnclosingTags = (content, allowedTags) => {
   const c = jQuery(content);
@@ -226,11 +226,11 @@ dom.stripEnclosingTags = (content, allowedTags) => {
 };
 /**
  * Returns the siblings of an element in the specified direction.
- * @param {Element} element
- * @param {'prev'|'next'} dir
- * @param {boolean} elementNodesOnly
- * @param {Element} stopElem
- * @returns {Element[]}
+ * @param {Element} element - The reference element.
+ * @param {'prev'|'next'} dir - The direction to search.
+ * @param {boolean} elementNodesOnly - Whether to include only element nodes.
+ * @param {Element} stopElem - The element to stop at.
+ * @returns {Element[]} Array of sibling elements.
  */
 dom.getSiblings = (element, dir, elementNodesOnly, stopElem) => {
   if (elementNodesOnly === true) {
@@ -255,21 +255,21 @@ dom.getSiblings = (element, dir, elementNodesOnly, stopElem) => {
 };
 /**
  * Returns the text content of a node.
- * @param {Node} node
- * @returns {string}
+ * @param {Node} node - The node to get text from.
+ * @returns {string} The text content.
  * @see __tests__/playwright/dom.spec.js
  */
 dom.getNodeTextContent = node => node ? (node.textContent || '') : '';
 /**
- * Returns the stub content of a node.
- * @param {Node} node
- * @returns {jQuery}
+ * Returns the stub content of a node using jQuery.
+ * @param {Node} node - The node to search.
+ * @returns {jQuery} jQuery collection of stub elements.
  */
 dom.getNodeStubContent = node => jQuery(node).find(dom.CONTENT_STUB_ELEMENTS.join(', '));
 /**
  * Checks if a node has no text or stub content.
- * @param {Node} node
- * @returns {boolean}
+ * @param {Node} node - The node to check.
+ * @returns {boolean} True if no text or stub content.
  */
 dom.hasNoTextOrStubContent = node => {
   if (dom.getNodeTextContent(node).length > 0) return false;
@@ -277,27 +277,27 @@ dom.hasNoTextOrStubContent = node => {
   return true;
 };
 /**
- * Returns the character length of a node, including stub elements.
- * @param {Node} node
- * @returns {number}
+ * Returns the character length of a node, including stub elements using jQuery.
+ * @param {Node} node - The node to measure.
+ * @returns {number} The character length.
  */
 dom.getNodeCharacterLength = node => dom.getNodeTextContent(node).length + jQuery(node).find(dom.STUB_ELEMENTS.join(', ')).length;
 /**
- * Sets the text content of a node.
- * @param {Node} node
- * @param {string} txt
+ * Sets the text content of a node using jQuery.text().
+ * @param {Node} node - The node to set text on.
+ * @param {string} txt - The text to set.
  */
 dom.setNodeTextContent = (node, txt) => jQuery(node).text(txt);
 /**
- * Returns the tag name of a node.
- * @param {Node} node
- * @returns {string|null}
+ * Returns the tag name of a node in lowercase.
+ * @param {Node} node - The node to get the tag name from.
+ * @returns {string|null} The tag name or null.
  */
 dom.getTagName = node => node && node.tagName ? node.tagName.toLowerCase() : null;
 /**
- * Returns the document of an iframe.
- * @param {HTMLIFrameElement} iframe
- * @returns {Document|null}
+ * Returns the document of an iframe, supporting multiple browser APIs.
+ * @param {HTMLIFrameElement} iframe - The iframe element.
+ * @returns {Document|null} The iframe's document or null.
  */
 dom.getIframeDocument = iframe => {
   if (iframe.contentDocument) return iframe.contentDocument;
@@ -306,20 +306,20 @@ dom.getIframeDocument = iframe => {
   return null;
 };
 /**
- * Checks if an element is a block element.
- * @param {Element} element
- * @returns {boolean}
+ * Checks if an element is a block element by tag name.
+ * @param {Element} element - The element to check.
+ * @returns {boolean} True if block element.
  */
 dom.isBlockElement = element => !!(element && element.nodeName && dom.BLOCK_ELEMENTS.includes(element.nodeName.toLowerCase()));
 /**
- * Checks if an element is a stub element.
- * @param {Element} element
- * @returns {boolean}
+ * Checks if an element is a stub element by tag name.
+ * @param {Element} element - The element to check.
+ * @returns {boolean} True if stub element.
  */
 dom.isStubElement = element => !!(element && element.nodeName && dom.STUB_ELEMENTS.includes(element.nodeName.toLowerCase()));
 /**
- * Removes <br> elements from the children of a node.
- * @param {Node} node
+ * Removes `<br>` elements from the children of a node.
+ * @param {Node} node - The node to clean.
  */
 dom.removeBRFromChild = node => {
   if (node && node.hasChildNodes()) {
@@ -333,9 +333,9 @@ dom.removeBRFromChild = node => {
 };
 /**
  * Checks if an element is a child of the specified parent.
- * @param {Element} el
- * @param {Element} parent
- * @returns {boolean}
+ * @param {Element} el - The element to check.
+ * @param {Element} parent - The parent element.
+ * @returns {boolean} True if el is a child of parent.
  */
 dom.isChildOf = (el, parent) => {
   try {
@@ -348,9 +348,9 @@ dom.isChildOf = (el, parent) => {
 };
 /**
  * Checks if an element is a child of a parent with the specified tag name.
- * @param {Element} el
- * @param {string} name
- * @returns {Element|boolean}
+ * @param {Element} el - The element to check.
+ * @param {string} name - The tag name.
+ * @returns {Element|boolean} The parent element or false.
  */
 dom.isChildOfTagName = (el, name) => {
   try {
@@ -365,9 +365,9 @@ dom.isChildOfTagName = (el, name) => {
 };
 /**
  * Checks if an element is a child of a parent with one of the specified tag names.
- * @param {Element} el
- * @param {string[]} names
- * @returns {Element|null}
+ * @param {Element} el - The element to check.
+ * @param {string[]} names - Array of tag names.
+ * @returns {Element|null} The parent element or null.
  */
 dom.isChildOfTagNames = (el, names) => {
   try {
@@ -384,10 +384,10 @@ dom.isChildOfTagNames = (el, names) => {
   return null;
 };
 /**
- * Checks if an element is a child of a parent with the specified class name.
- * @param {Element} el
- * @param {string} name
- * @returns {Element|null}
+ * Checks if an element is a child of a parent with the specified class name using jQuery.
+ * @param {Element} el - The element to check.
+ * @param {string} name - The class name.
+ * @returns {Element|null} The parent element or null.
  */
 dom.isChildOfClassName = (el, name) => {
   try {
@@ -399,45 +399,45 @@ dom.isChildOfClassName = (el, name) => {
   return null;
 };
 /**
- * Clones the given elements.
- * @param {Element|Element[]} elems
- * @param {boolean} [cloneEvents=true]
- * @returns {Element|Element[]}
+ * Clones the given elements using jQuery.clone().
+ * @param {Element|Element[]} elems - The elements to clone.
+ * @param {boolean} [cloneEvents=true] - Whether to clone events.
+ * @returns {Element|Element[]} The cloned elements.
  */
 dom.cloneNode = (elems, cloneEvents = true) => jQuery(elems).clone(cloneEvents);
 /**
- * Binds an event handler to an element.
- * @param {Element} element
- * @param {string} event
- * @param {Function} callback
+ * Binds an event handler to an element using jQuery.bind().
+ * @param {Element} element - The element to bind to.
+ * @param {string} event - The event name.
+ * @param {Function} callback - The event handler.
  */
 dom.bind = (element, event, callback) => jQuery(element).bind(event, callback);
 /**
- * Unbinds an event handler from an element.
- * @param {Element} element
- * @param {string} event
- * @param {Function} callback
+ * Unbinds an event handler from an element using jQuery.unbind().
+ * @param {Element} element - The element to unbind from.
+ * @param {string} event - The event name.
+ * @param {Function} callback - The event handler.
  */
 dom.unbind = (element, event, callback) => jQuery(element).unbind(event, callback);
 /**
  * Gets or sets an attribute value for the given elements.
- * @param {Element|Element[]} element
- * @param {string} key
- * @param {string} [val]
- * @returns {string|undefined}
+ * @param {Element|Element[]} element - The element(s) to operate on.
+ * @param {string} key - The attribute name.
+ * @param {string} [val] - The value to set (if provided).
+ * @returns {string|undefined} The attribute value or undefined.
  */
 dom.attr = (element, key, val) => val ? element?.setAttribute(key, val) : element?.getAttribute(key);
 /**
- * Replaces a node with the given replacement.
- * @param {Node} node
- * @param {Node|string|Function} replacement
+ * Replaces a node with the given replacement using jQuery.replaceWith().
+ * @param {Node} node - The node to replace.
+ * @param {Node|string|Function} replacement - The replacement.
  */
 dom.replaceWith = (node, replacement) => jQuery(node).replaceWith(replacement);
 /**
- * Returns the elements between two elements.
- * @param {Element} fromElem
- * @param {Element} toElem
- * @returns {Element[]}
+ * Returns the elements between two elements in the DOM tree.
+ * @param {Element} fromElem - The starting element.
+ * @param {Element} toElem - The ending element.
+ * @returns {Element[]} Array of elements between fromElem and toElem.
  */
 dom.getElementsBetween = (fromElem, toElem) => {
   let elements = [];
@@ -477,9 +477,9 @@ dom.getElementsBetween = (fromElem, toElem) => {
 };
 /**
  * Returns the closest common ancestor of two nodes.
- * @param {Node} a
- * @param {Node} b
- * @returns {Node|null}
+ * @param {Node} a - The first node.
+ * @param {Node} b - The second node.
+ * @returns {Node|null} The common ancestor or null.
  */
 dom.getCommonAncestor = (a, b) => {
   let node = a;
@@ -491,9 +491,9 @@ dom.getCommonAncestor = (a, b) => {
 };
 /**
  * Returns the next node in the container.
- * @param {Node} node
- * @param {Node} container
- * @returns {Node|null}
+ * @param {Node} node - The node to start from.
+ * @param {Node} container - The container node.
+ * @returns {Node|null} The next node or null.
  */
 dom.getNextNode = (node, container) => {
   if (node) {
@@ -513,9 +513,9 @@ dom.getNextNode = (node, container) => {
 };
 /**
  * Returns the next content node in the container.
- * @param {Node} node
- * @param {Node} container
- * @returns {Node|null}
+ * @param {Node} node - The node to start from.
+ * @param {Node} container - The container node.
+ * @returns {Node|null} The next content node or null.
  */
 dom.getNextContentNode = (node, container) => {
   if (node) {
@@ -537,9 +537,9 @@ dom.getNextContentNode = (node, container) => {
 };
 /**
  * Returns the previous node in the container.
- * @param {Node} node
- * @param {Node} container
- * @returns {Node|null}
+ * @param {Node} node - The node to start from.
+ * @param {Node} container - The container node.
+ * @returns {Node|null} The previous node or null.
  */
 dom.getPrevNode = (node, container) => {
   if (node) {
@@ -559,9 +559,9 @@ dom.getPrevNode = (node, container) => {
 };
 /**
  * Returns the previous content node in the container.
- * @param {Node} node
- * @param {Node} container
- * @returns {Node|null}
+ * @param {Node} node - The node to start from.
+ * @param {Node} container - The container node.
+ * @returns {Node|null} The previous content node or null.
  */
 dom.getPrevContentNode = (node, container) => {
   if (node) {
@@ -582,15 +582,15 @@ dom.getPrevContentNode = (node, container) => {
   return null;
 };
 /**
- * Checks if an element can contain a text element.
- * @param {Element} element
- * @returns {boolean}
+ * Checks if an element can contain a text element by tag name.
+ * @param {Element} element - The element to check.
+ * @returns {boolean} True if the element can contain text.
  */
 dom.canContainTextElement = element => !!(element && element.nodeName && dom.TEXT_CONTAINER_ELEMENTS.includes(element.nodeName.toLowerCase()));
 /**
  * Returns the first child node that is not an element.
- * @param {Node} node
- * @returns {Node}
+ * @param {Node} node - The node to start from.
+ * @returns {Node} The first non-element child node or the node itself.
  */
 dom.getFirstChild = node => {
   if (!node) return null;
@@ -602,8 +602,8 @@ dom.getFirstChild = node => {
 };
 /**
  * Returns the last child node that is not an element.
- * @param {Node} node
- * @returns {Node}
+ * @param {Node} node - The node to start from.
+ * @returns {Node} The last non-element child node or the node itself.
  */
 dom.getLastChild = node => {
   if (!node) return null;
@@ -614,9 +614,9 @@ dom.getLastChild = node => {
   return child || node;
 };
 /**
- * Removes empty nodes from the DOM.
- * @param {Element} parent
- * @param {Function} [callback]
+ * Removes empty nodes from the DOM using jQuery.
+ * @param {Element} parent - The parent element.
+ * @param {Function} [callback] - Optional callback for each node.
  */
 dom.removeEmptyNodes = (parent, callback) => {
   let elems = jQuery(parent).find(':empty');
@@ -631,51 +631,51 @@ dom.removeEmptyNodes = (parent, callback) => {
   }
 };
 /**
- * Creates a DOM element from the given HTML.
- * @param {string} html
- * @returns {Element}
+ * Creates a DOM element from the given HTML using jQuery.
+ * @param {string} html - The HTML string.
+ * @returns {Element} The created element.
  */
 dom.create = html => jQuery(html)[0];
 /**
- * Finds elements within the parent element that match the selector.
- * @param {Element} parent
- * @param {string} exp
- * @returns {Element[]}
+ * Finds elements within the parent element that match the selector using jQuery.find().
+ * @param {Element} parent - The parent element.
+ * @param {string} exp - The selector expression.
+ * @returns {Element[]} Array of found elements.
  */
 dom.find = (parent, exp) => jQuery(parent).find(exp);
 /**
- * Gets the children of the parent element that match the selector.
- * @param {Element} parent
- * @param {string} exp
- * @returns {Element[]}
+ * Gets the children of the parent element that match the selector using jQuery.children().
+ * @param {Element} parent - The parent element.
+ * @param {string} exp - The selector expression.
+ * @returns {Element[]} Array of child elements.
  */
 dom.children = (parent, exp) => jQuery(parent).children(exp);
 /**
- * Returns the ancestors of the child element that match the selector.
- * @param {Element} child
- * @param {string} exp
- * @returns {Element[]}
+ * Returns the ancestors of the child element that match the selector using jQuery.parents().
+ * @param {Element} child - The child element.
+ * @param {string} exp - The selector expression.
+ * @returns {Element[]} Array of ancestor elements.
  */
 dom.parents = (child, exp) => jQuery(child).parents(exp);
 /**
- * Checks if a node matches the selector.
- * @param {Node} node
- * @param {string} exp
- * @returns {boolean}
+ * Checks if a node matches the selector using jQuery.is().
+ * @param {Node} node - The node to check.
+ * @param {string} exp - The selector expression.
+ * @returns {boolean} True if the node matches.
  */
 dom.is = (node, exp) => jQuery(node).is(exp);
 /**
- * Extends an object with properties from other objects.
- * @param {...Object} args
- * @returns {Object}
+ * Extends an object with properties from other objects using Object.assign.
+ * @param {...Object} args - Objects to merge.
+ * @returns {Object} The extended object.
  * @see __tests__/playwright/dom.spec.js
  */
 dom.extend = (...args) => jQuery.extend.apply(this, args);
 /**
- * Walks the DOM tree and applies the callback function to each element.
- * @param {Node} elem
- * @param {Function} callback
- * @param {number} [lvl=0]
+ * Walks the DOM tree and applies the callback function to each element recursively.
+ * @param {Node} elem - The node to start from.
+ * @param {Function} callback - The function to call for each node.
+ * @param {number} [lvl=0] - The current depth level.
  * @see __tests__/playwright/dom.spec.js
  */
 dom.walk = (elem, callback, lvl = 0) => {
@@ -691,9 +691,9 @@ dom.walk = (elem, callback, lvl = 0) => {
   }
 };
 /**
- * Walks the DOM tree in reverse order and applies the callback function to each element.
- * @param {Node} elem
- * @param {Function} callback
+ * Walks the DOM tree in reverse order and applies the callback function to each element recursively.
+ * @param {Node} elem - The node to start from.
+ * @param {Function} callback - The function to call for each node.
  * @see __tests__/playwright/dom.spec.js
  */
 dom.revWalk = (elem, callback) => {
@@ -710,9 +710,9 @@ dom.revWalk = (elem, callback) => {
 };
 /**
  * Sets a CSS property for an element.
- * @param {Element} element
- * @param {string} property
- * @param {string|number} value
+ * @param {Element} element - The element to style.
+ * @param {string} property - The CSS property.
+ * @param {string|number} value - The value to set.
  * @see __tests__/playwright/dom.spec.js
  */
 dom.setStyle = (element, property, value) => {
@@ -722,41 +722,41 @@ dom.setStyle = (element, property, value) => {
 };
 /**
  * Gets the value of a CSS property for an element.
- * @param {Element} element
- * @param {string} property
- * @returns {string}
+ * @param {Element} element - The element to read from.
+ * @param {string} property - The CSS property.
+ * @returns {string} The property value.
  * @see __tests__/playwright/dom.spec.js
  */
 dom.getStyle = (element, property) => getComputedStyle(element)[property];
 /**
  * Checks if an element has the specified class.
- * @param {Element} element
- * @param {string} className
- * @returns {boolean}
+ * @param {Element} element - The element to check.
+ * @param {string} className - The class name.
+ * @returns {boolean} True if the element has the class.
  */
 dom.hasClass = (element, className) => element.classList.contains(className);
 /**
  * Adds the specified class to an element.
- * @param {Element} element
- * @param {string} classNames
+ * @param {Element} element - The element to modify.
+ * @param {string} classNames - Space-separated class names.
  */
 dom.addClass = (element, classNames) => element.classList.add(...classNames.split(' '));
 /**
- * Prevents the default action of an event.
- * @param {Event} e
+ * Prevents the default action of an event and stops propagation.
+ * @param {Event} e - The event to handle.
  * @see __tests__/playwright/dom.spec.js
  */
 dom.preventDefault = e => { e.preventDefault(); dom.stopPropagation(e); };
 /**
  * Stops the propagation of an event.
- * @param {Event} e
+ * @param {Event} e - The event to handle.
  * @see __tests__/playwright/dom.spec.js
  */
 dom.stopPropagation = e => { e.stopPropagation(); };
 /**
  * Inherits the properties of the parent object, excluding inclusion in the prototype chain.
- * @param {Function|string} child
- * @param {Function|string} parent
+ * @param {Function|string} child - The child constructor or name.
+ * @param {Function|string} parent - The parent constructor or name.
  * @see __tests__/playwright/dom.spec.js
  */
 dom.noInclusionInherits = (child, parent) => {
@@ -779,8 +779,8 @@ dom.noInclusionInherits = (child, parent) => {
 };
 /**
  * Iterates over an array or object and applies the callback function to each item.
- * @param {Array|Object} val
- * @param {Function} callback
+ * @param {Array|Object} val - The array or object to iterate.
+ * @param {Function} callback - The function to call for each item.
  * @see __tests__/playwright/dom.spec.js
  */
 dom.each = (val, callback) => {
@@ -790,8 +790,8 @@ dom.each = (val, callback) => {
 };
 /**
  * Iterates over an array-like or object-like value and applies the callback function to each item.
- * @param {Array|NodeList|Object} value
- * @param {Function} cb
+ * @param {Array|NodeList|Object} value - The value to iterate.
+ * @param {Function} cb - The function to call for each item.
  * @see __tests__/playwright/dom.spec.js
  */
 dom.foreach = (value, cb) => {
@@ -803,17 +803,17 @@ dom.foreach = (value, cb) => {
 };
 /**
  * Checks if a value is set (not undefined or null).
- * @param {*} v
- * @returns {boolean}
+ * @param {*} v - The value to check.
+ * @returns {boolean} True if set.
  * @see __tests__/playwright/dom.spec.js
  */
 dom.isset = v => typeof v !== 'undefined' && v !== null;
 /**
  * Returns the difference between two arrays.
- * @param {Array} array1
- * @param {Array} array2
- * @param {boolean} firstOnly
- * @returns {Array}
+ * @param {Array} array1 - The first array.
+ * @param {Array} array2 - The second array.
+ * @param {boolean} firstOnly - If true, only return items in array1 not in array2.
+ * @returns {Array} The difference array.
  * @see __tests__/playwright/dom.spec.js
  */
 dom.arrayDiff = (array1, array2, firstOnly) => {
@@ -825,9 +825,9 @@ dom.arrayDiff = (array1, array2, firstOnly) => {
 };
 /**
  * Merges two arrays into the first array.
- * @param {Array} array1
- * @param {Array} array2
- * @returns {Array}
+ * @param {Array} array1 - The first array.
+ * @param {Array} array2 - The second array.
+ * @returns {Array} The merged array.
  * @see __tests__/playwright/dom.spec.js
  */
 dom.arrayMerge = (array1, array2) => {
@@ -836,9 +836,9 @@ dom.arrayMerge = (array1, array2) => {
 };
 /**
  * Strips tags from content, allowing only the specified tags (array overload).
- * @param {string} content
- * @param {string[]} allowedTags
- * @returns {string}
+ * @param {string} content - The HTML content.
+ * @param {string[]} allowedTags - Array of allowed tag names.
+ * @returns {string} The cleaned HTML string.
  * @see __tests__/playwright/dom.spec.js
  */
 dom.stripTags = (content, allowedTags) => {
@@ -970,10 +970,10 @@ dom.mergeBlockWithSibling = (range, block, next) => {
 };
 /**
  * Formats a timestamp or ISO 8601 string into a human-readable date string.
- * @param {string} format
- * @param {number} timestamp
- * @param {string} tsIso8601
- * @returns {string|undefined}
+ * @param {string} format - The date format string.
+ * @param {number} timestamp - The timestamp in ms.
+ * @param {string} tsIso8601 - ISO 8601 string (optional).
+ * @returns {string|undefined} The formatted date string.
  * @see __tests__/playwright/dom.spec.js
  */
 dom.date = (format, timestamp, tsIso8601) => {
@@ -993,8 +993,8 @@ dom.date = (format, timestamp, tsIso8601) => {
 };
 /**
  * Converts an ISO 8601 timestamp string to a Unix timestamp (ms since epoch).
- * @param {string} tsIso8601
- * @returns {number|null}
+ * @param {string} tsIso8601 - The ISO 8601 string.
+ * @returns {number|null} The timestamp or null if invalid.
  * @see __tests__/playwright/dom.spec.js
  */
 dom.tsIso8601ToTimestamp = tsIso8601 => {
