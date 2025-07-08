@@ -795,18 +795,10 @@ dom.each = (val, callback) => {
  * @see __tests__/playwright/dom.spec.js
  */
 dom.foreach = (value, cb) => {
-  if (Array.isArray(value) || value instanceof NodeList || (typeof value.length !== 'undefined' && typeof value.item !== 'undefined')) {
-    for (let i = 0; i < value.length; i++) {
-      const res = cb.call(this, i, value[i]);
-      if (res === false) break;
-    }
-  } else {
-    for (const id in value) {
-      if (Object.prototype.hasOwnProperty.call(value, id)) {
-        const res = cb.call(this, id);
-        if (res === false) break;
-      }
-    }
+  if (Array.isArray(value) || value instanceof NodeList || (typeof value.length === 'number' && typeof value !== 'string')) {
+    Array.from(value).some((el, i) => cb.call(value, i, el) === false);
+  } else if (typeof value === 'object' && value !== null) {
+    return Object.keys(value).some(key => cb.call(value, key, value[key]) === false);
   }
 };
 /**
