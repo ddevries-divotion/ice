@@ -62,68 +62,16 @@ dom.TEXT_CONTAINER_ELEMENTS = ['p', 'div', 'pre', 'li', 'td', 'th', 'blockquote'
  * @constant {string[]}
  * @description All stub elements including break element.
  */
-dom.STUB_ELEMENTS = dom.CONTENT_STUB_ELEMENTS.slice();
-dom.STUB_ELEMENTS.push(dom.BREAK_ELEMENT);
+dom.STUB_ELEMENTS = [...dom.CONTENT_STUB_ELEMENTS, dom.BREAK_ELEMENT];
 
-/**
- * Returns the character for a key event.
- * @param {KeyboardEvent} e
- * @returns {string}
- */
-dom.getKeyChar = e => String.fromCharCode(e.which);
 /**
  * Returns elements with the given class name.
  * @param {string} className
  * @param {Element} [startElement=document.body]
- * @param {string} [tagName]
  * @returns {Element[]}
  */
-dom.getClass = (className, startElement = document.body, tagName) => {
-  let selector = '.' + className.trim().split(/\s+/).join('.');
-  if (tagName) selector = tagName + selector;
-  return Array.from((startElement).querySelectorAll(selector));
-};
-/**
- * Returns the element with the given id.
- * @param {string} id
- * @param {Document|Element} [startElement=document]
- * @returns {Element|null}
- */
-dom.getId = (id, startElement = document) => (startElement).getElementById(id);
-/**
- * Returns elements with the given tag name.
- * @param {string} tagName
- * @param {Element|Document} [startElement=document]
- * @returns {Element[]}
- */
-dom.getTag = (tagName, startElement = document) => Array.from((startElement).getElementsByTagName(tagName));
-/**
- * Returns the width of an element.
- * @param {Element} element
- * @returns {number}
- */
-dom.getElementWidth = element => element ? element.offsetWidth : 0;
-/**
- * Returns the height of an element.
- * @param {Element} element
- * @returns {number}
- */
-dom.getElementHeight = element => element ? element.offsetHeight : 0;
-/**
- * Returns the dimensions of an element.
- * @param {Element} element
- * @returns {{width: number, height: number}}
- */
-dom.getElementDimensions = element => ({
-  width: dom.getElementWidth(element),
-  height: dom.getElementHeight(element)
-});
-/**
- * Trims whitespace from a string.
- * @param {string} string
- * @returns {string}
- */
-dom.trim = string => (typeof string === 'string' ? string.trim() : string);
+dom.getClass = (className, startElement = document.body) =>
+  Array.from(startElement.getElementsByClassName(className));
 /**
  * Removes all children from an element.
  * @param {Element} element
@@ -160,18 +108,6 @@ dom.insertBefore = (before, elem) => jQuery(before).before(elem);
  * @param {Element} elem
  */
 dom.insertAfter = (after, elem) => jQuery(after).after(elem);
-/**
- * Returns the inner HTML of an element.
- * @param {Element} element
- * @returns {string}
- */
-dom.getHtml = element => element ? element.innerHTML : '';
-/**
- * Sets the inner HTML of an element.
- * @param {Element} element
- * @param {string} content
- */
-dom.setHtml = (element, content) => { if (element) element.innerHTML = content; };
 /**
  * Removes whitespace and newlines between nested block elements.
  * @param {Element} element
@@ -485,12 +421,6 @@ dom.attr = (elements, key, val) => val ? jQuery(elements).attr(key, val) : jQuer
  * @param {Node|string|Function} replacement
  */
 dom.replaceWith = (node, replacement) => jQuery(node).replaceWith(replacement);
-/**
- * Removes an attribute from the given elements.
- * @param {Element|Element[]} elements
- * @param {string} name
- */
-dom.removeAttr = (elements, name) => jQuery(elements).removeAttr(name);
 /**
  * Returns the elements between two elements.
  * @param {Element} fromElem
@@ -875,63 +805,12 @@ dom.foreach = (value, cb) => {
   }
 };
 /**
- * Checks if a value is blank (null, undefined, or empty string).
- * @param {*} value
- * @returns {boolean}
- * @note No direct test coverage. Tests should be added.
- */
-dom.isBlank = value => value == null || (typeof value === 'string' && /^\s*$/.test(value));
-/**
- * Checks if a value is a function.
- * @param {*} f
- * @returns {boolean}
- * @note No direct test coverage. Tests should be added.
- */
-dom.isFn = f => typeof f === 'function';
-/**
- * Checks if a value is an object.
- * @param {*} v
- * @returns {boolean}
- * @note No direct test coverage. Tests should be added.
- */
-dom.isObj = v => v !== null && typeof v === 'object';
-/**
  * Checks if a value is set (not undefined or null).
  * @param {*} v
  * @returns {boolean}
  * @note No direct test coverage. Tests should be added.
  */
 dom.isset = v => typeof v !== 'undefined' && v !== null;
-/**
- * Checks if a value is an array.
- * @param {*} v
- * @returns {boolean}
- */
-dom.isArray = v => jQuery.isArray(v);
-/**
- * Checks if a string is numeric.
- * @param {string} str
- * @returns {boolean}
- * @note No direct test coverage. Tests should be added.
- */
-dom.isNumeric = str => typeof str === 'string' && /^\d+$/.test(str);
-/**
- * Generates a unique ID.
- * @returns {string}
- * @note No direct test coverage. Tests should be added.
- */
-dom.getUniqueId = () => {
-  const timestamp = Date.now();
-  const random = Math.floor(Math.random() * 1e6);
-  return (timestamp + '' + random).substr(5, 18).replace(/,/, '');
-};
-/**
- * Checks if a value is in an array.
- * @param {*} needle
- * @param {Array} haystack
- * @returns {boolean}
- */
-dom.inArray = (needle, haystack) => Array.isArray(haystack) && haystack.includes(needle);
 /**
  * Returns the difference between two arrays.
  * @param {Array} array1
@@ -975,7 +854,7 @@ dom.stripTags = (content, allowedTags) => {
     const re = /<\/?(\w+)((\s+\w+(\s*=\s*(?:".*?"|'.*?'|[^'">\s]+))?)+\s*|\s*)\/?/gim;
     let resCont = content;
     while ((match = re.exec(content)) != null) {
-      if (!dom.isset(allowedTags) || !dom.inArray(match[1], allowedTags)) {
+      if (!dom.isset(allowedTags) || !allowedTags.includes(match[1])) {
         resCont = resCont.replace(match[0], '');
       }
     }
@@ -1012,37 +891,6 @@ dom.browser = () => {
   return result;
 };
 /**
- * Returns the browser type.
- * @returns {string}
- */
-dom.getBrowserType = function () {
-  if (this._browserType === null) {
-    const tests = ['msie', 'firefox', 'chrome', 'safari'];
-    for (let i = 0; i < tests.length; i++) {
-      const r = new RegExp(tests[i], 'i');
-      if (r.test(navigator.userAgent)) {
-        this._browserType = tests[i];
-        return this._browserType;
-      }
-    }
-    this._browserType = 'other';
-  }
-  return this._browserType;
-};
-/**
- * Returns the webkit type ('safari' or 'chrome').
- * @returns {string|boolean}
- */
-dom.getWebkitType = () => {
-  if (dom.browser().type !== 'webkit') {
-    console.log('Not a webkit!');
-    return false;
-  }
-  const isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0;
-  if (isSafari) return 'safari';
-  return 'chrome';
-};
-/**
  * Checks if the browser is of the specified type.
  * @param {string} browser
  * @returns {boolean}
@@ -1061,23 +909,6 @@ dom.getBlockParent = (node, container) => {
       node = node.parentNode;
       if (node === container) return null;
       if (dom.isBlockElement(node)) return node;
-    }
-  }
-  return null;
-};
-/**
- * Finds a node parent that matches the selector.
- * @param {Node} node
- * @param {string} selector
- * @param {Node} container
- * @returns {Node|null}
- */
-dom.findNodeParent = (node, selector, container) => {
-  if (node) {
-    while (node.parentNode) {
-      if (node === container) return null;
-      if (dom.is(node, selector)) return node;
-      node = node.parentNode;
     }
   }
   return null;
@@ -1171,29 +1002,6 @@ dom.tsIso8601ToTimestamp = tsIso8601 => {
   const d = Date.parse(tsIso8601);
   return isNaN(d) ? null : d;
 };
-/**
- * Returns the ordinal suffix for a number (e.g., 'st', 'nd', 'rd', 'th').
- * @param {number} number
- * @returns {string}
- * @note No direct test coverage. Tests should be added.
- */
-dom.getOrdinalSuffix = number => {
-  const tmp = number % 100;
-  if (tmp >= 4 && tmp <= 20) return 'th';
-  switch (number % 10) {
-    case 1: return 'st';
-    case 2: return 'nd';
-    case 3: return 'rd';
-    default: return 'th';
-  }
-};
-/**
- * Adds a leading zero to numbers less than 10.
- * @param {number} number
- * @returns {string|number}
- * @note No direct test coverage. Tests should be added.
- */
-dom.addNumberPadding = number => number < 10 ? '0' + number : number;
 
 /**
  * Exports the dom object for CommonJS and attaches it to the global ice object in browsers.

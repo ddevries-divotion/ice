@@ -13,12 +13,6 @@ test.describe('jQuery-based dom.js functions', () => {
     expect(result).toBe(2);
   });
 
-  test('`getTag` returns elements with the given tag', async ({ page }) => {
-    await page.setContent('<span></span><span></span>');
-    const result = await page.evaluate(() => window.ice.dom.getTag('span').length);
-    expect(result).toBe(2);
-  });
-
   test('`empty` removes all children', async ({ page }) => {
     await page.setContent('<div id="test"><span></span></div>');
     await page.evaluate(() => window.ice.dom.empty(document.getElementById('test')));
@@ -77,19 +71,6 @@ test.describe('jQuery-based dom.js functions', () => {
     expect(tag).toBe('B');
   });
 
-  test('`getHtml` returns innerHTML', async ({ page }) => {
-    await page.setContent('<div id="test">foo</div>');
-    const html = await page.evaluate(() => window.ice.dom.getHtml(document.getElementById('test')));
-    expect(html).toBe('foo');
-  });
-
-  test('`setHtml` sets innerHTML', async ({ page }) => {
-    await page.setContent('<div id="test"></div>');
-    await page.evaluate(() => window.ice.dom.setHtml(document.getElementById('test'), 'bar'));
-    const html = await page.evaluate(() => document.getElementById('test').innerHTML);
-    expect(html).toBe('bar');
-  });
-
   test('`contents` returns child nodes as array', async ({ page }) => {
     await page.setContent('<div id="test"><span></span><b></b></div>');
     const result = await page.evaluate(() => window.ice.dom.contents(document.getElementById('test')).length);
@@ -106,12 +87,6 @@ test.describe('jQuery-based dom.js functions', () => {
   test('`getClass` (native) returns elements with the given class', async ({ page }) => {
     await page.setContent('<div class="foo"></div><div class="foo"></div>');
     const result = await page.evaluate(() => Array.from(document.getElementsByClassName('foo')).length);
-    expect(result).toBe(2);
-  });
-
-  test('`getTag` (native) returns elements with the given tag', async ({ page }) => {
-    await page.setContent('<span></span><span></span>');
-    const result = await page.evaluate(() => document.getElementsByTagName('span').length);
     expect(result).toBe(2);
   });
 
@@ -177,19 +152,6 @@ test.describe('jQuery-based dom.js functions', () => {
     });
     const tag = await page.evaluate(() => document.getElementById('ref').nextSibling.tagName);
     expect(tag).toBe('B');
-  });
-
-  test('`getHtml` (native) returns innerHTML', async ({ page }) => {
-    await page.setContent('<div id="test">foo</div>');
-    const html = await page.evaluate(() => document.getElementById('test').innerHTML);
-    expect(html).toBe('foo');
-  });
-
-  test('`setHtml` (native) sets innerHTML', async ({ page }) => {
-    await page.setContent('<div id="test"></div>');
-    await page.evaluate(() => { document.getElementById('test').innerHTML = 'bar'; });
-    const html = await page.evaluate(() => document.getElementById('test').innerHTML);
-    expect(html).toBe('bar');
   });
 
   test('`contents` (native) returns child nodes as array', async ({ page }) => {

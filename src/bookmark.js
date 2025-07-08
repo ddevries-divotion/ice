@@ -31,7 +31,7 @@
 
     var endBookmark  = this.env.document.createElement('span');
     endBookmark.style.display = 'none';
-    ice.dom.setHtml(endBookmark, '&nbsp;');
+    endBookmark.innerHTML = '&nbsp;';
     ice.dom.addClass(endBookmark, 'iceBookmark iceBookmark_end');
     endBookmark.setAttribute('iceBookmark', 'end');
     range.insertNode(endBookmark);
@@ -47,7 +47,7 @@
     var startBookmark = this.env.document.createElement('span');
     startBookmark.style.display = 'none';
     ice.dom.addClass(startBookmark, 'iceBookmark iceBookmark_start');
-    ice.dom.setHtml(startBookmark, '&nbsp;');
+    startBookmark.innerHTML = '&nbsp;';
     startBookmark.setAttribute('iceBookmark', 'start');
     try {
       range.insertNode(startBookmark);
