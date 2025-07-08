@@ -1135,66 +1135,24 @@ dom.date = (format, timestamp, tsIso8601) => {
     timestamp = dom.tsIso8601ToTimestamp(tsIso8601);
     if (!timestamp) return;
   }
+  if (typeof timestamp !== 'number') return;
   const date = new Date(timestamp);
-  const formats = format.split('');
-  let dateStr = '';
-  for (let i = 0; i < formats.length; i++) {
-    let r = '';
-    const f = formats[i];
-    switch (f) {
-      case 'D':
-      case 'l': {
-        const names = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-        r = names[date.getDay()];
-        if (f === 'D') r = r.substring(0, 3);
-        break;
-      }
-      case 'F':
-      case 'm': {
-        r = date.getMonth() + 1;
-        if (r < 10) r = '0' + r;
-        break;
-      }
-      case 'M': {
-        const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-        r = months[date.getMonth()];
-        if (f === 'M') r = r.substring(0, 3);
-        break;
-      }
-      case 'd':
-        r = date.getDate();
-        break;
-      case 'S':
-        r = dom.getOrdinalSuffix(date.getDate());
-        break;
-      case 'Y':
-        r = date.getFullYear();
-        break;
-      case 'y':
-        r = date.getFullYear().toString().substring(2);
-        break;
-      case 'H':
-        r = date.getHours();
-        break;
-      case 'h':
-        r = date.getHours();
-        if (r === 0) r = 12;
-        else if (r > 12) r -= 12;
-        break;
-      case 'i':
-        r = dom.addNumberPadding(date.getMinutes());
-        break;
-      case 'a':
-        r = 'am';
-        if (date.getHours() >= 12) r = 'pm';
-        break;
-      default:
-        r = f;
-        break;
-    }
-    dateStr += r;
-  }
-  return dateStr;
+  return format
+    .replace(/Y/g, date.getFullYear())
+    .replace(/m/g, String(date.getMonth() + 1).padStart(2, '0'))
+    .replace(/d/g, String(date.getDate()).padStart(2, '0'))
+    .replace(/H/g, String(date.getHours()).padStart(2, '0'))
+    .replace(/i/g, String(date.getMinutes()).padStart(2, '0'))
+    .replace(/s/g, String(date.getSeconds()).padStart(2, '0'));
+};
+/**
+ * Converts an ISO 8601 timestamp string to a Unix timestamp (ms since epoch).
+ * @param {string} tsIso8601
+ * @returns {number|null}
+ */
+dom.tsIso8601ToTimestamp = tsIso8601 => {
+  const d = Date.parse(tsIso8601);
+  return isNaN(d) ? null : d;
 };
 /**
  * Returns the ordinal suffix for a number (e.g., 'st', 'nd', 'rd', 'th').
@@ -1217,30 +1175,6 @@ dom.getOrdinalSuffix = number => {
  * @returns {string|number}
  */
 dom.addNumberPadding = number => number < 10 ? '0' + number : number;
-/**
- * Converts an ISO 8601 timestamp string to a Unix timestamp (ms since epoch).
- * @param {string} tsIso8601
- * @returns {number|null}
- */
-dom.tsIso8601ToTimestamp = tsIso8601 => {
-  const regexp = /(\d\d\d\d)(?:-?(\d\d)(?:-?(\d\d)(?:[T ](\d\d)(?::?(\d\d)(?::?(\d\d)(?:\.(\d+))?)?)?(?:Z|(?:([-+])(\d\d)(?::?(\d\d))?)?)?)?)?)?/;
-  const d = tsIso8601.match(new RegExp(regexp));
-  if (d) {
-    const date = new Date();
-    date.setDate(d[3]);
-    date.setFullYear(d[1]);
-    date.setMonth(d[2] - 1);
-    date.setHours(d[4]);
-    date.setMinutes(d[5]);
-    date.setSeconds(d[6]);
-    let offset = (d[9] * 60);
-    if (d[8] === '+') offset *= -1;
-    offset -= date.getTimezoneOffset();
-    const timestamp = (date.getTime() + (offset * 60 * 1000));
-    return timestamp;
-  }
-  return null;
-};
 
 /**
  * Exports the dom object for CommonJS and attaches it to the global ice object in browsers.
