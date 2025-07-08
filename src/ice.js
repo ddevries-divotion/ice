@@ -823,8 +823,8 @@
         };
       }
       var self = this;
-      ice.dom.foreach(ctNodes, function (i) {
-        self.addNodeToChange(changeid, ctNodes[i]);
+      (ctNodes || []).forEach(function(node) {
+        self.addNodeToChange(changeid, node);
       });
 
       return changeid;
@@ -1085,7 +1085,7 @@
           nextContainer.parentNode.insertBefore(emptySpaceNode, nextContainer.nextSibling);
           range.selectNode(emptySpaceNode);
           range.collapse(true);
-          return returnValue;
+         	return returnValue;
         }
 
         if (this._handleVoidEl(nextContainer, range)) return true;

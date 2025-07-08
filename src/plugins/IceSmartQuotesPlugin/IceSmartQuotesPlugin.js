@@ -55,7 +55,7 @@ IceSmartQuotesPlugin.prototype = {
     //   n&ce <b id="bold">test</b>
     // Would split into the following array:
     //  ['n', '&amp;', 'c', 'e', ' ', '<b id="bold">', 't', 'e', 's', 't', '</b>'];
-    data = ice.dom.getHtml(el).match(/(<("[^"]*"|'[^']*'|[^'">])*>|&.*;|.)/g);
+    data = el.innerHTML.match(/(<("[^"]*"|'[^']*'|[^'">])*>|&.*;|.)/g);
 
     // Searches through the `data` array from the given index a given number of
     // characters forward or backward and returns the found character.
@@ -174,7 +174,7 @@ IceSmartQuotesPlugin.prototype = {
       }
     });
     
-    ice.dom.setHtml(el, data.join(''));
+    el.innerHTML = data.join('');
   }
 };
 
