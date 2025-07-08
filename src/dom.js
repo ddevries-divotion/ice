@@ -216,7 +216,7 @@ dom.stripEnclosingTags = (content, allowedTags) => {
     try {
       $this = jQuery(this);
       ret = $this.contents();
-    } catch (e) { }
+    } catch { /* empty */ }
     if (ret.length === 0) {
       $this.remove();
     }
@@ -320,7 +320,7 @@ dom.isChildOf = (el, parent) => {
       if (el.parentNode === parent) return true;
       el = el.parentNode;
     }
-  } catch (e) { }
+  } catch { /* empty */ }
   return false;
 };
 /**
@@ -337,7 +337,7 @@ dom.isChildOfTagName = (el, name) => {
       }
       el = el.parentNode;
     }
-  } catch (e) { }
+  } catch { /* empty */ }
   return false;
 };
 /**
@@ -357,7 +357,7 @@ dom.isChildOfTagNames = (el, names) => {
       }
       el = el.parentNode;
     }
-  } catch (e) { }
+  } catch { /* empty */ }
   return null;
 };
 /**

@@ -1,39 +1,39 @@
-(function() {
+(function () {
 
-var exports = this;
+  var exports = this;
 
-var IcePlugin = function(ice_instance) {
-  this._ice = ice_instance;
-};
+  var IcePlugin = function (ice_instance) {
+    this._ice = ice_instance;
+  };
 
-IcePlugin.prototype = {
+  IcePlugin.prototype = {
 
-  start: function() {},
-  clicked: function(e) {
-    return true;
-  },
-  mouseDown: function(e) {
-    return true;
-  },
-  keyDown: function(e) {
-    return true;
-  },
-  keyPress: function(e) {
-    return true;
-  },
-  selectionChanged: function(range) {},
-  setEnabled: function(enabled) {},
-  setDisabled: function(enabled) {},
-  caretUpdated: function() {},
-  nodeInserted: function(node, range) {},
-  nodeCreated: function(node, options) {},
-  caretPositioned: function() {},
-  remove: function() {
-    this._ice.removeKeyPressListener(this);
-  },
-  setSettings: function(settings) {}
-};
+    start: function () { },
+    clicked: function () {
+      return true;
+    },
+    mouseDown: function () {
+      return true;
+    },
+    keyDown: function () {
+      return true;
+    },
+    keyPress: function () {
+      return true;
+    },
+    selectionChanged: function (_range) { },
+    setEnabled: function (_enabled) { },
+    setDisabled: function (_enabled) { },
+    caretUpdated: function () { },
+    nodeInserted: function (_node, _range) { },
+    nodeCreated: function (_node, _options) { },
+    caretPositioned: function () { },
+    remove: function () {
+      this._ice.removeKeyPressListener(this);
+    },
+    setSettings: function (_settings) { }
+  };
 
-exports.IcePlugin = IcePlugin;
+  exports.IcePlugin = IcePlugin;
 
 }).call(this.ice);

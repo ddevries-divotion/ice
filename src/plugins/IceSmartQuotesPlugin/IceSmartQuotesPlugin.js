@@ -31,7 +31,7 @@ IceSmartQuotesPlugin.prototype = {
     // If there are less than 2 characters, we don't have enough to go on.
     if (ice.dom.getNodeTextContent(el) < 2) return;
 
-    var previous, current, next, data, html = '', getNextChar,
+    var previous, current, next, data = '', getNextChar,
       regularSingle = "'",
       regularDouble = '"',
       smartSingleLeft = String.fromCharCode(8216),  // aka - open curly single quote
@@ -44,7 +44,6 @@ IceSmartQuotesPlugin.prototype = {
       isStartChar = function(c) { return isSpace(c) || c === '('; },
       isEndChar = function(c) { return isSpace(c) || c == null || c === ';' || c === ')' || c == '.' || c === '!' || c === ',' || c === '?' || c === ':'; },
       isNonSpace = function(c) { return !isSpace(c); },
-      isDouble = function(c) { return c === regularDouble || c === smartDoubleLeft || c === smartDoubleRight; },
       isSingle = function(c) { return c === regularSingle || c === smartSingleLeft || c === smartSingleRight; };
 
     // Split the html into array allocations with the following criteria:
@@ -135,6 +134,7 @@ IceSmartQuotesPlugin.prototype = {
           case smartSingleLeft:
           case smartSingleRight:
             current = regularSingle;
+            break;
           case regularSingle:
             // YEAR_ABBREVIATION - look 2 ahead to see if there are two digits in a row - not fool proof
             if ((previous == null || isSpace(previous)) && isDigit(next) && isDigit(getNextChar(data, pos, 2)) && isEndChar(getNextChar(data, pos, 3)))
@@ -155,6 +155,7 @@ IceSmartQuotesPlugin.prototype = {
           case smartDoubleLeft:
           case smartDoubleRight:
             current = regularDouble;
+            break;
           case regularDouble:
             // NESTED_END
             if (isEndChar(next) && isSpace(previous) && isSingle(getNextChar(data, pos, -2)))

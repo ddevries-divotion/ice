@@ -50,7 +50,7 @@
       this._selection.refresh();
       try {
         return this._selection.getRangeAt(pos);
-      } catch (e) {
+      } catch {
         this._selection = null;
         return this._getSelection().getRangeAt(0);
       }

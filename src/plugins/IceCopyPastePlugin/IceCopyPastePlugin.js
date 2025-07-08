@@ -58,11 +58,11 @@
       return true;
     },
 
-    handleCopy: function (e) { },
+    handleCopy: function () { },
 
     // Inserts a temporary placeholder for the current range and removes
     // the contents of the ice element body and calls a paste handler.
-    handlePaste: function (e) {
+    handlePaste: function () {
 
       var range = this._ice.getCurrentRange();
 
@@ -362,9 +362,9 @@
         // Remove any foreign attributes that do not match the map.
         if (el.hasAttributes()) {
           var attributes = el.attributes;
-          for (var i = attributes.length - 1; i >= 0; i--) {
-            if (!attrMatches.includes(attributes[i].name)) {
-              el.removeAttribute(attributes[i].name);
+          for (var x = attributes.length - 1; x >= 0; x--) {
+            if (!attrMatches.includes(attributes[x].name)) {
+              el.removeAttribute(attributes[x].name);
             }
           }
         }

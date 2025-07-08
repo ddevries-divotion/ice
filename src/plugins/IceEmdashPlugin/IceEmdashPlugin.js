@@ -25,7 +25,7 @@ IceEmdashPlugin.prototype = {
 		return true;
 	},
 	
-	convertEmdash: function(e) {
+	convertEmdash: function() {
 		var range = this._ice.getCurrentRange();
 		if(range.collapsed) {
 			try {
@@ -54,7 +54,7 @@ IceEmdashPlugin.prototype = {
 						return false;
 					}
 				}
-			} catch(e) {}
+			} catch { /* empty */ }
 			range.collapse();
 		}
 		return true;

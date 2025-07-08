@@ -5,7 +5,7 @@
  */
 
 (() => {
-    tinymce.PluginManager.add('icesearchreplace', (editor, pluginUrl) => {
+    tinymce.PluginManager.add('icesearchreplace', (editor) => {
         // Ensure the searchreplace plugin is loaded
         if (!editor.plugins.searchreplace) {
             console.error('ICE SearchReplace: searchreplace plugin is required.');

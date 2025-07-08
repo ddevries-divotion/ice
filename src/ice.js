@@ -196,12 +196,12 @@
       }
 
     },
- 
+
     /*
      * Updates the list of changes to include all track tags found inside the element.
      */
     findTrackTags: function () {
-      
+
       // Grab class for each changeType
       var self = this, changeTypeClasses = [];
       for (var changeType in this.changeTypes) {
@@ -212,10 +212,10 @@
         var styleIndex = 0;
         var ctnType = '';
         var classList = el.className.split(' ');
-        for (var i = 0; i < classList.length; i++) {
-          var styleReg = new RegExp(self.stylePrefix + '-(\\d+)').exec(classList[i]);
+        for (var x = 0; x < classList.length; x++) {
+          var styleReg = new RegExp(self.stylePrefix + '-(\\d+)').exec(classList[x]);
           if (styleReg) styleIndex = styleReg[1];
-          var ctnReg = new RegExp('(' + changeTypeClasses.join('|') + ')').exec(classList[i]);
+          var ctnReg = new RegExp('(' + changeTypeClasses.join('|') + ')').exec(classList[x]);
           if (ctnReg) ctnType = self._getChangeTypeFromAlias(ctnReg[1]);
         }
         var userid = ice.dom.attr(el, self.userIdAttribute);
@@ -270,22 +270,22 @@
       } else if (e.type == 'mousedown') {
         return this.mouseDown(e);
       } else if (e.type == 'keypress') {
-        var needsToBubble = this.keyPress(e);
+        const needsToBubble = this.keyPress(e);
         if (!needsToBubble) e.preventDefault();
         return needsToBubble;
       } else if (e.type == 'keydown') {
-        var needsToBubble = this.keyDown(e);
+        const needsToBubble = this.keyDown(e);
         if (!needsToBubble) e.preventDefault();
         return needsToBubble;
       } else if (e.type == 'keyup') {
         this.pluginsManager.fireCaretUpdated();
       }
     },
-  visible: function(el) {
-    if(el.nodeType === ice.dom.TEXT_NODE) el = el.parentNode;
-    var rect = el.getBoundingClientRect();
-    return ( rect.top > 0 && rect.left > 0);
-  },
+    visible: function (el) {
+      if (el.nodeType === ice.dom.TEXT_NODE) el = el.parentNode;
+      var rect = el.getBoundingClientRect();
+      return (rect.top > 0 && rect.left > 0);
+    },
 
     /**
      * Returns a tracking tag for the given `changeType`, with the optional `childNode` appended.
@@ -396,7 +396,7 @@
      */
     deleteContents: function (right, range) {
       var prevent = true;
-    var browser = ice.dom.browser();
+      var browser = ice.dom.browser();
 
       if (range) {
         this.selection.addRange(range);
@@ -406,106 +406,106 @@
 
       var changeid = this.startBatchChange(this.changeTypes['deleteType'].alias);
       if (range.collapsed === false) {
-    if(this._currentUserIceNode(range.startContainer.parentNode)){
-      this._deleteSelection(range);
-    } else {
-      this._deleteSelection(range);
-      if(browser["type"] === "mozilla"){
-        if(range.startContainer.parentNode.previousSibling){
-          range.setEnd(range.startContainer.parentNode.previousSibling, 0);
-          range.moveEnd(ice.dom.CHARACTER_UNIT, ice.dom.getNodeCharacterLength(range.endContainer));
+        if (this._currentUserIceNode(range.startContainer.parentNode)) {
+          this._deleteSelection(range);
         } else {
-          range.setEndAfter(range.startContainer.parentNode);
+          this._deleteSelection(range);
+          if (browser["type"] === "mozilla") {
+            if (range.startContainer.parentNode.previousSibling) {
+              range.setEnd(range.startContainer.parentNode.previousSibling, 0);
+              range.moveEnd(ice.dom.CHARACTER_UNIT, ice.dom.getNodeCharacterLength(range.endContainer));
+            } else {
+              range.setEndAfter(range.startContainer.parentNode);
+            }
+            range.collapse(false);
+          } else {
+            if (!this.visible(range.endContainer)) {
+              range.setEnd(range.endContainer, range.endOffset - 1);
+              range.collapse(false);
+            }
+          }
         }
-        range.collapse(false);
-      } else {
-        if(!this.visible(range.endContainer)){
-          range.setEnd(range.endContainer, range.endOffset - 1);
-          range.collapse(false);
-        }
-      }
-    }
       } else {
         if (right) {
-      // RIGHT DELETE
-      if(browser["type"] === "mozilla"){
-        prevent = this._deleteRight(range);
-        // Handling track change show/hide
-        if(!this.visible(range.endContainer)){
-          if(range.endContainer.parentNode.nextSibling){
-//            range.setEnd(range.endContainer.parentNode.nextSibling, 0);
-            range.setEndBefore(range.endContainer.parentNode.nextSibling);
-          } else {
-            range.setEndAfter(range.endContainer);
-          }
-          range.collapse(false);
-        }
-      }
-      else {
-        // Calibrate Cursor before deleting
-        if(range.endOffset === ice.dom.getNodeCharacterLength(range.endContainer)){
-          var next = range.startContainer.nextSibling;
-          if (ice.dom.is(next,  '.' + this._getIceNodeClass('deleteType'))) {
-            while(next){
-              if (ice.dom.is(next,  '.' + this._getIceNodeClass('deleteType'))) {
-                next = next.nextSibling;
-                continue;
+          // RIGHT DELETE
+          if (browser["type"] === "mozilla") {
+            prevent = this._deleteRight(range);
+            // Handling track change show/hide
+            if (!this.visible(range.endContainer)) {
+              if (range.endContainer.parentNode.nextSibling) {
+                //            range.setEnd(range.endContainer.parentNode.nextSibling, 0);
+                range.setEndBefore(range.endContainer.parentNode.nextSibling);
+              } else {
+                range.setEndAfter(range.endContainer);
               }
-              range.setStart(next, 0);
-              range.collapse(true);
-              break;
+              range.collapse(false);
             }
           }
-        }
-
-        // Delete
-        prevent = this._deleteRight(range);
-
-        // Calibrate Cursor after deleting
-        if(!this.visible(range.endContainer)){
-          if (ice.dom.is(range.endContainer.parentNode,  '.' + this._getIceNodeClass('insertType') + ', .' + this._getIceNodeClass('deleteType'))) {
-//            range.setStart(range.endContainer.parentNode.nextSibling, 0);
-            range.setStartAfter(range.endContainer.parentNode);
-            range.collapse(true);
-          }
-        }
-      }
-    }
-        else {
-      // LEFT DELETE
-      if(browser["type"] === "mozilla"){
-        prevent = this._deleteLeft(range);
-        // Handling track change show/hide
-        if(!this.visible(range.startContainer)){
-          if(range.startContainer.parentNode.previousSibling){
-            range.setEnd(range.startContainer.parentNode.previousSibling, 0);
-          } else {
-            range.setEnd(range.startContainer.parentNode, 0);
-          }
-          range.moveEnd(ice.dom.CHARACTER_UNIT, ice.dom.getNodeCharacterLength(range.endContainer));
-          range.collapse(false);
-        }
-      }
-      else {
-        if(!this.visible(range.startContainer)){
-          if(range.endOffset === ice.dom.getNodeCharacterLength(range.endContainer)){
-            var prev = range.startContainer.previousSibling;
-            if (ice.dom.is(prev,  '.' + this._getIceNodeClass('deleteType'))) {
-              while(prev){
-                if (ice.dom.is(prev,  '.' + this._getIceNodeClass('deleteType'))) {
-                  prev = prev.prevSibling;
-                  continue;
+          else {
+            // Calibrate Cursor before deleting
+            if (range.endOffset === ice.dom.getNodeCharacterLength(range.endContainer)) {
+              var next = range.startContainer.nextSibling;
+              if (ice.dom.is(next, '.' + this._getIceNodeClass('deleteType'))) {
+                while (next) {
+                  if (ice.dom.is(next, '.' + this._getIceNodeClass('deleteType'))) {
+                    next = next.nextSibling;
+                    continue;
+                  }
+                  range.setStart(next, 0);
+                  range.collapse(true);
+                  break;
                 }
-                range.setEndBefore(prev.nextSibling, 0);
-                range.collapse(false);
-                break;
+              }
+            }
+
+            // Delete
+            prevent = this._deleteRight(range);
+
+            // Calibrate Cursor after deleting
+            if (!this.visible(range.endContainer)) {
+              if (ice.dom.is(range.endContainer.parentNode, '.' + this._getIceNodeClass('insertType') + ', .' + this._getIceNodeClass('deleteType'))) {
+                //            range.setStart(range.endContainer.parentNode.nextSibling, 0);
+                range.setStartAfter(range.endContainer.parentNode);
+                range.collapse(true);
               }
             }
           }
         }
-        prevent = this._deleteLeft(range);
-      }
-    }
+        else {
+          // LEFT DELETE
+          if (browser["type"] === "mozilla") {
+            prevent = this._deleteLeft(range);
+            // Handling track change show/hide
+            if (!this.visible(range.startContainer)) {
+              if (range.startContainer.parentNode.previousSibling) {
+                range.setEnd(range.startContainer.parentNode.previousSibling, 0);
+              } else {
+                range.setEnd(range.startContainer.parentNode, 0);
+              }
+              range.moveEnd(ice.dom.CHARACTER_UNIT, ice.dom.getNodeCharacterLength(range.endContainer));
+              range.collapse(false);
+            }
+          }
+          else {
+            if (!this.visible(range.startContainer)) {
+              if (range.endOffset === ice.dom.getNodeCharacterLength(range.endContainer)) {
+                var prev = range.startContainer.previousSibling;
+                if (ice.dom.is(prev, '.' + this._getIceNodeClass('deleteType'))) {
+                  while (prev) {
+                    if (ice.dom.is(prev, '.' + this._getIceNodeClass('deleteType'))) {
+                      prev = prev.prevSibling;
+                      continue;
+                    }
+                    range.setEndBefore(prev.nextSibling, 0);
+                    range.collapse(false);
+                    break;
+                  }
+                }
+              }
+            }
+            prevent = this._deleteLeft(range);
+          }
+        }
       }
 
       this.selection.addRange(range);
@@ -529,7 +529,7 @@
       var keys = Object.keys(this._changes);
 
       for (var key in keys)
-      result.push(this._changes[keys[key]].userid);
+        result.push(this._changes[keys[key]].userid);
 
       return result.sort().filter(function (el, i, a) {
         if (i == a.indexOf(el)) return 1;
@@ -571,7 +571,7 @@
       }
       body = prepare ? prepare.call(this, body) : body;
       var changes = ice.dom.find(body, classList);
-      ice.dom.each(changes, function (el, i) {
+      ice.dom.each(changes, function () {
         ice.dom.replaceWith(this, ice.dom.contents(this));
       });
       var deletes = ice.dom.find(body, '.' + this._getIceNodeClass('deleteType'));
@@ -707,7 +707,7 @@
         try {
           range.moveEnd(ice.dom.CHARACTER_UNIT, 1);
           range.moveEnd(ice.dom.CHARACTER_UNIT, -1);
-        } catch (e) {
+        } catch {
           // Moving outside of the element and nothing is left on the page
           onEdge = true;
         }
@@ -719,7 +719,7 @@
         voidEl = this._getVoidElement(range.endContainer);
         if (voidEl) {
           range.setEnd(range.endContainer, 0);
-      range.moveEnd(ice.dom.CHARACTER_UNIT, ice.dom.getNodeCharacterLength(range.endContainer));
+          range.moveEnd(ice.dom.CHARACTER_UNIT, ice.dom.getNodeCharacterLength(range.endContainer));
           range.collapse();
         } else {
           range.setStart(range.endContainer, 0);
@@ -773,7 +773,7 @@
     _getChangeTypeFromAlias: function (alias) {
       var type, ctnType = null;
       for (type in this.changeTypes) {
-        if (this.changeTypes.hasOwnProperty(type)) {
+        if (Object.prototype.hasOwnProperty.call(this.changeTypes, type)) {
           if (this.changeTypes[type].alias == alias) {
             ctnType = type;
           }
@@ -823,7 +823,7 @@
         };
       }
       var self = this;
-      (ctNodes || []).forEach(function(node) {
+      (ctNodes || []).forEach(function (node) {
         self.addNodeToChange(changeid, node);
       });
 
@@ -886,12 +886,10 @@
     },
 
     _insertNode: function (node, range, insertingDummy) {
-      var origNode = node;
       if (!ice.dom.isBlockElement(range.startContainer) && !ice.dom.canContainTextElement(ice.dom.getBlockParent(range.startContainer, this.element)) && range.startContainer.previousSibling) {
         range.setStart(range.startContainer.previousSibling, 0);
 
       }
-      var startContainer = range.startContainer;
       var parentBlock = ice.dom.isBlockElement(range.startContainer) && range.startContainer || ice.dom.getBlockParent(range.startContainer, this.element) || null;
       if (parentBlock === this.element) {
         var firstPar = document.createElement(this.blockEl);
@@ -928,7 +926,7 @@
       this.selection.addRange(range);
     },
 
-    _handleVoidEl: function(el, range) {
+    _handleVoidEl: function (el, range) {
       // If `el` is or is in a void element, but not a delete
       // then collapse the `range` and return `true`.
       var voidEl = this._getVoidElement(el);
@@ -946,7 +944,7 @@
         elements = ice.dom.getElementsBetween(bookmark.start, bookmark.end),
         b1 = ice.dom.parents(range.startContainer, this.blockEls.join(', '))[0],
         b2 = ice.dom.parents(range.endContainer, this.blockEls.join(', '))[0],
-        betweenBlocks = new Array(); 
+        betweenBlocks = new Array();
 
       for (var i = 0; i < elements.length; i++) {
         var elem = elements[i];
@@ -1002,8 +1000,8 @@
       }
 
       bookmark.selectBookmark();
-//      range.collapse(false);
-  range.collapse(true);
+      //      range.collapse(false);
+      range.collapse(true);
     },
 
     // Delete
@@ -1085,7 +1083,7 @@
           nextContainer.parentNode.insertBefore(emptySpaceNode, nextContainer.nextSibling);
           range.selectNode(emptySpaceNode);
           range.collapse(true);
-         	return returnValue;
+          return returnValue;
         }
 
         if (this._handleVoidEl(nextContainer, range)) return true;
@@ -1139,7 +1137,7 @@
 
       var entireTextNode = range.endContainer;
       var deletedCharacter = entireTextNode.splitText(range.endOffset);
-      var remainingTextNode = deletedCharacter.splitText(1);
+      deletedCharacter.splitText(1);
 
       return this._addNodeTracking(deletedCharacter, range, false);
 
@@ -1187,14 +1185,7 @@
         if (initialOffset === 0) {
           prevContainer = ice.dom.getPrevContentNode(initialContainer, this.element);
         } else {
-        var newOffset = initialOffset;
-      var style;
-//      while(newOffset > 0){
-//        prevContainer = commonAncestor.childNodes[--newOffset];
-//        if(!ice.dom.hasClass(prevContainer, "del")) break;
-//        prevContainer = null;
-//      }
-      prevContainer = commonAncestor.childNodes[initialOffset-1];
+          prevContainer = commonAncestor.childNodes[initialOffset - 1];
         }
 
         // If the previous container is outside of ICE then do nothing.
@@ -1202,7 +1193,7 @@
           return false;
         }
         // Firefox finds an ice node wrapped around an image instead of the image itself sometimes, so we make sure to look at the image instead.
-        if (ice.dom.is(prevContainer,  '.' + this._getIceNodeClass('insertType') + ', .' + this._getIceNodeClass('deleteType')) && prevContainer.childNodes.length > 0 && prevContainer.lastChild) {
+        if (ice.dom.is(prevContainer, '.' + this._getIceNodeClass('insertType') + ', .' + this._getIceNodeClass('deleteType')) && prevContainer.childNodes.length > 0 && prevContainer.lastChild) {
           prevContainer = prevContainer.lastChild;
         }
 
@@ -1225,7 +1216,7 @@
 
         // If the caret was placed directly after a stub element, enclose the element with a delete ice node.
         if (ice.dom.isStubElement(prevContainer) && ice.dom.isChildOf(prevContainer, parentBlock) || !prevContainer.isContentEditable) {
-           return this._addNodeTracking(prevContainer, range, true);
+          return this._addNodeTracking(prevContainer, range, true);
         }
 
         // If the previous container is a stub element between blocks
@@ -1328,7 +1319,7 @@
 
       var entireTextNode = range.startContainer;
       var deletedCharacter = entireTextNode.splitText(range.startOffset - 1);
-      var remainingTextNode = deletedCharacter.splitText(1);
+      deletedCharacter.splitText(1);
 
       return this._addNodeTracking(deletedCharacter, range, true);
 
@@ -1461,7 +1452,6 @@
       var key = e.keyCode ? e.keyCode : e.which;
       var browser = ice.dom.browser();
       var preventDefault = true;
-      var shiftKey = e.shiftKey;
       var self = this;
       var range = self.getCurrentRange();
       switch (key) {
@@ -1485,7 +1475,7 @@
           if (browser["type"] === "mozilla") {
             if (!this.visible(range.startContainer)) {
               // if Previous sibling exists in the paragraph, jump to the previous sibling
-              if(range.startContainer.parentNode.previousSibling) {
+              if (range.startContainer.parentNode.previousSibling) {
                 // When moving left and moving into a hidden element, skip it and go to the previousSibling
                 range.setEnd(range.startContainer.parentNode.previousSibling, 0);
                 range.moveEnd(ice.dom.CHARACTER_UNIT, ice.dom.getNodeCharacterLength(range.endContainer));
@@ -1504,9 +1494,9 @@
           this.pluginsManager.fireCaretPositioned();
           if (browser["type"] === "mozilla") {
             if (!this.visible(range.startContainer)) {
-              if(range.startContainer.parentNode.nextSibling) {
+              if (range.startContainer.parentNode.nextSibling) {
                 // When moving right and moving into a hidden element, skip it and go to the nextSibling
-                range.setStart(range.startContainer.parentNode.nextSibling,0);
+                range.setStart(range.startContainer.parentNode.nextSibling, 0);
                 range.collapse(true);
               }
             }
@@ -1518,9 +1508,9 @@
 
         case 32:
           preventDefault = true;
-          var range = this.getCurrentRange();
-          this._moveRangeToValidTrackingPos(range, range.startContainer);
-          this.insert('\u00A0' , range);
+          var spaceRange = this.getCurrentRange();
+          this._moveRangeToValidTrackingPos(spaceRange, spaceRange.startContainer);
+          this.insert('\u00A0', spaceRange);
           break;
         default:
           // Ignore key.
@@ -1581,7 +1571,7 @@
         this._preventKeyPress = false;
         return;
       }
-      
+
       if (!this.pluginsManager.fireKeyPress(e)) return false;
 
       var c = null;
@@ -1679,12 +1669,12 @@
       return true;
     },
 
-    mouseUp: function (e, target) {
+    mouseUp: function (e) {
       if (!this.pluginsManager.fireClicked(e)) return false;
       this.pluginsManager.fireSelectionChanged(this.getCurrentRange());
     },
 
-    mouseDown: function (e, target) {
+    mouseDown: function (e) {
       if (!this.pluginsManager.fireMouseDown(e)) return false;
       this.pluginsManager.fireCaretUpdated();
     }
