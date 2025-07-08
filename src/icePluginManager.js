@@ -1,21 +1,17 @@
 (function () {
-
   var exports = this;
 
   var IcePluginManager = function (ice_instance) {
-
-    this.plugins = {},
-      this.pluginConstructors = {},
-      this.keyPressListeners = {},
-      this.activePlugin = null,
-      this.pluginSets = {},
-      this.activePluginSet = null,
-
-      this._ice = ice_instance;
+    ((this.plugins = {}),
+      (this.pluginConstructors = {}),
+      (this.keyPressListeners = {}),
+      (this.activePlugin = null),
+      (this.pluginSets = {}),
+      (this.activePluginSet = null),
+      (this._ice = ice_instance));
   };
 
   IcePluginManager.prototype = {
-
     getPluginNames: function () {
       var plugins = [];
       for (var name in this.plugins) {
@@ -29,8 +25,10 @@
     },
 
     addPlugin: function (name, pluginConstructor) {
-      if (typeof pluginConstructor !== 'function') {
-        throw Error('IcePluginException: plugin must be a constructor function');
+      if (typeof pluginConstructor !== "function") {
+        throw Error(
+          "IcePluginException: plugin must be a constructor function",
+        );
       }
 
       if (ice.dom.isset(this.pluginConstructors[name]) === false) {
@@ -43,7 +41,7 @@
         callback.call(this);
       } else {
         var plugin = plugins.shift();
-        if (typeof plugin === 'object') {
+        if (typeof plugin === "object") {
           plugin = plugin.name;
         }
 
@@ -51,7 +49,7 @@
           this.addPlugin(plugin, ice._plugin[plugin]);
           this.loadPlugins(plugins, callback);
         } else {
-          throw new Error('plugin was not included in the page: ' + plugin);
+          throw new Error("plugin was not included in the page: " + plugin);
         }
       }
     },
@@ -61,8 +59,8 @@
       var pSetLen = this.pluginSets[name].length;
       for (var i = 0; i < pSetLen; i++) {
         var plugin = this.pluginSets[name][i];
-        var pluginName = '';
-        if (typeof plugin === 'object') {
+        var pluginName = "";
+        if (typeof plugin === "object") {
           pluginName = plugin.name;
         } else {
           pluginName = plugin;
@@ -92,8 +90,8 @@
 
     _getPluginName: function (pluginConstructor) {
       var fn = pluginConstructor.toString();
-      var start = 'function '.length;
-      var name = fn.substr(start, (fn.indexOf('(') - start));
+      var start = "function ".length;
+      var name = fn.substr(start, fn.indexOf("(") - start);
       return name;
     },
 
@@ -112,7 +110,6 @@
      */
     getPlugin: function (name) {
       return this.plugins[name];
-
     },
 
     /**
@@ -148,50 +145,50 @@
     },
 
     fireKeyPressed: function (e) {
-      if (this._fireKeyPressFns(e, 'all_keys') === false) {
+      if (this._fireKeyPressFns(e, "all_keys") === false) {
         return false;
       }
 
       var eKeys = [];
       if (e.ctrlKey === true || e.metaKey === true) {
-        eKeys.push('ctrl');
+        eKeys.push("ctrl");
       }
 
       if (e.shiftKey === true) {
-        eKeys.push('shift');
+        eKeys.push("shift");
       }
 
       if (e.altKey === true) {
-        eKeys.push('alt');
+        eKeys.push("alt");
       }
 
       switch (e.keyCode) {
         case 13:
-          eKeys.push('enter');
+          eKeys.push("enter");
           break;
 
         case ice.dom.DOM_VK_LEFT:
-          eKeys.push('left');
+          eKeys.push("left");
           break;
 
         case ice.dom.DOM_VK_RIGHT:
-          eKeys.push('right');
+          eKeys.push("right");
           break;
 
         case ice.dom.DOM_VK_UP:
-          eKeys.push('up');
+          eKeys.push("up");
           break;
 
         case ice.dom.DOM_VK_DOWN:
-          eKeys.push('down');
+          eKeys.push("down");
           break;
 
         case 9:
-          eKeys.push('tab');
+          eKeys.push("tab");
           break;
 
         case ice.dom.DOM_VK_DELETE:
-          eKeys.push('delete');
+          eKeys.push("delete");
           break;
 
         default:
@@ -207,12 +204,11 @@
             eKeys.push(String.fromCharCode(code).toLowerCase());
           }
           break;
-      }//end switch
+      } //end switch
 
-      var eKeysStr = eKeys.sort().join('+');
+      var eKeysStr = eKeys.sort().join("+");
 
       return this._fireKeyPressFns(e, eKeysStr);
-
     },
 
     _fireKeyPressFns: function (e, eKeysStr) {
@@ -225,12 +221,15 @@
           var data = listener.data;
 
           if (eventFn) {
-            if (typeof eventFn === 'function') {
+            if (typeof eventFn === "function") {
               if (eventFn.call(plugin, e, data) === true) {
                 ice.dom.preventDefault(e);
                 return false;
               }
-            } else if (plugin[eventFn] && plugin[eventFn].call(plugin, e, data) === true) {
+            } else if (
+              plugin[eventFn] &&
+              plugin[eventFn].call(plugin, e, data) === true
+            ) {
               ice.dom.preventDefault(e);
               return false;
             }
@@ -265,7 +264,7 @@
 
     fireCaretPositioned: function () {
       for (var i in this.plugins) {
-        this.plugins[i].caretPositioned()
+        this.plugins[i].caretPositioned();
       }
     },
 
@@ -327,10 +326,9 @@
           this.plugins[i].caretUpdated();
         }
       }
-    }
+    },
   };
 
   exports._plugin = {};
   exports.IcePluginManager = IcePluginManager;
-
 }).call(this.ice);

@@ -4,11 +4,10 @@
 // Licensed under the GNU General Public License v2.0 or later
 
 (function () {
-
-  var exports = this, Bookmark;
+  var exports = this,
+    Bookmark;
 
   Bookmark = function (env, range, keepOldBookmarks) {
-
     this.env = env;
     this.element = env.element;
     this.selection = this.env.selection;
@@ -27,11 +26,11 @@
     // Collapse to the end of range.
     range.collapse(false);
 
-    var endBookmark = this.env.document.createElement('span');
-    endBookmark.style.display = 'none';
-    endBookmark.innerHTML = '&nbsp;';
-    ice.dom.addClass(endBookmark, 'iceBookmark iceBookmark_end');
-    endBookmark.setAttribute('iceBookmark', 'end');
+    var endBookmark = this.env.document.createElement("span");
+    endBookmark.style.display = "none";
+    endBookmark.innerHTML = "&nbsp;";
+    ice.dom.addClass(endBookmark, "iceBookmark iceBookmark_end");
+    endBookmark.setAttribute("iceBookmark", "end");
     range.insertNode(endBookmark);
     if (!ice.dom.isChildOf(endBookmark, this.element)) {
       this.element.appendChild(endBookmark);
@@ -42,11 +41,11 @@
     range.collapse(true);
 
     // Create the start bookmark.
-    var startBookmark = this.env.document.createElement('span');
-    startBookmark.style.display = 'none';
-    ice.dom.addClass(startBookmark, 'iceBookmark iceBookmark_start');
-    startBookmark.innerHTML = '&nbsp;';
-    startBookmark.setAttribute('iceBookmark', 'start');
+    var startBookmark = this.env.document.createElement("span");
+    startBookmark.style.display = "none";
+    ice.dom.addClass(startBookmark, "iceBookmark iceBookmark_start");
+    startBookmark.innerHTML = "&nbsp;";
+    startBookmark.setAttribute("iceBookmark", "start");
     try {
       range.insertNode(startBookmark);
 
@@ -74,32 +73,37 @@
     }
 
     if (!endBookmark.previousSibling) {
-      tmp = this.env.document.createTextNode('');
+      tmp = this.env.document.createTextNode("");
       ice.dom.insertBefore(endBookmark, tmp);
     }
 
     // The original range object must be changed.
     if (!startBookmark.nextSibling) {
-      tmp = this.env.document.createTextNode('');
+      tmp = this.env.document.createTextNode("");
       ice.dom.insertAfter(startBookmark, tmp);
     }
 
     currRange.setStart(startBookmark.nextSibling, 0);
-    currRange.setEnd(endBookmark.previousSibling, (endBookmark.previousSibling.length || 0));
+    currRange.setEnd(
+      endBookmark.previousSibling,
+      endBookmark.previousSibling.length || 0,
+    );
 
     this.start = startBookmark;
     this.end = endBookmark;
   };
 
   Bookmark.prototype = {
-
     selectBookmark: function () {
       var range = this.selection.getRangeAt(0);
       var startPos = null;
       var endPos = null;
       var startOffset = 0;
       var endOffset = null;
-      if (this.start.nextSibling === this.end || ice.dom.getElementsBetween(this.start, this.end).length === 0) {
+      if (
+        this.start.nextSibling === this.end ||
+        ice.dom.getElementsBetween(this.start, this.end).length === 0
+      ) {
         // Bookmark is collapsed.
         if (this.end.nextSibling) {
           startPos = ice.dom.getFirstChild(this.end.nextSibling);
@@ -110,7 +114,7 @@
           }
         } else {
           // Create a text node in parent.
-          this.end.parentNode.appendChild(this.env.document.createTextNode(''));
+          this.end.parentNode.appendChild(this.env.document.createTextNode(""));
           startPos = ice.dom.getFirstChild(this.end.nextSibling);
         }
       } else {
@@ -118,7 +122,7 @@
           startPos = ice.dom.getFirstChild(this.start.nextSibling);
         } else {
           if (!this.start.previousSibling) {
-            var tmp = this.env.document.createTextNode('');
+            var tmp = this.env.document.createTextNode("");
             ice.dom.insertBefore(this.start, tmp);
           }
 
@@ -142,7 +146,7 @@
       } else {
         range.setStart(startPos, startOffset);
         if (endOffset === null) {
-          endOffset = (endPos.length || 0);
+          endOffset = endPos.length || 0;
         }
         range.setEnd(endPos, endOffset);
       }
@@ -155,15 +159,14 @@
     },
 
     getBookmark: function (parent, type) {
-      var elem = ice.dom.getClass('iceBookmark_' + type, parent)[0];
+      var elem = ice.dom.getClass("iceBookmark_" + type, parent)[0];
       return elem;
     },
 
     removeBookmarks: function (elem) {
-      ice.dom.remove(ice.dom.getClass('iceBookmark', elem, 'span'));
-    }
+      ice.dom.remove(ice.dom.getClass("iceBookmark", elem, "span"));
+    },
   };
 
   exports.Bookmark = Bookmark;
-
 }).call(this.ice);

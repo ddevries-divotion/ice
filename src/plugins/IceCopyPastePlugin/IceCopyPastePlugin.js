@@ -1,12 +1,12 @@
 (function () {
-
-  var exports = this, IceCopyPastePlugin;
+  var exports = this,
+    IceCopyPastePlugin;
 
   IceCopyPastePlugin = function (ice_instance) {
     this._ice = ice_instance;
     this._tmpNode = null;
-    this._tmpNodeTagName = 'icepaste';
-    this._pasteId = 'icepastediv';
+    this._tmpNodeTagName = "icepaste";
+    this._pasteId = "icepastediv";
     var self = this;
 
     // API
@@ -15,7 +15,7 @@
     // 'formattedClean' - paste will be MS Word cleaned, insert and
     //    delete tags will be removed keeping insert content in place,
     //    and tags not found in `preserve` will be stripped.
-    this.pasteType = 'formattedClean';
+    this.pasteType = "formattedClean";
 
     // Subset of tags that will not be stripped when pasteType
     // is set to 'formattedClean'. Parameter is of type string with
@@ -26,44 +26,45 @@
     // would have all attributes removed, `a` tags will have all but
     // `href` attributes removed, `i` tags will have all but `style`
     // and `title` attributes removed, and `span` tags will keep all attributes.
-    this.preserve = 'p';
+    this.preserve = "p";
 
     // Callback triggered before any paste cleaning happens
-    this.beforePasteClean = function (body) { return body; };
+    this.beforePasteClean = function (body) {
+      return body;
+    };
 
     // Callback triggered at the end of the paste cleaning
-    this.afterPasteClean = function (body) { return body; };
+    this.afterPasteClean = function (body) {
+      return body;
+    };
 
     // Event Listener for copying
-    ice_instance.element.oncopy = function () { return self.handleCopy.apply(self); };
+    ice_instance.element.oncopy = function () {
+      return self.handleCopy.apply(self);
+    };
   };
 
   IceCopyPastePlugin.prototype = {
-
     setSettings: function (settings) {
       settings = settings || {};
       ice.dom.extend(this, settings);
 
-      this.preserve += ',' + this._tmpNodeTagName;
+      this.preserve += "," + this._tmpNodeTagName;
       this.setupPreserved();
     },
 
     keyDown: function (e) {
-      if (e.metaKey !== true && e.ctrlKey !== true)
-        return;
-      if (e.keyCode == 86)
-        this.handlePaste();
-      else if (e.keyCode == 88)
-        this.handleCut();
+      if (e.metaKey !== true && e.ctrlKey !== true) return;
+      if (e.keyCode == 86) this.handlePaste();
+      else if (e.keyCode == 88) this.handleCut();
       return true;
     },
 
-    handleCopy: function () { },
+    handleCopy: function () {},
 
     // Inserts a temporary placeholder for the current range and removes
     // the contents of the ice element body and calls a paste handler.
     handlePaste: function () {
-
       var range = this._ice.getCurrentRange();
 
       if (!range.collapsed) {
@@ -76,14 +77,15 @@
         }
       }
 
-      if (this._ice.isTracking)
-        this._ice._moveRangeToValidTrackingPos(range);
+      if (this._ice.isTracking) this._ice._moveRangeToValidTrackingPos(range);
 
       if (range.startContainer == this._ice.element) {
         // Fix a potentially empty body with a bad selection
         var firstBlock = ice.dom.find(this._ice.element, this._ice.blockEl)[0];
         if (!firstBlock) {
-          firstBlock = ice.dom.create('<' + this._ice.blockEl + ' ><br/></' + this._ice.blockEl + '>');
+          firstBlock = ice.dom.create(
+            "<" + this._ice.blockEl + " ><br/></" + this._ice.blockEl + ">",
+          );
           this._ice.element.appendChild(firstBlock);
         }
         range.setStart(firstBlock, 0);
@@ -91,14 +93,16 @@
         this._ice.env.selection.addRange(range);
       }
 
-      this._tmpNode = this._ice.env.document.createElement(this._tmpNodeTagName);
+      this._tmpNode = this._ice.env.document.createElement(
+        this._tmpNodeTagName,
+      );
       range.insertNode(this._tmpNode);
 
       switch (this.pasteType) {
-        case 'formatted':
+        case "formatted":
           this.setupPaste();
           break;
-        case 'formattedClean':
+        case "formattedClean":
           this.setupPaste(true);
           break;
       }
@@ -135,15 +139,21 @@
       var doc = this._ice.env.document,
         pasteDiv = doc.getElementById(this._pasteId),
         html = pasteDiv.innerHTML,
-        childBlocks = ice.dom.children('<div>' + html + '</div>', this._ice.blockEl);
-      if (childBlocks.length === 1 && ice.dom.getNodeTextContent('<div>' + html + '</div>') === ice.dom.getNodeTextContent(childBlocks)) {
+        childBlocks = ice.dom.children(
+          "<div>" + html + "</div>",
+          this._ice.blockEl,
+        );
+      if (
+        childBlocks.length === 1 &&
+        ice.dom.getNodeTextContent("<div>" + html + "</div>") ===
+          ice.dom.getNodeTextContent(childBlocks)
+      ) {
         html = html.innerHTML;
       }
 
       html = this.beforePasteClean.call(this, html);
 
       if (stripTags) {
-
         // Strip out change tracking tags.
         html = this._ice.getCleanContent(html);
         html = this.stripPaste(html);
@@ -155,7 +165,9 @@
       range.setStartAfter(this._tmpNode);
       range.collapse(true);
 
-      var innerBlock = null, lastEl = null, newEl = null;
+      var innerBlock = null,
+        lastEl = null,
+        newEl = null;
       var fragment = range.createContextualFragment(html);
       var changeid = this._ice.startBatchChange();
 
@@ -179,7 +191,10 @@
 
         // Paste all of the children in the fragment.
         while (fragment.firstChild) {
-          if (fragment.firstChild.nodeType === 3 && !fragment.firstChild.nodeValue.trim()) {
+          if (
+            fragment.firstChild.nodeType === 3 &&
+            !fragment.firstChild.nodeValue.trim()
+          ) {
             fragment.removeChild(fragment.firstChild);
             continue;
           }
@@ -191,8 +206,8 @@
               innerBlock = null;
               var insert = null;
               if (this._ice.isTracking) {
-                insert = this._ice.createIceNode('insertType');
-                this._ice.addChange('insertType', [insert]);
+                insert = this._ice.createIceNode("insertType");
+                this._ice.addChange("insertType", [insert]);
                 newEl = doc.createElement(fragment.firstChild.tagName);
                 insert.innerHTML = fragment.firstChild.innerHTML;
                 newEl.appendChild(insert);
@@ -210,8 +225,8 @@
               newEl = doc.createElement(this._ice.blockEl);
               ice.dom.insertBefore(prevBlock, newEl);
               if (this._ice.isTracking) {
-                innerBlock = this._ice.createIceNode('insertType');
-                this._ice.addChange('insertType', [innerBlock]);
+                innerBlock = this._ice.createIceNode("insertType");
+                this._ice.addChange("insertType", [innerBlock]);
                 newEl.appendChild(innerBlock);
               } else {
                 innerBlock = newEl;
@@ -224,11 +239,10 @@
         if (!newblock.textContent) {
           newblock.parentNode.removeChild(newblock);
         }
-
       } else {
         if (this._ice.isTracking) {
-          newEl = this._ice.createIceNode('insertType', fragment);
-          this._ice.addChange('insertType', [newEl]);
+          newEl = this._ice.createIceNode("insertType", fragment);
+          this._ice.addChange("insertType", [newEl]);
           range.insertNode(newEl);
           lastEl = newEl;
         } else {
@@ -246,7 +260,6 @@
       this._cleanup(lastEl);
     },
 
-
     createDiv: function (id) {
       var doc = this._ice.env.document, // Document object of window or tinyMCE iframe
         oldEl = doc.getElementById(id);
@@ -254,17 +267,17 @@
         ice.dom.remove(oldEl);
       }
 
-      var div = doc.createElement('div');
+      var div = doc.createElement("div");
       div.id = id;
-      div.setAttribute('contentEditable', true);
-      ice.dom.setStyle(div, 'width', '1px');
-      ice.dom.setStyle(div, 'height', '1px');
-      ice.dom.setStyle(div, 'overflow', 'hidden');
-      ice.dom.setStyle(div, 'position', 'fixed');
-      ice.dom.setStyle(div, 'top', '10px');
-      ice.dom.setStyle(div, 'left', '10px');
+      div.setAttribute("contentEditable", true);
+      ice.dom.setStyle(div, "width", "1px");
+      ice.dom.setStyle(div, "height", "1px");
+      ice.dom.setStyle(div, "overflow", "hidden");
+      ice.dom.setStyle(div, "position", "fixed");
+      ice.dom.setStyle(div, "top", "10px");
+      ice.dom.setStyle(div, "left", "10px");
 
-      div.appendChild(doc.createElement('br'));
+      div.appendChild(doc.createElement("br"));
       doc.body.appendChild(div);
       return div;
     },
@@ -277,9 +290,12 @@
         range = this._ice.getCurrentRange();
       if (range.collapsed) return; // If nothing is selected, there's nothing to mark deleted
 
-      this.cutElement = this.createDiv('icecut');
+      this.cutElement = this.createDiv("icecut");
       // Chrome strips out spaces between text nodes and elements node during cut
-      this.cutElement.innerHTML = range.getHTMLContents().replace(/ </g, '&nbsp;<').replace(/> /g, '>&nbsp;');
+      this.cutElement.innerHTML = range
+        .getHTMLContents()
+        .replace(/ </g, "&nbsp;<")
+        .replace(/> /g, ">&nbsp;");
 
       if (this._ice.isTracking) this._ice.deleteContents();
       else range.deleteContents();
@@ -303,7 +319,6 @@
       self._ice.env.selection.addRange(crange);
     },
 
-
     // Strips ice change tracking tags, Microsoft Word styling/content, and any
     // tags and attributes not found in `preserve` from the given `content`.
     stripPaste: function (content) {
@@ -322,18 +337,18 @@
     //   `_attributesMap` = ['p' => [], 'a' => ['href', 'class'], 'span' => ['*']]
     setupPreserved: function () {
       var self = this;
-      this._tags = '';
+      this._tags = "";
       this._attributesMap = [];
 
-      ice.dom.each(this.preserve.split(','), function (i, tagAttr) {
+      ice.dom.each(this.preserve.split(","), function (i, tagAttr) {
         // Extract the tag and attributes list
         tagAttr.match(/(\w+)(\[(.+)\])?/);
         var tag = RegExp.$1;
         var attr = RegExp.$3;
 
-        if (self._tags) self._tags += ',';
+        if (self._tags) self._tags += ",";
         self._tags += tag.toLowerCase();
-        self._attributesMap[tag] = attr.split('|');
+        self._attributesMap[tag] = attr.split("|");
       });
     },
 
@@ -341,7 +356,7 @@
     // their inner contents, and removes attributes from any tags that aren't mapped in `_attributesMap`.
     cleanPreserved: function (body) {
       var self = this;
-      var bodyel = this._ice.env.document.createElement('div');
+      var bodyel = this._ice.env.document.createElement("div");
       bodyel.innerHTML = body;
 
       // Strip out any tags not found in `this._tags`, replacing the tags with their inner contents.
@@ -349,15 +364,14 @@
 
       // Strip out any attributes from the allowed set of tags that don't match what is in the `_attributesMap`
       ice.dom.each(ice.dom.find(bodyel, this._tags), function (i, el) {
-        if (ice.dom.hasClass(el, 'skip-clean')) {
+        if (ice.dom.hasClass(el, "skip-clean")) {
           return true;
         }
         var tag = el.tagName.toLowerCase();
         var attrMatches = self._attributesMap[tag];
 
         // Kleene star - keep all of the attributes for this tag.
-        if (attrMatches[0] && attrMatches[0] === '*')
-          return true;
+        if (attrMatches[0] && attrMatches[0] === "*") return true;
 
         // Remove any foreign attributes that do not match the map.
         if (el.hasAttributes()) {
@@ -377,23 +391,26 @@
       content = content.replace(/<(meta|link)[^>]+>/g, "");
 
       // Comments.
-      content = content.replace(/<!--(.|\s)*?-->/g, '');
+      content = content.replace(/<!--(.|\s)*?-->/g, "");
 
       // Remove style tags.
-      content = content.replace(/<style>[\s\S]*?<\/style>/g, '');
+      content = content.replace(/<style>[\s\S]*?<\/style>/g, "");
 
       // Remove span and o:p etc. tags.
       //content = content.replace(/<\/?span[^>]*>/gi, "");
-      content = content.replace(/<\/?\w+:[^>]*>/gi, '');
+      content = content.replace(/<\/?\w+:[^>]*>/gi, "");
 
       // Remove XML tags.
-      content = content.replace(/<\\?\?xml[^>]*>/gi, '');
+      content = content.replace(/<\\?\?xml[^>]*>/gi, "");
 
       // Generic cleanup.
       content = this._cleanPaste(content);
 
       // Remove class, lang and style attributes.
-      content = content.replace(/<(\w[^>]*) (lang)=([^ |>]*)([^>]*)/gi, "<$1$4");
+      content = content.replace(
+        /<(\w[^>]*) (lang)=([^ |>]*)([^>]*)/gi,
+        "<$1$4",
+      );
 
       return content;
     },
@@ -410,12 +427,10 @@
     _cleanup: function (moveTo) {
       try {
         // Set focus back to ice element.
-        if (this._ice.env.frame)
-          this._ice.env.frame.contentWindow.focus();
-        else
-          this._ice.element.focus();
+        if (this._ice.env.frame) this._ice.env.frame.contentWindow.focus();
+        else this._ice.element.focus();
 
-        moveTo = moveTo && moveTo.lastChild || moveTo || this._tmpNode;
+        moveTo = (moveTo && moveTo.lastChild) || moveTo || this._tmpNode;
         // Move the range to the end of moveTo so that the cursor will be at the end of the paste.
         var range = this._ice.getCurrentRange();
         range.setStartAfter(moveTo);
@@ -426,7 +441,9 @@
         this._tmpNode.parentNode.removeChild(this._tmpNode);
         this._tmpNode = null;
         // Kill any empty change nodes.
-        var ins = this._ice.env.document.getElementsByClassName(this._ice.changeTypes['insertType'].alias);
+        var ins = this._ice.env.document.getElementsByClassName(
+          this._ice.changeTypes["insertType"].alias,
+        );
         for (var i = 0; i < ins.length; i++) {
           if (!ins[i].textContent) {
             if (ins[i].parentNode) {
@@ -437,10 +454,9 @@
       } catch (e) {
         window.console && console.error(e);
       }
-    }
+    },
   };
 
   ice.dom.noInclusionInherits(IceCopyPastePlugin, ice.IcePlugin);
   exports._plugin.IceCopyPastePlugin = IceCopyPastePlugin;
-
 }).call(this.ice);
