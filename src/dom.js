@@ -79,11 +79,9 @@ dom.getKeyChar = e => String.fromCharCode(e.which);
  * @returns {Element[]}
  */
 dom.getClass = (className, startElement = document.body, tagName) => {
-    className = '.' + className.split(' ').join('.');
-    if (tagName) {
-        className = tagName + className;
-    }
-    return jQuery.makeArray(jQuery(startElement).find(className));
+  let selector = '.' + className.trim().split(/\s+/).join('.');
+  if (tagName) selector = tagName + selector;
+  return Array.from((startElement).querySelectorAll(selector));
 };
 /**
  * Returns the element with the given id.
@@ -91,43 +89,41 @@ dom.getClass = (className, startElement = document.body, tagName) => {
  * @param {Document|Element} [startElement=document]
  * @returns {Element|null}
  */
-dom.getId = (id, startElement = document) => {
-    return startElement.getElementById(id);
-};
+dom.getId = (id, startElement = document) => (startElement).getElementById(id);
 /**
  * Returns elements with the given tag name.
  * @param {string} tagName
- * @param {Element} [startElement=document]
+ * @param {Element|Document} [startElement=document]
  * @returns {Element[]}
  */
-dom.getTag = (tagName, startElement = document) => jQuery.makeArray(jQuery(startElement).find(tagName));
+dom.getTag = (tagName, startElement = document) => Array.from((startElement).getElementsByTagName(tagName));
 /**
  * Returns the width of an element.
  * @param {Element} element
  * @returns {number}
  */
-dom.getElementWidth = element => element.offsetWidth;
+dom.getElementWidth = element => element ? element.offsetWidth : 0;
 /**
  * Returns the height of an element.
  * @param {Element} element
  * @returns {number}
  */
-dom.getElementHeight = element => element.offsetHeight;
+dom.getElementHeight = element => element ? element.offsetHeight : 0;
 /**
  * Returns the dimensions of an element.
  * @param {Element} element
  * @returns {{width: number, height: number}}
  */
 dom.getElementDimensions = element => ({
-    width: dom.getElementWidth(element),
-    height: dom.getElementHeight(element)
+  width: dom.getElementWidth(element),
+  height: dom.getElementHeight(element)
 });
 /**
  * Trims whitespace from a string.
  * @param {string} string
  * @returns {string}
  */
-dom.trim = string => jQuery.trim(string);
+dom.trim = string => (typeof string === 'string' ? string.trim() : string);
 /**
  * Removes all children from an element.
  * @param {Element} element
@@ -169,47 +165,47 @@ dom.insertAfter = (after, elem) => jQuery(after).after(elem);
  * @param {Element} element
  * @returns {string}
  */
-dom.getHtml = element => jQuery(element).html();
+dom.getHtml = element => element ? element.innerHTML : '';
 /**
  * Sets the inner HTML of an element.
  * @param {Element} element
  * @param {string} content
  */
-dom.setHtml = (element, content) => { if (element) jQuery(element).html(content); };
+dom.setHtml = (element, content) => { if (element) element.innerHTML = content; };
 /**
  * Removes whitespace and newlines between nested block elements.
  * @param {Element} element
  */
 dom.removeWhitespace = element => {
-    jQuery(element).contents().filter(function () {
-        if (this.nodeType !== dom.TEXT_NODE && (this.nodeName === 'UL' || this.nodeName === 'OL')) {
-            dom.removeWhitespace(this);
-            return false;
-        } else if (this.nodeType !== dom.TEXT_NODE) {
-            return false;
-        } else {
-            return !/\S/.test(this.nodeValue);
-        }
-    }).remove();
+  jQuery(element).contents().filter(function () {
+    if (this.nodeType !== dom.TEXT_NODE && (this.nodeName === 'UL' || this.nodeName === 'OL')) {
+      dom.removeWhitespace(this);
+      return false;
+    } else if (this.nodeType !== dom.TEXT_NODE) {
+      return false;
+    } else {
+      return !/\S/.test(this.nodeValue);
+    }
+  }).remove();
 };
 /**
  * Returns the child nodes as an array.
  * @param {Element} el
  * @returns {Node[]}
  */
-dom.contents = el => jQuery.makeArray(jQuery(el).contents());
+dom.contents = el => el ? Array.from(el.childNodes) : [];
 /**
  * Returns the inner contents of el as a DocumentFragment.
  * @param {Element} el
  * @returns {DocumentFragment}
  */
 dom.extractContent = el => {
-    const frag = document.createDocumentFragment();
-    let child;
-    while ((child = el.firstChild)) {
-        frag.appendChild(child);
-    }
-    return frag;
+  const frag = document.createDocumentFragment();
+  let child;
+  while ((child = el.firstChild)) {
+    frag.appendChild(child);
+  }
+  return frag;
 };
 /**
  * Returns the closest ancestor of the given node that matches the selector.
@@ -226,13 +222,13 @@ dom.getNode = (node, selector) => dom.is(node, selector) ? node : dom.parents(no
  * @returns {Element[]}
  */
 dom.getParents = (elements, filter, stopEl) => {
-    const res = jQuery(elements).parents(filter);
-    const ar = [];
-    for (let i = 0; i < res.length; i++) {
-        if (res[i] === stopEl) break;
-        ar.push(res[i]);
-    }
-    return ar;
+  const res = jQuery(elements).parents(filter);
+  const ar = [];
+  for (let i = 0; i < res.length; i++) {
+    if (res[i] === stopEl) break;
+    ar.push(res[i]);
+  }
+  return ar;
 };
 /**
  * Checks if the parent element has block-level children.
@@ -240,12 +236,12 @@ dom.getParents = (elements, filter, stopEl) => {
  * @returns {boolean}
  */
 dom.hasBlockChildren = parent => {
-    for (let i = 0; i < parent.childNodes.length; i++) {
-        if (parent.childNodes[i].nodeType === dom.ELEMENT_NODE && dom.isBlockElement(parent.childNodes[i])) {
-            return true;
-        }
+  for (let i = 0; i < parent.childNodes.length; i++) {
+    if (parent.childNodes[i].nodeType === dom.ELEMENT_NODE && dom.isBlockElement(parent.childNodes[i])) {
+      return true;
     }
-    return false;
+  }
+  return false;
 };
 /**
  * Removes the specified tag from the element, replacing it with its children.
@@ -254,10 +250,10 @@ dom.hasBlockChildren = parent => {
  * @returns {Element}
  */
 dom.removeTag = (element, selector) => {
-    jQuery(element).find(selector).replaceWith(function () {
-        return jQuery(this).contents();
-    });
-    return element;
+  jQuery(element).find(selector).replaceWith(function () {
+    return jQuery(this).contents();
+  });
+  return element;
 };
 /**
  * Strips enclosing tags from the content, allowing only the specified tags.
@@ -266,20 +262,20 @@ dom.removeTag = (element, selector) => {
  * @returns {Element}
  */
 dom.stripEnclosingTags = (content, allowedTags) => {
-    const c = jQuery(content);
-    c.find('*').not(allowedTags).replaceWith(function () {
-        let ret = jQuery();
-        let $this;
-        try {
-            $this = jQuery(this);
-            ret = $this.contents();
-        } catch (e) { }
-        if (ret.length === 0) {
-            $this.remove();
-        }
-        return ret;
-    });
-    return c[0];
+  const c = jQuery(content);
+  c.find('*').not(allowedTags).replaceWith(function () {
+    let ret = jQuery();
+    let $this;
+    try {
+      $this = jQuery(this);
+      ret = $this.contents();
+    } catch (e) { }
+    if (ret.length === 0) {
+      $this.remove();
+    }
+    return ret;
+  });
+  return c[0];
 };
 /**
  * Returns the siblings of an element in the specified direction.
@@ -290,32 +286,32 @@ dom.stripEnclosingTags = (content, allowedTags) => {
  * @returns {Element[]}
  */
 dom.getSiblings = (element, dir, elementNodesOnly, stopElem) => {
-    if (elementNodesOnly === true) {
-        return dir === 'prev' ? jQuery(element).prevAll() : jQuery(element).nextAll();
+  if (elementNodesOnly === true) {
+    return dir === 'prev' ? jQuery(element).prevAll() : jQuery(element).nextAll();
+  } else {
+    const elems = [];
+    if (dir === 'prev') {
+      while (element.previousSibling) {
+        element = element.previousSibling;
+        if (element === stopElem) break;
+        elems.push(element);
+      }
     } else {
-        const elems = [];
-        if (dir === 'prev') {
-            while (element.previousSibling) {
-                element = element.previousSibling;
-                if (element === stopElem) break;
-                elems.push(element);
-            }
-        } else {
-            while (element.nextSibling) {
-                element = element.nextSibling;
-                if (element === stopElem) break;
-                elems.push(element);
-            }
-        }
-        return elems;
+      while (element.nextSibling) {
+        element = element.nextSibling;
+        if (element === stopElem) break;
+        elems.push(element);
+      }
     }
+    return elems;
+  }
 };
 /**
  * Returns the text content of a node.
  * @param {Node} node
  * @returns {string}
  */
-dom.getNodeTextContent = node => jQuery(node).text();
+dom.getNodeTextContent = node => node ? (node.textContent || '') : '';
 /**
  * Returns the stub content of a node.
  * @param {Node} node
@@ -328,9 +324,9 @@ dom.getNodeStubContent = node => jQuery(node).find(dom.CONTENT_STUB_ELEMENTS.joi
  * @returns {boolean}
  */
 dom.hasNoTextOrStubContent = node => {
-    if (dom.getNodeTextContent(node).length > 0) return false;
-    if (jQuery(node).find(dom.CONTENT_STUB_ELEMENTS.join(', ')).length > 0) return false;
-    return true;
+  if (dom.getNodeTextContent(node).length > 0) return false;
+  if (jQuery(node).find(dom.CONTENT_STUB_ELEMENTS.join(', ')).length > 0) return false;
+  return true;
 };
 /**
  * Returns the character length of a node, including stub elements.
@@ -349,43 +345,43 @@ dom.setNodeTextContent = (node, txt) => jQuery(node).text(txt);
  * @param {Node} node
  * @returns {string|null}
  */
-dom.getTagName = node => node.tagName && node.tagName.toLowerCase() || null;
+dom.getTagName = node => node && node.tagName ? node.tagName.toLowerCase() : null;
 /**
  * Returns the document of an iframe.
  * @param {HTMLIFrameElement} iframe
  * @returns {Document|null}
  */
 dom.getIframeDocument = iframe => {
-    if (iframe.contentDocument) return iframe.contentDocument;
-    if (iframe.contentWindow) return iframe.contentWindow.document;
-    if (iframe.document) return iframe.document;
-    return null;
+  if (iframe.contentDocument) return iframe.contentDocument;
+  if (iframe.contentWindow) return iframe.contentWindow.document;
+  if (iframe.document) return iframe.document;
+  return null;
 };
 /**
  * Checks if an element is a block element.
  * @param {Element} element
  * @returns {boolean}
  */
-dom.isBlockElement = element => dom.BLOCK_ELEMENTS.lastIndexOf(element.nodeName.toLowerCase()) !== -1;
+dom.isBlockElement = element => !!(element && element.nodeName && dom.BLOCK_ELEMENTS.includes(element.nodeName.toLowerCase()));
 /**
  * Checks if an element is a stub element.
  * @param {Element} element
  * @returns {boolean}
  */
-dom.isStubElement = element => dom.STUB_ELEMENTS.lastIndexOf(element.nodeName.toLowerCase()) !== -1;
+dom.isStubElement = element => !!(element && element.nodeName && dom.STUB_ELEMENTS.includes(element.nodeName.toLowerCase()));
 /**
  * Removes <br> elements from the children of a node.
  * @param {Node} node
  */
 dom.removeBRFromChild = node => {
-    if (node && node.hasChildNodes()) {
-        for (let z = 0; z < node.childNodes.length; z++) {
-            const child = node.childNodes[z];
-            if (child && (dom.BREAK_ELEMENT === dom.getTagName(child))) {
-                child.parentNode.removeChild(child);
-            }
-        }
+  if (node && node.hasChildNodes()) {
+    for (let z = 0; z < node.childNodes.length; z++) {
+      const child = node.childNodes[z];
+      if (child && (dom.BREAK_ELEMENT === dom.getTagName(child))) {
+        child.parentNode.removeChild(child);
+      }
     }
+  }
 };
 /**
  * Checks if an element is a child of the specified parent.
@@ -394,13 +390,13 @@ dom.removeBRFromChild = node => {
  * @returns {boolean}
  */
 dom.isChildOf = (el, parent) => {
-    try {
-        while (el && el.parentNode) {
-            if (el.parentNode === parent) return true;
-            el = el.parentNode;
-        }
-    } catch (e) { }
-    return false;
+  try {
+    while (el && el.parentNode) {
+      if (el.parentNode === parent) return true;
+      el = el.parentNode;
+    }
+  } catch (e) { }
+  return false;
 };
 /**
  * Checks if an element is a child of a parent with the specified tag name.
@@ -409,15 +405,15 @@ dom.isChildOf = (el, parent) => {
  * @returns {Element|boolean}
  */
 dom.isChildOfTagName = (el, name) => {
-    try {
-        while (el && el.parentNode) {
-            if (el.parentNode && el.parentNode.tagName && el.parentNode.tagName.toLowerCase() === name) {
-                return el.parentNode;
-            }
-            el = el.parentNode;
-        }
-    } catch (e) { }
-    return false;
+  try {
+    while (el && el.parentNode) {
+      if (el.parentNode && el.parentNode.tagName && el.parentNode.tagName.toLowerCase() === name) {
+        return el.parentNode;
+      }
+      el = el.parentNode;
+    }
+  } catch (e) { }
+  return false;
 };
 /**
  * Checks if an element is a child of a parent with one of the specified tag names.
@@ -426,18 +422,18 @@ dom.isChildOfTagName = (el, name) => {
  * @returns {Element|null}
  */
 dom.isChildOfTagNames = (el, names) => {
-    try {
-        while (el && el.parentNode) {
-            if (el.parentNode && el.parentNode.tagName) {
-                const tagName = el.parentNode.tagName.toLowerCase();
-                for (let i = 0; i < names.length; i++) {
-                    if (tagName === names[i]) return el.parentNode;
-                }
-            }
-            el = el.parentNode;
+  try {
+    while (el && el.parentNode) {
+      if (el.parentNode && el.parentNode.tagName) {
+        const tagName = el.parentNode.tagName.toLowerCase();
+        for (let i = 0; i < names.length; i++) {
+          if (tagName === names[i]) return el.parentNode;
         }
-    } catch (e) { }
-    return null;
+      }
+      el = el.parentNode;
+    }
+  } catch (e) { }
+  return null;
 };
 /**
  * Checks if an element is a child of a parent with the specified class name.
@@ -446,13 +442,13 @@ dom.isChildOfTagNames = (el, names) => {
  * @returns {Element|null}
  */
 dom.isChildOfClassName = (el, name) => {
-    try {
-        while (el && el.parentNode) {
-            if (jQuery(el.parentNode).hasClass(name)) return el.parentNode;
-            el = el.parentNode;
-        }
-    } catch (e) { }
-    return null;
+  try {
+    while (el && el.parentNode) {
+      if (jQuery(el.parentNode).hasClass(name)) return el.parentNode;
+      el = el.parentNode;
+    }
+  } catch (e) { }
+  return null;
 };
 /**
  * Clones the given elements.
@@ -502,40 +498,40 @@ dom.removeAttr = (elements, name) => jQuery(elements).removeAttr(name);
  * @returns {Element[]}
  */
 dom.getElementsBetween = (fromElem, toElem) => {
-    let elements = [];
-    if (fromElem === toElem) return elements;
-    if (dom.isChildOf(toElem, fromElem)) {
-        for (let i = 0; i < fromElem.childNodes.length; i++) {
-            if (fromElem.childNodes[i] === toElem) break;
-            else if (dom.isChildOf(toElem, fromElem.childNodes[i])) {
-                return dom.arrayMerge(elements, dom.getElementsBetween(fromElem.childNodes[i], toElem));
-            } else {
-                elements.push(fromElem.childNodes[i]);
-            }
-        }
-        return elements;
+  let elements = [];
+  if (fromElem === toElem) return elements;
+  if (dom.isChildOf(toElem, fromElem)) {
+    for (let i = 0; i < fromElem.childNodes.length; i++) {
+      if (fromElem.childNodes[i] === toElem) break;
+      else if (dom.isChildOf(toElem, fromElem.childNodes[i])) {
+        return dom.arrayMerge(elements, dom.getElementsBetween(fromElem.childNodes[i], toElem));
+      } else {
+        elements.push(fromElem.childNodes[i]);
+      }
     }
-    let startEl = fromElem.nextSibling;
-    while (startEl) {
-        if (dom.isChildOf(toElem, startEl)) {
-            elements = dom.arrayMerge(elements, dom.getElementsBetween(startEl, toElem));
-            return elements;
-        } else if (startEl === toElem) {
-            return elements;
-        } else {
-            elements.push(startEl);
-            startEl = startEl.nextSibling;
-        }
-    }
-    const fromParents = dom.getParents(fromElem);
-    const toParents = dom.getParents(toElem);
-    const parentElems = dom.arrayDiff(fromParents, toParents, true);
-    for (let j = 0; j < (parentElems.length - 1); j++) {
-        elements = dom.arrayMerge(elements, dom.getSiblings(parentElems[j], 'next'));
-    }
-    const lastParent = parentElems[parentElems.length - 1];
-    elements = dom.arrayMerge(elements, dom.getElementsBetween(lastParent, toElem));
     return elements;
+  }
+  let startEl = fromElem.nextSibling;
+  while (startEl) {
+    if (dom.isChildOf(toElem, startEl)) {
+      elements = dom.arrayMerge(elements, dom.getElementsBetween(startEl, toElem));
+      return elements;
+    } else if (startEl === toElem) {
+      return elements;
+    } else {
+      elements.push(startEl);
+      startEl = startEl.nextSibling;
+    }
+  }
+  const fromParents = dom.getParents(fromElem);
+  const toParents = dom.getParents(toElem);
+  const parentElems = dom.arrayDiff(fromParents, toParents, true);
+  for (let j = 0; j < (parentElems.length - 1); j++) {
+    elements = dom.arrayMerge(elements, dom.getSiblings(parentElems[j], 'next'));
+  }
+  const lastParent = parentElems[parentElems.length - 1];
+  elements = dom.arrayMerge(elements, dom.getElementsBetween(lastParent, toElem));
+  return elements;
 };
 /**
  * Returns the closest common ancestor of two nodes.
@@ -544,12 +540,12 @@ dom.getElementsBetween = (fromElem, toElem) => {
  * @returns {Node|null}
  */
 dom.getCommonAncestor = (a, b) => {
-    let node = a;
-    while (node) {
-        if (dom.isChildOf(b, node)) return node;
-        node = node.parentNode;
-    }
-    return null;
+  let node = a;
+  while (node) {
+    if (dom.isChildOf(b, node)) return node;
+    node = node.parentNode;
+  }
+  return null;
 };
 /**
  * Returns the next node in the container.
@@ -558,20 +554,20 @@ dom.getCommonAncestor = (a, b) => {
  * @returns {Node|null}
  */
 dom.getNextNode = (node, container) => {
-    if (node) {
-        while (node.parentNode) {
-            if (node === container) return null;
-            if (node.nextSibling) {
-                if (node.nextSibling.nodeType === dom.TEXT_NODE && node.nextSibling.length === 0) {
-                    node = node.nextSibling;
-                    continue;
-                }
-                return dom.getFirstChild(node.nextSibling);
-            }
-            node = node.parentNode;
+  if (node) {
+    while (node.parentNode) {
+      if (node === container) return null;
+      if (node.nextSibling) {
+        if (node.nextSibling.nodeType === dom.TEXT_NODE && node.nextSibling.length === 0) {
+          node = node.nextSibling;
+          continue;
         }
+        return dom.getFirstChild(node.nextSibling);
+      }
+      node = node.parentNode;
     }
-    return null;
+  }
+  return null;
 };
 /**
  * Returns the next content node in the container.
@@ -580,22 +576,22 @@ dom.getNextNode = (node, container) => {
  * @returns {Node|null}
  */
 dom.getNextContentNode = (node, container) => {
-    if (node) {
-        while (node.parentNode) {
-            if (node === container) return null;
-            if (node.nextSibling && dom.canContainTextElement(dom.getBlockParent(node))) {
-                if (node.nextSibling.nodeType === dom.TEXT_NODE && node.nextSibling.length === 0) {
-                    node = node.nextSibling;
-                    continue;
-                }
-                return node.nextSibling;
-            } else if (node.nextElementSibling) {
-                return node.nextElementSibling;
-            }
-            node = node.parentNode;
+  if (node) {
+    while (node.parentNode) {
+      if (node === container) return null;
+      if (node.nextSibling && dom.canContainTextElement(dom.getBlockParent(node))) {
+        if (node.nextSibling.nodeType === dom.TEXT_NODE && node.nextSibling.length === 0) {
+          node = node.nextSibling;
+          continue;
         }
+        return node.nextSibling;
+      } else if (node.nextElementSibling) {
+        return node.nextElementSibling;
+      }
+      node = node.parentNode;
     }
-    return null;
+  }
+  return null;
 };
 /**
  * Returns the previous node in the container.
@@ -604,20 +600,20 @@ dom.getNextContentNode = (node, container) => {
  * @returns {Node|null}
  */
 dom.getPrevNode = (node, container) => {
-    if (node) {
-        while (node.parentNode) {
-            if (node === container) return null;
-            if (node.previousSibling) {
-                if (node.previousSibling.nodeType === dom.TEXT_NODE && node.previousSibling.length === 0) {
-                    node = node.previousSibling;
-                    continue;
-                }
-                return dom.getLastChild(node.previousSibling);
-            }
-            node = node.parentNode;
+  if (node) {
+    while (node.parentNode) {
+      if (node === container) return null;
+      if (node.previousSibling) {
+        if (node.previousSibling.nodeType === dom.TEXT_NODE && node.previousSibling.length === 0) {
+          node = node.previousSibling;
+          continue;
         }
+        return dom.getLastChild(node.previousSibling);
+      }
+      node = node.parentNode;
     }
-    return null;
+  }
+  return null;
 };
 /**
  * Returns the previous content node in the container.
@@ -626,43 +622,41 @@ dom.getPrevNode = (node, container) => {
  * @returns {Node|null}
  */
 dom.getPrevContentNode = (node, container) => {
-    if (node) {
-        while (node.parentNode) {
-            if (node === container) return null;
-            if (node.previousSibling && dom.canContainTextElement(dom.getBlockParent(node))) {
-                if (node.previousSibling.nodeType === dom.TEXT_NODE && node.previousSibling.length === 0) {
-                    node = node.previousSibling;
-                    continue;
-                }
-                return node.previousSibling;
-            } else if (node.previousElementSibling) {
-                return node.previousElementSibling;
-            }
-            node = node.parentNode;
+  if (node) {
+    while (node.parentNode) {
+      if (node === container) return null;
+      if (node.previousSibling && dom.canContainTextElement(dom.getBlockParent(node))) {
+        if (node.previousSibling.nodeType === dom.TEXT_NODE && node.previousSibling.length === 0) {
+          node = node.previousSibling;
+          continue;
         }
+        return node.previousSibling;
+      } else if (node.previousElementSibling) {
+        return node.previousElementSibling;
+      }
+      node = node.parentNode;
     }
-    return null;
+  }
+  return null;
 };
 /**
  * Checks if an element can contain a text element.
  * @param {Element} element
  * @returns {boolean}
  */
-dom.canContainTextElement = element => element && element.nodeName ? dom.TEXT_CONTAINER_ELEMENTS.lastIndexOf(element.nodeName.toLowerCase()) !== -1 : false;
+dom.canContainTextElement = element => !!(element && element.nodeName && dom.TEXT_CONTAINER_ELEMENTS.includes(element.nodeName.toLowerCase()));
 /**
  * Returns the first child node that is not an element.
  * @param {Node} node
  * @returns {Node}
  */
 dom.getFirstChild = node => {
-    if (node.firstChild) {
-        if (node.firstChild.nodeType === dom.ELEMENT_NODE) {
-            return dom.getFirstChild(node.firstChild);
-        } else {
-            return node.firstChild;
-        }
-    }
-    return node;
+  if (!node) return null;
+  let child = node.firstChild;
+  while (child && child.nodeType === dom.ELEMENT_NODE && child.firstChild) {
+    child = child.firstChild;
+  }
+  return child || node;
 };
 /**
  * Returns the last child node that is not an element.
@@ -670,14 +664,12 @@ dom.getFirstChild = node => {
  * @returns {Node}
  */
 dom.getLastChild = node => {
-    if (node.lastChild) {
-        if (node.lastChild.nodeType === dom.ELEMENT_NODE) {
-            return dom.getLastChild(node.lastChild);
-        } else {
-            return node.lastChild;
-        }
-    }
-    return node;
+  if (!node) return null;
+  let child = node.lastChild;
+  while (child && child.nodeType === dom.ELEMENT_NODE && child.lastChild) {
+    child = child.lastChild;
+  }
+  return child || node;
 };
 /**
  * Removes empty nodes from the DOM.
@@ -685,16 +677,16 @@ dom.getLastChild = node => {
  * @param {Function} [callback]
  */
 dom.removeEmptyNodes = (parent, callback) => {
-    let elems = jQuery(parent).find(':empty');
-    let i = elems.length;
-    while (i > 0) {
-        i--;
-        if (!dom.isStubElement(elems[i])) {
-            if (!callback || callback.call(this, elems[i]) !== false) {
-                dom.remove(elems[i]);
-            }
-        }
+  let elems = jQuery(parent).find(':empty');
+  let i = elems.length;
+  while (i > 0) {
+    i--;
+    if (!dom.isStubElement(elems[i])) {
+      if (!callback || callback.call(this, elems[i]) !== false) {
+        dom.remove(elems[i]);
+      }
     }
+  }
 };
 /**
  * Creates a DOM element from the given HTML.
@@ -750,16 +742,16 @@ dom.extend = (...args) => jQuery.extend.apply(this, args);
  * @param {number} [lvl=0]
  */
 dom.walk = (elem, callback, lvl = 0) => {
-    if (!elem) return;
-    const retVal = callback.call(this, elem, lvl);
-    if (retVal === false) return;
-    if (elem.childNodes && elem.childNodes.length > 0) {
-        dom.walk(elem.firstChild, callback, lvl + 1);
-    } else if (elem.nextSibling) {
-        dom.walk(elem.nextSibling, callback, lvl);
-    } else if (elem.parentNode && elem.parentNode.nextSibling) {
-        dom.walk(elem.parentNode.nextSibling, callback, lvl - 1);
-    }
+  if (!elem) return;
+  const retVal = callback.call(this, elem, lvl);
+  if (retVal === false) return;
+  if (elem.childNodes && elem.childNodes.length > 0) {
+    dom.walk(elem.firstChild, callback, lvl + 1);
+  } else if (elem.nextSibling) {
+    dom.walk(elem.nextSibling, callback, lvl);
+  } else if (elem.parentNode && elem.parentNode.nextSibling) {
+    dom.walk(elem.parentNode.nextSibling, callback, lvl - 1);
+  }
 };
 /**
  * Walks the DOM tree in reverse order and applies the callback function to each element.
@@ -767,16 +759,16 @@ dom.walk = (elem, callback, lvl = 0) => {
  * @param {Function} callback
  */
 dom.revWalk = (elem, callback) => {
-    if (!elem) return;
-    const retVal = callback.call(this, elem);
-    if (retVal === false) return;
-    if (elem.childNodes && elem.childNodes.length > 0) {
-        dom.walk(elem.lastChild, callback);
-    } else if (elem.previousSibling) {
-        dom.walk(elem.previousSibling, callback);
-    } else if (elem.parentNode && elem.parentNode.previousSibling) {
-        dom.walk(elem.parentNode.previousSibling, callback);
-    }
+  if (!elem) return;
+  const retVal = callback.call(this, elem);
+  if (retVal === false) return;
+  if (elem.childNodes && elem.childNodes.length > 0) {
+    dom.walk(elem.lastChild, callback);
+  } else if (elem.previousSibling) {
+    dom.walk(elem.previousSibling, callback);
+  } else if (elem.parentNode && elem.parentNode.previousSibling) {
+    dom.walk(elem.parentNode.previousSibling, callback);
+  }
 };
 /**
  * Sets a CSS property for an element.
@@ -827,22 +819,22 @@ dom.stopPropagation = e => { e.stopPropagation(); };
  * @param {Function|string} parent
  */
 dom.noInclusionInherits = (child, parent) => {
-    if (parent instanceof String || typeof parent === 'string') parent = window[parent];
-    if (child instanceof String || typeof child === 'string') child = window[child];
-    const above = function () { };
-    if (dom.isset(parent)) {
-        for (const value in parent.prototype) {
-            if (child.prototype[value]) {
-                above.prototype[value] = parent.prototype[value];
-                continue;
-            }
-            child.prototype[value] = parent.prototype[value];
-        }
+  if (parent instanceof String || typeof parent === 'string') parent = window[parent];
+  if (child instanceof String || typeof child === 'string') child = window[child];
+  const above = function () { };
+  if (dom.isset(parent)) {
+    for (const value in parent.prototype) {
+      if (child.prototype[value]) {
+        above.prototype[value] = parent.prototype[value];
+        continue;
+      }
+      child.prototype[value] = parent.prototype[value];
     }
-    if (child.prototype) {
-        above.prototype.constructor = parent;
-        child.prototype['super'] = new above();
-    }
+  }
+  if (child.prototype) {
+    above.prototype.constructor = parent;
+    child.prototype['super'] = new above();
+  }
 };
 /**
  * Iterates over an array or object and applies the callback function to each item.
@@ -850,9 +842,9 @@ dom.noInclusionInherits = (child, parent) => {
  * @param {Function} callback
  */
 dom.each = (val, callback) => {
-    jQuery.each(val, function (i, el) {
-        callback.call(this, i, el);
-    });
+  jQuery.each(val, function (i, el) {
+    callback.call(this, i, el);
+  });
 };
 /**
  * Iterates over an array-like or object-like value and applies the callback function to each item.
@@ -860,26 +852,26 @@ dom.each = (val, callback) => {
  * @param {Function} cb
  */
 dom.foreach = (value, cb) => {
-    if (Array.isArray(value) || value instanceof NodeList || (typeof value.length !== 'undefined' && typeof value.item !== 'undefined')) {
-        for (let i = 0; i < value.length; i++) {
-            const res = cb.call(this, i, value[i]);
-            if (res === false) break;
-        }
-    } else {
-        for (const id in value) {
-            if (Object.prototype.hasOwnProperty.call(value, id)) {
-                const res = cb.call(this, id);
-                if (res === false) break;
-            }
-        }
+  if (Array.isArray(value) || value instanceof NodeList || (typeof value.length !== 'undefined' && typeof value.item !== 'undefined')) {
+    for (let i = 0; i < value.length; i++) {
+      const res = cb.call(this, i, value[i]);
+      if (res === false) break;
     }
+  } else {
+    for (const id in value) {
+      if (Object.prototype.hasOwnProperty.call(value, id)) {
+        const res = cb.call(this, id);
+        if (res === false) break;
+      }
+    }
+  }
 };
 /**
  * Checks if a value is blank (null, undefined, or empty string).
  * @param {*} value
  * @returns {boolean}
  */
-dom.isBlank = value => !value || /^\s*$/.test(value);
+dom.isBlank = value => value == null || (typeof value === 'string' && /^\s*$/.test(value));
 /**
  * Checks if a value is a function.
  * @param {*} f
@@ -909,16 +901,15 @@ dom.isArray = v => jQuery.isArray(v);
  * @param {string} str
  * @returns {boolean}
  */
-dom.isNumeric = str => /^\d+$/.test(str);
+dom.isNumeric = str => typeof str === 'string' && /^\d+$/.test(str);
 /**
  * Generates a unique ID.
  * @returns {string}
  */
 dom.getUniqueId = () => {
-    const timestamp = (new Date()).getTime();
-    const random = Math.ceil(Math.random() * 1000000);
-    const id = timestamp + '' + random;
-    return id.substr(5, 18).replace(/,/, '');
+  const timestamp = Date.now();
+  const random = Math.floor(Math.random() * 1e6);
+  return (timestamp + '' + random).substr(5, 18).replace(/,/, '');
 };
 /**
  * Checks if a value is in an array.
@@ -926,12 +917,7 @@ dom.getUniqueId = () => {
  * @param {Array} haystack
  * @returns {boolean}
  */
-dom.inArray = (needle, haystack) => {
-    for (let i = 0; i < haystack.length; i++) {
-        if (needle === haystack[i]) return true;
-    }
-    return false;
-};
+dom.inArray = (needle, haystack) => Array.isArray(haystack) && haystack.includes(needle);
 /**
  * Returns the difference between two arrays.
  * @param {Array} array1
@@ -940,16 +926,11 @@ dom.inArray = (needle, haystack) => {
  * @returns {Array}
  */
 dom.arrayDiff = (array1, array2, firstOnly) => {
-    let res = [];
-    for (let i = 0; i < array1.length; i++) {
-        if (!dom.inArray(array1[i], array2)) res.push(array1[i]);
-    }
-    if (!firstOnly) {
-        for (let i = 0; i < array2.length; i++) {
-            if (!dom.inArray(array2[i], array1)) res.push(array2[i]);
-        }
-    }
-    return res;
+  let res = array1.filter(x => !array2.includes(x));
+  if (!firstOnly) {
+    res = res.concat(array2.filter(x => !array1.includes(x)));
+  }
+  return res;
 };
 /**
  * Merges two arrays into the first array.
@@ -958,10 +939,8 @@ dom.arrayDiff = (array1, array2, firstOnly) => {
  * @returns {Array}
  */
 dom.arrayMerge = (array1, array2) => {
-    for (let i = 0; i < array2.length; i++) {
-        array1.push(array2[i]);
-    }
-    return array1;
+  array1.push(...array2);
+  return array1;
 };
 /**
  * Strips tags from content, allowing only the specified tags.
@@ -970,81 +949,81 @@ dom.arrayMerge = (array1, array2) => {
  * @returns {string}
  */
 dom.stripTags = (content, allowedTags) => {
-    if (typeof allowedTags === 'string') {
-        const c = jQuery('<div>' + content + '</div>');
-        c.find('*').not(allowedTags).remove();
-        return c.html();
-    } else {
-        let match;
-        const re = /<\/?(\w+)((\s+\w+(\s*=\s*(?:".*?"|'.*?'|[^'">\s]+))?)+\s*|\s*)\/?/gim;
-        let resCont = content;
-        while ((match = re.exec(content)) != null) {
-            if (!dom.isset(allowedTags) || !dom.inArray(match[1], allowedTags)) {
-                resCont = resCont.replace(match[0], '');
-            }
-        }
-        return resCont;
+  if (typeof allowedTags === 'string') {
+    const c = jQuery('<div>' + content + '</div>');
+    c.find('*').not(allowedTags).remove();
+    return c.html();
+  } else {
+    let match;
+    const re = /<\/?(\w+)((\s+\w+(\s*=\s*(?:".*?"|'.*?'|[^'">\s]+))?)+\s*|\s*)\/?/gim;
+    let resCont = content;
+    while ((match = re.exec(content)) != null) {
+      if (!dom.isset(allowedTags) || !dom.inArray(match[1], allowedTags)) {
+        resCont = resCont.replace(match[0], '');
+      }
     }
+    return resCont;
+  }
 };
 /**
  * Detects the browser type and version.
  * @returns {{type: string, version: string}}
  */
 dom.browser = () => {
-    const userAgent = navigator.userAgent;
-    const result = {};
-    let match;
-    if ((match = userAgent.match(/(firefox)\/([\d.]+)/i))) {
-        result.type = 'mozilla';
-        result.version = match[2];
-    } else if ((match = userAgent.match(/(msie) ([\d.]+)/i)) || (match = userAgent.match(/trident.*rv:([\d.]+)/i))) {
-        result.type = 'msie';
-        result.version = match[2] || match[1];
-    } else if ((match = userAgent.match(/(opera|opr)\/([\d.]+)/i))) {
-        result.type = 'opera';
-        result.version = match[2];
-    } else if ((match = userAgent.match(/(chrome)\/([\d.]+)/i))) {
-        result.type = 'webkit';
-        result.version = match[2];
-    } else if ((match = userAgent.match(/(safari)\/([\d.]+)/i))) {
-        result.type = 'webkit';
-        result.version = match[2];
-    } else {
-        result.type = 'other';
-        result.version = '0';
-    }
-    return result;
+  const userAgent = navigator.userAgent;
+  const result = {};
+  let match;
+  if ((match = userAgent.match(/(firefox)\/([\d.]+)/i))) {
+    result.type = 'mozilla';
+    result.version = match[2];
+  } else if ((match = userAgent.match(/(msie) ([\d.]+)/i)) || (match = userAgent.match(/trident.*rv:([\d.]+)/i))) {
+    result.type = 'msie';
+    result.version = match[2] || match[1];
+  } else if ((match = userAgent.match(/(opera|opr)\/([\d.]+)/i))) {
+    result.type = 'opera';
+    result.version = match[2];
+  } else if ((match = userAgent.match(/(chrome)\/([\d.]+)/i))) {
+    result.type = 'webkit';
+    result.version = match[2];
+  } else if ((match = userAgent.match(/(safari)\/([\d.]+)/i))) {
+    result.type = 'webkit';
+    result.version = match[2];
+  } else {
+    result.type = 'other';
+    result.version = '0';
+  }
+  return result;
 };
 /**
  * Returns the browser type.
  * @returns {string}
  */
 dom.getBrowserType = function () {
-    if (this._browserType === null) {
-        const tests = ['msie', 'firefox', 'chrome', 'safari'];
-        for (let i = 0; i < tests.length; i++) {
-            const r = new RegExp(tests[i], 'i');
-            if (r.test(navigator.userAgent)) {
-                this._browserType = tests[i];
-                return this._browserType;
-            }
-        }
-        this._browserType = 'other';
+  if (this._browserType === null) {
+    const tests = ['msie', 'firefox', 'chrome', 'safari'];
+    for (let i = 0; i < tests.length; i++) {
+      const r = new RegExp(tests[i], 'i');
+      if (r.test(navigator.userAgent)) {
+        this._browserType = tests[i];
+        return this._browserType;
+      }
     }
-    return this._browserType;
+    this._browserType = 'other';
+  }
+  return this._browserType;
 };
 /**
  * Returns the webkit type ('safari' or 'chrome').
  * @returns {string|boolean}
  */
 dom.getWebkitType = () => {
-    if (dom.browser().type !== 'webkit') {
-        console.log('Not a webkit!');
-        return false;
-    }
-    const isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0;
-    if (isSafari) return 'safari';
-    return 'chrome';
+  if (dom.browser().type !== 'webkit') {
+    console.log('Not a webkit!');
+    return false;
+  }
+  const isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0;
+  if (isSafari) return 'safari';
+  return 'chrome';
 };
 /**
  * Checks if the browser is of the specified type.
@@ -1059,15 +1038,15 @@ dom.isBrowser = browser => dom.browser().type === browser;
  * @returns {Node|null}
  */
 dom.getBlockParent = (node, container) => {
-    if (dom.isBlockElement(node)) return node;
-    if (node) {
-        while (node.parentNode) {
-            node = node.parentNode;
-            if (node === container) return null;
-            if (dom.isBlockElement(node)) return node;
-        }
+  if (dom.isBlockElement(node)) return node;
+  if (node) {
+    while (node.parentNode) {
+      node = node.parentNode;
+      if (node === container) return null;
+      if (dom.isBlockElement(node)) return node;
     }
-    return null;
+  }
+  return null;
 };
 /**
  * Finds a node parent that matches the selector.
@@ -1077,14 +1056,14 @@ dom.getBlockParent = (node, container) => {
  * @returns {Node|null}
  */
 dom.findNodeParent = (node, selector, container) => {
-    if (node) {
-        while (node.parentNode) {
-            if (node === container) return null;
-            if (dom.is(node, selector)) return node;
-            node = node.parentNode;
-        }
+  if (node) {
+    while (node.parentNode) {
+      if (node === container) return null;
+      if (dom.is(node, selector)) return node;
+      node = node.parentNode;
     }
-    return null;
+  }
+  return null;
 };
 /**
  * Checks if the left and right containers are on the same block boundary.
@@ -1094,10 +1073,10 @@ dom.findNodeParent = (node, selector, container) => {
  * @returns {boolean}
  */
 dom.onBlockBoundary = (leftContainer, rightContainer, blockEls) => {
-    if (!leftContainer || !rightContainer) return false;
-    const bleft = dom.isChildOfTagNames(leftContainer, blockEls) || (dom.is(leftContainer, blockEls.join(', ')) && leftContainer) || null;
-    const bright = dom.isChildOfTagNames(rightContainer, blockEls) || (dom.is(rightContainer, blockEls.join(', ')) && rightContainer) || null;
-    return bleft !== bright;
+  if (!leftContainer || !rightContainer) return false;
+  const bleft = dom.isChildOfTagNames(leftContainer, blockEls) || (dom.is(leftContainer, blockEls.join(', ')) && leftContainer) || null;
+  const bright = dom.isChildOfTagNames(rightContainer, blockEls) || (dom.is(rightContainer, blockEls.join(', ')) && rightContainer) || null;
+  return bleft !== bright;
 };
 /**
  * Checks if the left and right containers are on the same block boundary within the specified container.
@@ -1107,10 +1086,10 @@ dom.onBlockBoundary = (leftContainer, rightContainer, blockEls) => {
  * @returns {boolean}
  */
 dom.isOnBlockBoundary = (leftContainer, rightContainer, container) => {
-    if (!leftContainer || !rightContainer) return false;
-    const bleft = dom.getBlockParent(leftContainer, container) || (dom.isBlockElement(leftContainer, container) && leftContainer) || null;
-    const bright = dom.getBlockParent(rightContainer, container) || (dom.isBlockElement(rightContainer, container) && rightContainer) || null;
-    return bleft !== bright;
+  if (!leftContainer || !rightContainer) return false;
+  const bleft = dom.getBlockParent(leftContainer, container) || (dom.isBlockElement(leftContainer, container) && leftContainer) || null;
+  const bright = dom.getBlockParent(rightContainer, container) || (dom.isBlockElement(rightContainer, container) && rightContainer) || null;
+  return bleft !== bright;
 };
 /**
  * Merges the node into the mergeToNode.
@@ -1119,16 +1098,16 @@ dom.isOnBlockBoundary = (leftContainer, rightContainer, container) => {
  * @returns {boolean}
  */
 dom.mergeContainers = (node, mergeToNode) => {
-    if (!node || !mergeToNode) return false;
-    if (node.nodeType === dom.TEXT_NODE || dom.isStubElement(node)) {
-        mergeToNode.appendChild(node);
-    } else if (node.nodeType === dom.ELEMENT_NODE) {
-        while (node.firstChild) {
-            mergeToNode.appendChild(node.firstChild);
-        }
-        dom.remove(node);
+  if (!node || !mergeToNode) return false;
+  if (node.nodeType === dom.TEXT_NODE || dom.isStubElement(node)) {
+    mergeToNode.appendChild(node);
+  } else if (node.nodeType === dom.ELEMENT_NODE) {
+    while (node.firstChild) {
+      mergeToNode.appendChild(node.firstChild);
     }
-    return true;
+    dom.remove(node);
+  }
+  return true;
 };
 /**
  * Merges a block element with its sibling.
@@ -1138,11 +1117,11 @@ dom.mergeContainers = (node, mergeToNode) => {
  * @returns {boolean}
  */
 dom.mergeBlockWithSibling = (range, block, next) => {
-    const siblingBlock = next ? jQuery(block).next().get(0) : jQuery(block).prev().get(0);
-    if (next) dom.mergeContainers(siblingBlock, block);
-    else dom.mergeContainers(block, siblingBlock);
-    range.collapse(true);
-    return true;
+  const siblingBlock = next ? jQuery(block).next().get(0) : jQuery(block).prev().get(0);
+  if (next) dom.mergeContainers(siblingBlock, block);
+  else dom.mergeContainers(block, siblingBlock);
+  range.collapse(true);
+  return true;
 };
 /**
  * Formats a timestamp or ISO 8601 string into a human-readable date string.
@@ -1152,70 +1131,70 @@ dom.mergeBlockWithSibling = (range, block, next) => {
  * @returns {string|undefined}
  */
 dom.date = (format, timestamp, tsIso8601) => {
-    if (timestamp === null && tsIso8601) {
-        timestamp = dom.tsIso8601ToTimestamp(tsIso8601);
-        if (!timestamp) return;
+  if (timestamp === null && tsIso8601) {
+    timestamp = dom.tsIso8601ToTimestamp(tsIso8601);
+    if (!timestamp) return;
+  }
+  const date = new Date(timestamp);
+  const formats = format.split('');
+  let dateStr = '';
+  for (let i = 0; i < formats.length; i++) {
+    let r = '';
+    const f = formats[i];
+    switch (f) {
+      case 'D':
+      case 'l': {
+        const names = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        r = names[date.getDay()];
+        if (f === 'D') r = r.substring(0, 3);
+        break;
+      }
+      case 'F':
+      case 'm': {
+        r = date.getMonth() + 1;
+        if (r < 10) r = '0' + r;
+        break;
+      }
+      case 'M': {
+        const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+        r = months[date.getMonth()];
+        if (f === 'M') r = r.substring(0, 3);
+        break;
+      }
+      case 'd':
+        r = date.getDate();
+        break;
+      case 'S':
+        r = dom.getOrdinalSuffix(date.getDate());
+        break;
+      case 'Y':
+        r = date.getFullYear();
+        break;
+      case 'y':
+        r = date.getFullYear().toString().substring(2);
+        break;
+      case 'H':
+        r = date.getHours();
+        break;
+      case 'h':
+        r = date.getHours();
+        if (r === 0) r = 12;
+        else if (r > 12) r -= 12;
+        break;
+      case 'i':
+        r = dom.addNumberPadding(date.getMinutes());
+        break;
+      case 'a':
+        r = 'am';
+        if (date.getHours() >= 12) r = 'pm';
+        break;
+      default:
+        r = f;
+        break;
     }
-    const date = new Date(timestamp);
-    const formats = format.split('');
-    let dateStr = '';
-    for (let i = 0; i < formats.length; i++) {
-        let r = '';
-        const f = formats[i];
-        switch (f) {
-            case 'D':
-            case 'l': {
-                const names = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-                r = names[date.getDay()];
-                if (f === 'D') r = r.substring(0, 3);
-                break;
-            }
-            case 'F':
-            case 'm': {
-                r = date.getMonth() + 1;
-                if (r < 10) r = '0' + r;
-                break;
-            }
-            case 'M': {
-                const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-                r = months[date.getMonth()];
-                if (f === 'M') r = r.substring(0, 3);
-                break;
-            }
-            case 'd':
-                r = date.getDate();
-                break;
-            case 'S':
-                r = dom.getOrdinalSuffix(date.getDate());
-                break;
-            case 'Y':
-                r = date.getFullYear();
-                break;
-            case 'y':
-                r = date.getFullYear().toString().substring(2);
-                break;
-            case 'H':
-                r = date.getHours();
-                break;
-            case 'h':
-                r = date.getHours();
-                if (r === 0) r = 12;
-                else if (r > 12) r -= 12;
-                break;
-            case 'i':
-                r = dom.addNumberPadding(date.getMinutes());
-                break;
-            case 'a':
-                r = 'am';
-                if (date.getHours() >= 12) r = 'pm';
-                break;
-            default:
-                r = f;
-                break;
-        }
-        dateStr += r;
-    }
-    return dateStr;
+    dateStr += r;
+  }
+  return dateStr;
 };
 /**
  * Returns the ordinal suffix for a number (e.g., 'st', 'nd', 'rd', 'th').
@@ -1223,14 +1202,14 @@ dom.date = (format, timestamp, tsIso8601) => {
  * @returns {string}
  */
 dom.getOrdinalSuffix = number => {
-    const tmp = number % 100;
-    if (tmp >= 4 && tmp <= 20) return 'th';
-    switch (number % 10) {
-        case 1: return 'st';
-        case 2: return 'nd';
-        case 3: return 'rd';
-        default: return 'th';
-    }
+  const tmp = number % 100;
+  if (tmp >= 4 && tmp <= 20) return 'th';
+  switch (number % 10) {
+    case 1: return 'st';
+    case 2: return 'nd';
+    case 3: return 'rd';
+    default: return 'th';
+  }
 };
 /**
  * Adds a leading zero to numbers less than 10.
@@ -1244,23 +1223,23 @@ dom.addNumberPadding = number => number < 10 ? '0' + number : number;
  * @returns {number|null}
  */
 dom.tsIso8601ToTimestamp = tsIso8601 => {
-    const regexp = /(\d\d\d\d)(?:-?(\d\d)(?:-?(\d\d)(?:[T ](\d\d)(?::?(\d\d)(?::?(\d\d)(?:\.(\d+))?)?)?(?:Z|(?:([-+])(\d\d)(?::?(\d\d))?)?)?)?)?)?/;
-    const d = tsIso8601.match(new RegExp(regexp));
-    if (d) {
-        const date = new Date();
-        date.setDate(d[3]);
-        date.setFullYear(d[1]);
-        date.setMonth(d[2] - 1);
-        date.setHours(d[4]);
-        date.setMinutes(d[5]);
-        date.setSeconds(d[6]);
-        let offset = (d[9] * 60);
-        if (d[8] === '+') offset *= -1;
-        offset -= date.getTimezoneOffset();
-        const timestamp = (date.getTime() + (offset * 60 * 1000));
-        return timestamp;
-    }
-    return null;
+  const regexp = /(\d\d\d\d)(?:-?(\d\d)(?:-?(\d\d)(?:[T ](\d\d)(?::?(\d\d)(?::?(\d\d)(?:\.(\d+))?)?)?(?:Z|(?:([-+])(\d\d)(?::?(\d\d))?)?)?)?)?)?/;
+  const d = tsIso8601.match(new RegExp(regexp));
+  if (d) {
+    const date = new Date();
+    date.setDate(d[3]);
+    date.setFullYear(d[1]);
+    date.setMonth(d[2] - 1);
+    date.setHours(d[4]);
+    date.setMinutes(d[5]);
+    date.setSeconds(d[6]);
+    let offset = (d[9] * 60);
+    if (d[8] === '+') offset *= -1;
+    offset -= date.getTimezoneOffset();
+    const timestamp = (date.getTime() + (offset * 60 * 1000));
+    return timestamp;
+  }
+  return null;
 };
 
 /**
@@ -1268,13 +1247,13 @@ dom.tsIso8601ToTimestamp = tsIso8601 => {
  * @module dom
  */
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = dom;
+  module.exports = dom;
 }
 /**
  * Attaches dom utilities to the global ice object in browsers.
  * @global
  */
 if (typeof window !== 'undefined') {
-    window.ice = window.ice || {};
-    window.ice.dom = dom;
+  window.ice = window.ice || {};
+  window.ice.dom = dom;
 }
