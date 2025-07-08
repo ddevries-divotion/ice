@@ -69,6 +69,7 @@ dom.STUB_ELEMENTS = [...dom.CONTENT_STUB_ELEMENTS, dom.BREAK_ELEMENT];
  * @param {string} className
  * @param {Element} [startElement=document.body]
  * @returns {Element[]}
+ * @see __tests__/playwright/dom.spec.js
  */
 dom.getClass = (className, element = document.body) => {
   // For backwards compatibility, add a dot prefix if the className does not start with one.
@@ -79,36 +80,42 @@ dom.getClass = (className, element = document.body) => {
  * Removes all children from an element.
  * @param {Element} element
  * @returns {jQuery|undefined}
+ * @see __tests__/playwright/dom.spec.js
  */
 dom.empty = element => element ? element.innerHTML = '' : undefined;
 /**
  * Removes the element from the DOM.
  * @param {Element} element
  * @returns {jQuery|undefined}
+ * @see __tests__/playwright/dom.spec.js
  */
 dom.remove = element => element ? jQuery(element).remove() : undefined;
 /**
  * Prepends an element as the first child.
  * @param {Element} parent
  * @param {Element} elem
+ * @see __tests__/playwright/dom.spec.js
  */
 dom.prepend = (parent, elem) => parent.prepend(elem);
 /**
  * Appends an element as the last child.
  * @param {Element} parent
  * @param {Element} elem
+ * @see __tests__/playwright/dom.spec.js
  */
 dom.append = (parent, elem) => parent.append(elem);
 /**
  * Inserts an element before the reference node.
  * @param {Element} before
  * @param {Element} elem
+ * @see __tests__/playwright/dom.spec.js
  */
 dom.insertBefore = (before, elem) => jQuery(before).before(elem);
 /**
  * Inserts an element after the reference node.
  * @param {Element} after
  * @param {Element} elem
+ * @see __tests__/playwright/dom.spec.js
  */
 dom.insertAfter = (after, elem) => jQuery(after).after(elem);
 /**
@@ -131,6 +138,7 @@ dom.removeWhitespace = element => {
  * Returns the child nodes as an array.
  * @param {Element} el
  * @returns {Node[]}
+ * @see __tests__/playwright/dom.spec.js
  */
 dom.contents = el => el ? Array.from(el.childNodes) : [];
 /**
@@ -249,6 +257,7 @@ dom.getSiblings = (element, dir, elementNodesOnly, stopElem) => {
  * Returns the text content of a node.
  * @param {Node} node
  * @returns {string}
+ * @see __tests__/playwright/dom.spec.js
  */
 dom.getNodeTextContent = node => node ? (node.textContent || '') : '';
 /**
@@ -973,6 +982,7 @@ dom.mergeBlockWithSibling = (range, block, next) => {
  * @param {number} timestamp
  * @param {string} tsIso8601
  * @returns {string|undefined}
+ * @see __tests__/playwright/dom.spec.js
  */
 dom.date = (format, timestamp, tsIso8601) => {
   if (timestamp === null && tsIso8601) {
@@ -993,6 +1003,7 @@ dom.date = (format, timestamp, tsIso8601) => {
  * Converts an ISO 8601 timestamp string to a Unix timestamp (ms since epoch).
  * @param {string} tsIso8601
  * @returns {number|null}
+ * @see __tests__/playwright/dom.spec.js
  */
 dom.tsIso8601ToTimestamp = tsIso8601 => {
   const d = Date.parse(tsIso8601);
