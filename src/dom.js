@@ -659,7 +659,7 @@ dom.is = (node, exp) => jQuery(node).is(exp);
  * Extends an object with properties from other objects.
  * @param {...Object} args
  * @returns {Object}
- * @note No direct test coverage. Tests should be added.
+ * @see __tests__/playwright/dom.spec.js
  */
 dom.extend = (...args) => jQuery.extend.apply(this, args);
 /**
@@ -667,7 +667,7 @@ dom.extend = (...args) => jQuery.extend.apply(this, args);
  * @param {Node} elem
  * @param {Function} callback
  * @param {number} [lvl=0]
- * @note No direct test coverage. Tests should be added.
+ * @see __tests__/playwright/dom.spec.js
  */
 dom.walk = (elem, callback, lvl = 0) => {
   if (!elem) return;
@@ -685,7 +685,7 @@ dom.walk = (elem, callback, lvl = 0) => {
  * Walks the DOM tree in reverse order and applies the callback function to each element.
  * @param {Node} elem
  * @param {Function} callback
- * @note No direct test coverage. Tests should be added.
+ * @see __tests__/playwright/dom.spec.js
  */
 dom.revWalk = (elem, callback) => {
   if (!elem) return;
@@ -704,17 +704,21 @@ dom.revWalk = (elem, callback) => {
  * @param {Element} element
  * @param {string} property
  * @param {string|number} value
- * @note No direct test coverage. Tests should be added.
+ * @see __tests__/playwright/dom.spec.js
  */
-dom.setStyle = (element, property, value) => { if (element) jQuery(element).css(property, value); };
+dom.setStyle = (element, property, value) => {
+  if (element) {
+    element.style[property] = value;
+  }
+};
 /**
  * Gets the value of a CSS property for an element.
  * @param {Element} element
  * @param {string} property
  * @returns {string}
- * @note No direct test coverage. Tests should be added.
+ * @see __tests__/playwright/dom.spec.js
  */
-dom.getStyle = (element, property) => jQuery(element).css(property);
+dom.getStyle = (element, property) => getComputedStyle(element)[property];
 /**
  * Checks if an element has the specified class.
  * @param {Element} element
@@ -731,20 +735,20 @@ dom.addClass = (element, classNames) => element.classList.add(...classNames.spli
 /**
  * Prevents the default action of an event.
  * @param {Event} e
- * @note No direct test coverage. Tests should be added.
+ * @see __tests__/playwright/dom.spec.js
  */
 dom.preventDefault = e => { e.preventDefault(); dom.stopPropagation(e); };
 /**
  * Stops the propagation of an event.
  * @param {Event} e
- * @note No direct test coverage. Tests should be added.
+ * @see __tests__/playwright/dom.spec.js
  */
 dom.stopPropagation = e => { e.stopPropagation(); };
 /**
  * Inherits the properties of the parent object, excluding inclusion in the prototype chain.
  * @param {Function|string} child
  * @param {Function|string} parent
- * @note No direct test coverage. Tests should be added.
+ * @see __tests__/playwright/dom.spec.js
  */
 dom.noInclusionInherits = (child, parent) => {
   if (parent instanceof String || typeof parent === 'string') parent = window[parent];
@@ -768,6 +772,7 @@ dom.noInclusionInherits = (child, parent) => {
  * Iterates over an array or object and applies the callback function to each item.
  * @param {Array|Object} val
  * @param {Function} callback
+ * @see __tests__/playwright/dom.spec.js
  */
 dom.each = (val, callback) => {
   jQuery.each(val, function (i, el) {
@@ -778,6 +783,7 @@ dom.each = (val, callback) => {
  * Iterates over an array-like or object-like value and applies the callback function to each item.
  * @param {Array|NodeList|Object} value
  * @param {Function} cb
+ * @see __tests__/playwright/dom.spec.js
  */
 dom.foreach = (value, cb) => {
   if (Array.isArray(value) || value instanceof NodeList || (typeof value.length !== 'undefined' && typeof value.item !== 'undefined')) {
@@ -798,7 +804,7 @@ dom.foreach = (value, cb) => {
  * Checks if a value is set (not undefined or null).
  * @param {*} v
  * @returns {boolean}
- * @note No direct test coverage. Tests should be added.
+ * @see __tests__/playwright/dom.spec.js
  */
 dom.isset = v => typeof v !== 'undefined' && v !== null;
 /**
@@ -807,7 +813,7 @@ dom.isset = v => typeof v !== 'undefined' && v !== null;
  * @param {Array} array2
  * @param {boolean} firstOnly
  * @returns {Array}
- * @note No direct test coverage. Tests should be added.
+ * @see __tests__/playwright/dom.spec.js
  */
 dom.arrayDiff = (array1, array2, firstOnly) => {
   let res = array1.filter(x => !array2.includes(x));
@@ -821,7 +827,7 @@ dom.arrayDiff = (array1, array2, firstOnly) => {
  * @param {Array} array1
  * @param {Array} array2
  * @returns {Array}
- * @note No direct test coverage. Tests should be added.
+ * @see __tests__/playwright/dom.spec.js
  */
 dom.arrayMerge = (array1, array2) => {
   array1.push(...array2);
@@ -832,7 +838,7 @@ dom.arrayMerge = (array1, array2) => {
  * @param {string} content
  * @param {string[]} allowedTags
  * @returns {string}
- * @note No direct test coverage. Tests should be added.
+ * @see __tests__/playwright/dom.spec.js
  */
 dom.stripTags = (content, allowedTags) => {
   if (typeof allowedTags === 'string') {
