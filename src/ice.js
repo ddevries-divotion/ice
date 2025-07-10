@@ -1120,7 +1120,7 @@
               ice.dom.remove(elem);
             }
 
-            for (j = 0; j < elem.childNodes.length; j++) {
+            for (let j = 0; j < elem.childNodes.length; j++) {
               var child = elem.childNodes[j];
               elements.push(child);
             }

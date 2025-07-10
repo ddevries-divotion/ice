@@ -47,7 +47,7 @@
             !this._ice.getIceNode(range.startContainer, "deleteType")
           ) {
             // Get the last character and check to see if it is a dash.
-            c = range.toHtml();
+            const c = range.toHtml();
             if (c === "-") {
               // Extract the last character/dash and insert an emdash
               range.extractContents();
