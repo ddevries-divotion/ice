@@ -8,11 +8,12 @@
  * the ice block element, into an emdash.
  * @class IceEmdashPlugin
  */
-class IceEmdashPlugin {
+class IceEmdashPlugin extends ice.IcePlugin {
   /**
    * @param {Object} ice_instance - The ice instance.
    */
   constructor(ice_instance) {
+    super(ice_instance);
     this._ice = ice_instance;
   }
 
@@ -87,12 +88,6 @@ class IceEmdashPlugin {
     return true;
   }
 }
-
-/**
- * Sets up inheritance for IceEmdashPlugin from ice.IcePlugin.
- * @see ice.IcePlugin
- */
-ice.dom.noInclusionInherits(IceEmdashPlugin, ice.IcePlugin);
 
 /**
  * Exports the IceEmdashPlugin for CommonJS and attaches it to the global ice object in browsers.

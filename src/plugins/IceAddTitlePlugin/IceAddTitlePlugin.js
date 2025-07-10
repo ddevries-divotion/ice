@@ -7,12 +7,12 @@
  * @class IceAddTitlePlugin
  * @description Adds a title attribute to nodes indicating modification details.
  */
-class IceAddTitlePlugin {
+class IceAddTitlePlugin extends ice.IcePlugin {
   /**
    * @param {Object} ice_instance - The ice instance.
    */
   constructor(ice_instance) {
-    this._ice = ice_instance;
+    super(ice_instance);
   }
 
   /**
@@ -30,12 +30,6 @@ class IceAddTitlePlugin {
     );
   }
 }
-
-/**
- * Sets up inheritance for IceAddTitlePlugin from ice.IcePlugin.
- * @see ice.IcePlugin
- */
-ice.dom.noInclusionInherits(IceAddTitlePlugin, ice.IcePlugin);
 
 /**
  * Exports the IceAddTitlePlugin for CommonJS and attaches it to the global ice object in browsers.

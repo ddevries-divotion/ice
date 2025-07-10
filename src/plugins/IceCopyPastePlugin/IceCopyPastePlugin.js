@@ -7,11 +7,12 @@
  * @class IceCopyPastePlugin
  * @description Handles copy, cut, and paste operations with cleaning and preservation logic.
  */
-class IceCopyPastePlugin {
+class IceCopyPastePlugin extends ice.IcePlugin {
   /**
    * @param {Object} ice_instance - The ice instance.
    */
   constructor(ice_instance) {
+    super(ice_instance);
     this._ice = ice_instance;
     this._tmpNode = null;
     this._tmpNodeTagName = "icepaste";

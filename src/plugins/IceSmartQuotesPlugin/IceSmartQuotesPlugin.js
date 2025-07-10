@@ -7,11 +7,12 @@
  * @class IceSmartQuotesPlugin
  * @description Converts straight quotes to smart quotes within block elements.
  */
-class IceSmartQuotesPlugin {
+class IceSmartQuotesPlugin extends ice.IcePlugin {
   /**
    * @param {Object} ice_instance - The ice instance.
    */
   constructor(ice_instance) {
+    super(ice_instance);
     this._ice = ice_instance;
   }
 
