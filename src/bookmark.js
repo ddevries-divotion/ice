@@ -3,12 +3,11 @@
 // Copyright (c) Divotion B.V., Conflux, Dennis de Vries
 // Licensed under the GNU General Public License v2.0 or later
 
-(function() {
+(function () {
+  var exports = this,
+    Bookmark;
 
-  var exports = this, Bookmark;
-
-  Bookmark = function(env, range, keepOldBookmarks) {
-
+  Bookmark = function (env, range, keepOldBookmarks) {
     this.env = env;
     this.element = env.element;
     this.selection = this.env.selection;
@@ -21,21 +20,19 @@
     var currRange = range || this.selection.getRangeAt(0);
     range = currRange.cloneRange();
     var startContainer = range.startContainer;
-    var endContainer = range.endContainer;
-    var startOffset  = range.startOffset;
-    var endOffset = range.endOffset;
+    var startOffset = range.startOffset;
     var tmp;
 
     // Collapse to the end of range.
     range.collapse(false);
 
-    var endBookmark  = this.env.document.createElement('span');
-    endBookmark.style.display = 'none';
-    endBookmark.innerHTML = '&nbsp;';
-    ice.dom.addClass(endBookmark, 'iceBookmark iceBookmark_end');
-    endBookmark.setAttribute('iceBookmark', 'end');
+    var endBookmark = this.env.document.createElement("span");
+    endBookmark.style.display = "none";
+    endBookmark.innerHTML = "&nbsp;";
+    ice.dom.addClass(endBookmark, "iceBookmark iceBookmark_end");
+    endBookmark.setAttribute("iceBookmark", "end");
     range.insertNode(endBookmark);
-    if(!ice.dom.isChildOf(endBookmark, this.element)) {
+    if (!ice.dom.isChildOf(endBookmark, this.element)) {
       this.element.appendChild(endBookmark);
     }
 
@@ -44,22 +41,22 @@
     range.collapse(true);
 
     // Create the start bookmark.
-    var startBookmark = this.env.document.createElement('span');
-    startBookmark.style.display = 'none';
-    ice.dom.addClass(startBookmark, 'iceBookmark iceBookmark_start');
-    startBookmark.innerHTML = '&nbsp;';
-    startBookmark.setAttribute('iceBookmark', 'start');
+    var startBookmark = this.env.document.createElement("span");
+    startBookmark.style.display = "none";
+    ice.dom.addClass(startBookmark, "iceBookmark iceBookmark_start");
+    startBookmark.innerHTML = "&nbsp;";
+    startBookmark.setAttribute("iceBookmark", "start");
     try {
       range.insertNode(startBookmark);
 
       // Make sure start and end are in correct position.
       if (startBookmark.previousSibling === endBookmark) {
         // Reverse..
-        tmp  = startBookmark;
+        tmp = startBookmark;
         startBookmark = endBookmark;
         endBookmark = tmp;
       }
-    } catch (e) {
+    } catch {
       // NS_ERROR_UNEXPECTED: I believe this is a Firefox bug.
       // It seems like if the range is collapsed and the text node is empty
       // (i.e. length = 0) then Firefox tries to split the node for no reason and fails...
@@ -76,32 +73,37 @@
     }
 
     if (!endBookmark.previousSibling) {
-      tmp = this.env.document.createTextNode('');
+      tmp = this.env.document.createTextNode("");
       ice.dom.insertBefore(endBookmark, tmp);
     }
 
     // The original range object must be changed.
     if (!startBookmark.nextSibling) {
-      tmp = this.env.document.createTextNode('');
+      tmp = this.env.document.createTextNode("");
       ice.dom.insertAfter(startBookmark, tmp);
     }
 
     currRange.setStart(startBookmark.nextSibling, 0);
-    currRange.setEnd(endBookmark.previousSibling, (endBookmark.previousSibling.length || 0));
+    currRange.setEnd(
+      endBookmark.previousSibling,
+      endBookmark.previousSibling.length || 0,
+    );
 
     this.start = startBookmark;
     this.end = endBookmark;
   };
 
   Bookmark.prototype = {
-
-    selectBookmark: function() {
+    selectBookmark: function () {
       var range = this.selection.getRangeAt(0);
       var startPos = null;
       var endPos = null;
       var startOffset = 0;
       var endOffset = null;
-      if (this.start.nextSibling === this.end || ice.dom.getElementsBetween(this.start, this.end).length === 0) {
+      if (
+        this.start.nextSibling === this.end ||
+        ice.dom.getElementsBetween(this.start, this.end).length === 0
+      ) {
         // Bookmark is collapsed.
         if (this.end.nextSibling) {
           startPos = ice.dom.getFirstChild(this.end.nextSibling);
@@ -112,7 +114,7 @@
           }
         } else {
           // Create a text node in parent.
-          this.end.parentNode.appendChild(this.env.document.createTextNode(''));
+          this.end.parentNode.appendChild(this.env.document.createTextNode(""));
           startPos = ice.dom.getFirstChild(this.end.nextSibling);
         }
       } else {
@@ -120,7 +122,7 @@
           startPos = ice.dom.getFirstChild(this.start.nextSibling);
         } else {
           if (!this.start.previousSibling) {
-            var tmp = this.env.document.createTextNode('');
+            var tmp = this.env.document.createTextNode("");
             ice.dom.insertBefore(this.start, tmp);
           }
 
@@ -144,28 +146,27 @@
       } else {
         range.setStart(startPos, startOffset);
         if (endOffset === null) {
-          endOffset = (endPos.length || 0);
+          endOffset = endPos.length || 0;
         }
         range.setEnd(endPos, endOffset);
       }
 
       try {
         this.selection.addRange(range);
-      } catch (e) {
+      } catch {
         // IE may throw exception for hidden elements..
       }
     },
 
-    getBookmark: function(parent, type) {
-      var elem = ice.dom.getClass('iceBookmark_' + type, parent)[0];
+    getBookmark: function (parent, type) {
+      var elem = ice.dom.getClass("iceBookmark_" + type, parent)[0];
       return elem;
     },
 
-    removeBookmarks: function(elem) {
-      ice.dom.remove(ice.dom.getClass('iceBookmark', elem, 'span'));
-    }
+    removeBookmarks: function (elem) {
+      ice.dom.remove(ice.dom.getClass("iceBookmark", elem, "span"));
+    },
   };
 
   exports.Bookmark = Bookmark;
-
 }).call(this.ice);

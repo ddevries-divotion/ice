@@ -46,17 +46,73 @@ dom.DOCUMENT_FRAGMENT_NODE = 11;
 /** @constant {number} */
 dom.NOTATION_NODE = 12;
 /** @constant {string} */
-dom.CHARACTER_UNIT = 'character';
+dom.CHARACTER_UNIT = "character";
 /** @constant {string} */
-dom.WORD_UNIT = 'word';
+dom.WORD_UNIT = "word";
 /** @constant {string} */
-dom.BREAK_ELEMENT = 'br';
+dom.BREAK_ELEMENT = "br";
 /** @constant {string[]} */
-dom.CONTENT_STUB_ELEMENTS = ['img', 'hr', 'iframe', 'param', 'link', 'meta', 'input', 'frame', 'col', 'base', 'area'];
+dom.CONTENT_STUB_ELEMENTS = [
+  "img",
+  "hr",
+  "iframe",
+  "param",
+  "link",
+  "meta",
+  "input",
+  "frame",
+  "col",
+  "base",
+  "area",
+];
 /** @constant {string[]} */
-dom.BLOCK_ELEMENTS = ['p', 'div', 'pre', 'ul', 'ol', 'li', 'table', 'tbody', 'td', 'th', 'fieldset', 'form', 'blockquote', 'dl', 'dt', 'dd', 'dir', 'center', 'address', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
+dom.BLOCK_ELEMENTS = [
+  "p",
+  "div",
+  "pre",
+  "ul",
+  "ol",
+  "li",
+  "table",
+  "tbody",
+  "td",
+  "th",
+  "fieldset",
+  "form",
+  "blockquote",
+  "dl",
+  "dt",
+  "dd",
+  "dir",
+  "center",
+  "address",
+  "h1",
+  "h2",
+  "h3",
+  "h4",
+  "h5",
+  "h6",
+];
 /** @constant {string[]} */
-dom.TEXT_CONTAINER_ELEMENTS = ['p', 'div', 'pre', 'li', 'td', 'th', 'blockquote', 'dt', 'dd', 'center', 'address', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
+dom.TEXT_CONTAINER_ELEMENTS = [
+  "p",
+  "div",
+  "pre",
+  "li",
+  "td",
+  "th",
+  "blockquote",
+  "dt",
+  "dd",
+  "center",
+  "address",
+  "h1",
+  "h2",
+  "h3",
+  "h4",
+  "h5",
+  "h6",
+];
 
 /**
  * @constant {string[]}
@@ -73,23 +129,23 @@ dom.STUB_ELEMENTS = [...dom.CONTENT_STUB_ELEMENTS, dom.BREAK_ELEMENT];
  */
 dom.getClass = (className, element = document.body) => {
   // For backwards compatibility, add a dot prefix if the className does not start with one.
-  const prefix = className.startsWith('.') ? '' : '.';
-  return element.querySelectorAll(`${prefix}${className}`)
-}
+  const prefix = className.startsWith(".") ? "" : ".";
+  return element.querySelectorAll(`${prefix}${className}`);
+};
 /**
  * Removes all children from an element.
  * @param {Element} element - The element to empty.
  * @returns {undefined}
  * @see __tests__/playwright/dom.spec.js
  */
-dom.empty = element => element ? element.innerHTML = '' : undefined;
+dom.empty = (element) => (element ? (element.innerHTML = "") : undefined);
 /**
  * Removes the element from the DOM.
  * @param {Element} element - The element to remove.
  * @returns {undefined}
  * @see __tests__/playwright/dom.spec.js
  */
-dom.remove = element => element ? jQuery(element).remove() : undefined;
+dom.remove = (element) => (element ? jQuery(element).remove() : undefined);
 /**
  * Prepends an element as the first child.
  * @param {Element} parent - The parent element.
@@ -122,17 +178,23 @@ dom.insertAfter = (after, elem) => jQuery(after).after(elem);
  * Removes whitespace and newlines between nested block elements using jQuery.
  * @param {Element} element - The element to clean.
  */
-dom.removeWhitespace = element => {
-  jQuery(element).contents().filter(function () {
-    if (this.nodeType !== dom.TEXT_NODE && (this.nodeName === 'UL' || this.nodeName === 'OL')) {
-      dom.removeWhitespace(this);
-      return false;
-    } else if (this.nodeType !== dom.TEXT_NODE) {
-      return false;
-    } else {
-      return !/\S/.test(this.nodeValue);
-    }
-  }).remove();
+dom.removeWhitespace = (element) => {
+  jQuery(element)
+    .contents()
+    .filter(function () {
+      if (
+        this.nodeType !== dom.TEXT_NODE &&
+        (this.nodeName === "UL" || this.nodeName === "OL")
+      ) {
+        dom.removeWhitespace(this);
+        return false;
+      } else if (this.nodeType !== dom.TEXT_NODE) {
+        return false;
+      } else {
+        return !/\S/.test(this.nodeValue);
+      }
+    })
+    .remove();
 };
 /**
  * Returns the child nodes as an array.
@@ -140,13 +202,13 @@ dom.removeWhitespace = element => {
  * @returns {Node[]} Array of child nodes.
  * @see __tests__/playwright/dom.spec.js
  */
-dom.contents = el => el ? Array.from(el.childNodes) : [];
+dom.contents = (el) => (el ? Array.from(el.childNodes) : []);
 /**
  * Returns the inner contents of el as a DocumentFragment.
  * @param {Element} el - The element to extract content from.
  * @returns {DocumentFragment}
  */
-dom.extractContent = el => {
+dom.extractContent = (el) => {
   const frag = document.createDocumentFragment();
   let child;
   while ((child = el.firstChild)) {
@@ -160,7 +222,8 @@ dom.extractContent = el => {
  * @param {string} selector - The selector to match.
  * @returns {Node|null} The matching ancestor or null.
  */
-dom.getNode = (node, selector) => dom.is(node, selector) ? node : dom.parents(node, selector)[0] || null;
+dom.getNode = (node, selector) =>
+  dom.is(node, selector) ? node : dom.parents(node, selector)[0] || null;
 /**
  * Returns the parents of the given elements up to the stop element, filtered by the given selector using jQuery.parents().
  * @param {Element|Element[]} elements - The elements to start from.
@@ -182,9 +245,12 @@ dom.getParents = (elements, filter, stopEl) => {
  * @param {Element} parent - The parent element.
  * @returns {boolean} True if block-level children exist.
  */
-dom.hasBlockChildren = parent => {
+dom.hasBlockChildren = (parent) => {
   for (let i = 0; i < parent.childNodes.length; i++) {
-    if (parent.childNodes[i].nodeType === dom.ELEMENT_NODE && dom.isBlockElement(parent.childNodes[i])) {
+    if (
+      parent.childNodes[i].nodeType === dom.ELEMENT_NODE &&
+      dom.isBlockElement(parent.childNodes[i])
+    ) {
       return true;
     }
   }
@@ -197,9 +263,11 @@ dom.hasBlockChildren = parent => {
  * @returns {Element} The modified element.
  */
 dom.removeTag = (element, selector) => {
-  jQuery(element).find(selector).replaceWith(function () {
-    return jQuery(this).contents();
-  });
+  jQuery(element)
+    .find(selector)
+    .replaceWith(function () {
+      return jQuery(this).contents();
+    });
   return element;
 };
 /**
@@ -210,18 +278,22 @@ dom.removeTag = (element, selector) => {
  */
 dom.stripEnclosingTags = (content, allowedTags) => {
   const c = jQuery(content);
-  c.find('*').not(allowedTags).replaceWith(function () {
-    let ret = jQuery();
-    let $this;
-    try {
-      $this = jQuery(this);
-      ret = $this.contents();
-    } catch (e) { }
-    if (ret.length === 0) {
-      $this.remove();
-    }
-    return ret;
-  });
+  c.find("*")
+    .not(allowedTags)
+    .replaceWith(function () {
+      let ret = jQuery();
+      let $this;
+      try {
+        $this = jQuery(this);
+        ret = $this.contents();
+      } catch {
+        /* empty */
+      }
+      if (ret.length === 0) {
+        $this.remove();
+      }
+      return ret;
+    });
   return c[0];
 };
 /**
@@ -234,10 +306,12 @@ dom.stripEnclosingTags = (content, allowedTags) => {
  */
 dom.getSiblings = (element, dir, elementNodesOnly, stopElem) => {
   if (elementNodesOnly === true) {
-    return dir === 'prev' ? jQuery(element).prevAll() : jQuery(element).nextAll();
+    return dir === "prev"
+      ? jQuery(element).prevAll()
+      : jQuery(element).nextAll();
   } else {
     const elems = [];
-    if (dir === 'prev') {
+    if (dir === "prev") {
       while (element.previousSibling) {
         element = element.previousSibling;
         if (element === stopElem) break;
@@ -259,15 +333,16 @@ dom.getSiblings = (element, dir, elementNodesOnly, stopElem) => {
  * @returns {string} The text content.
  * @see __tests__/playwright/dom.spec.js
  */
-dom.getNodeTextContent = node => node ? (node.textContent || '') : '';
+dom.getNodeTextContent = (node) => (node ? node.textContent || "" : "");
 /**
  * Checks if a node has no text or stub content.
  * @param {Node} node - The node to check.
  * @returns {boolean} True if no text or stub content.
  */
-dom.hasNoTextOrStubContent = node => {
+dom.hasNoTextOrStubContent = (node) => {
   if (dom.getNodeTextContent(node).length > 0) return false;
-  if (jQuery(node).find(dom.CONTENT_STUB_ELEMENTS.join(', ')).length > 0) return false;
+  if (jQuery(node).find(dom.CONTENT_STUB_ELEMENTS.join(", ")).length > 0)
+    return false;
   return true;
 };
 /**
@@ -275,34 +350,47 @@ dom.hasNoTextOrStubContent = node => {
  * @param {Node} node - The node to measure.
  * @returns {number} The character length.
  */
-dom.getNodeCharacterLength = node => dom.getNodeTextContent(node).length + jQuery(node).find(dom.STUB_ELEMENTS.join(', ')).length;
+dom.getNodeCharacterLength = (node) =>
+  dom.getNodeTextContent(node).length +
+  jQuery(node).find(dom.STUB_ELEMENTS.join(", ")).length;
 /**
  * Returns the tag name of a node in lowercase.
  * @param {Node} node - The node to get the tag name from.
  * @returns {string|null} The tag name or null.
  */
-dom.getTagName = node => node && node.tagName ? node.tagName.toLowerCase() : null;
+dom.getTagName = (node) =>
+  node && node.tagName ? node.tagName.toLowerCase() : null;
 /**
  * Checks if an element is a block element by tag name.
  * @param {Element} element - The element to check.
  * @returns {boolean} True if block element.
  */
-dom.isBlockElement = element => !!(element && element.nodeName && dom.BLOCK_ELEMENTS.includes(element.nodeName.toLowerCase()));
+dom.isBlockElement = (element) =>
+  !!(
+    element &&
+    element.nodeName &&
+    dom.BLOCK_ELEMENTS.includes(element.nodeName.toLowerCase())
+  );
 /**
  * Checks if an element is a stub element by tag name.
  * @param {Element} element - The element to check.
  * @returns {boolean} True if stub element.
  */
-dom.isStubElement = element => !!(element && element.nodeName && dom.STUB_ELEMENTS.includes(element.nodeName.toLowerCase()));
+dom.isStubElement = (element) =>
+  !!(
+    element &&
+    element.nodeName &&
+    dom.STUB_ELEMENTS.includes(element.nodeName.toLowerCase())
+  );
 /**
  * Removes `<br>` elements from the children of a node.
  * @param {Node} node - The node to clean.
  */
-dom.removeBRFromChild = node => {
+dom.removeBRFromChild = (node) => {
   if (node && node.hasChildNodes()) {
     for (let z = 0; z < node.childNodes.length; z++) {
       const child = node.childNodes[z];
-      if (child && (dom.BREAK_ELEMENT === dom.getTagName(child))) {
+      if (child && dom.BREAK_ELEMENT === dom.getTagName(child)) {
         child.parentNode.removeChild(child);
       }
     }
@@ -320,7 +408,9 @@ dom.isChildOf = (el, parent) => {
       if (el.parentNode === parent) return true;
       el = el.parentNode;
     }
-  } catch (e) { }
+  } catch {
+    /* empty */
+  }
   return false;
 };
 /**
@@ -332,12 +422,18 @@ dom.isChildOf = (el, parent) => {
 dom.isChildOfTagName = (el, name) => {
   try {
     while (el && el.parentNode) {
-      if (el.parentNode && el.parentNode.tagName && el.parentNode.tagName.toLowerCase() === name) {
+      if (
+        el.parentNode &&
+        el.parentNode.tagName &&
+        el.parentNode.tagName.toLowerCase() === name
+      ) {
         return el.parentNode;
       }
       el = el.parentNode;
     }
-  } catch (e) { }
+  } catch {
+    /* empty */
+  }
   return false;
 };
 /**
@@ -357,7 +453,9 @@ dom.isChildOfTagNames = (el, names) => {
       }
       el = el.parentNode;
     }
-  } catch (e) { }
+  } catch {
+    /* empty */
+  }
   return null;
 };
 /**
@@ -380,7 +478,8 @@ dom.bind = (element, event, callback) => jQuery(element).bind(event, callback);
  * @param {string} event - The event name.
  * @param {Function} callback - The event handler.
  */
-dom.unbind = (element, event, callback) => jQuery(element).unbind(event, callback);
+dom.unbind = (element, event, callback) =>
+  jQuery(element).unbind(event, callback);
 /**
  * Gets or sets an attribute value for the given elements.
  * @param {Element|Element[]} element - The element(s) to operate on.
@@ -388,7 +487,8 @@ dom.unbind = (element, event, callback) => jQuery(element).unbind(event, callbac
  * @param {string} [val] - The value to set (if provided).
  * @returns {string|undefined} The attribute value or undefined.
  */
-dom.attr = (element, key, val) => val ? element?.setAttribute(key, val) : element?.getAttribute(key);
+dom.attr = (element, key, val) =>
+  val ? element?.setAttribute(key, val) : element?.getAttribute(key);
 /**
  * Replaces a node with the given replacement using jQuery.replaceWith().
  * @param {Node} node - The node to replace.
@@ -408,7 +508,10 @@ dom.getElementsBetween = (fromElem, toElem) => {
     for (let i = 0; i < fromElem.childNodes.length; i++) {
       if (fromElem.childNodes[i] === toElem) break;
       else if (dom.isChildOf(toElem, fromElem.childNodes[i])) {
-        return dom.arrayMerge(elements, dom.getElementsBetween(fromElem.childNodes[i], toElem));
+        return dom.arrayMerge(
+          elements,
+          dom.getElementsBetween(fromElem.childNodes[i], toElem),
+        );
       } else {
         elements.push(fromElem.childNodes[i]);
       }
@@ -418,7 +521,10 @@ dom.getElementsBetween = (fromElem, toElem) => {
   let startEl = fromElem.nextSibling;
   while (startEl) {
     if (dom.isChildOf(toElem, startEl)) {
-      elements = dom.arrayMerge(elements, dom.getElementsBetween(startEl, toElem));
+      elements = dom.arrayMerge(
+        elements,
+        dom.getElementsBetween(startEl, toElem),
+      );
       return elements;
     } else if (startEl === toElem) {
       return elements;
@@ -430,11 +536,17 @@ dom.getElementsBetween = (fromElem, toElem) => {
   const fromParents = dom.getParents(fromElem);
   const toParents = dom.getParents(toElem);
   const parentElems = dom.arrayDiff(fromParents, toParents, true);
-  for (let j = 0; j < (parentElems.length - 1); j++) {
-    elements = dom.arrayMerge(elements, dom.getSiblings(parentElems[j], 'next'));
+  for (let j = 0; j < parentElems.length - 1; j++) {
+    elements = dom.arrayMerge(
+      elements,
+      dom.getSiblings(parentElems[j], "next"),
+    );
   }
   const lastParent = parentElems[parentElems.length - 1];
-  elements = dom.arrayMerge(elements, dom.getElementsBetween(lastParent, toElem));
+  elements = dom.arrayMerge(
+    elements,
+    dom.getElementsBetween(lastParent, toElem),
+  );
   return elements;
 };
 /**
@@ -448,7 +560,10 @@ dom.getNextNode = (node, container) => {
     while (node.parentNode) {
       if (node === container) return null;
       if (node.nextSibling) {
-        if (node.nextSibling.nodeType === dom.TEXT_NODE && node.nextSibling.length === 0) {
+        if (
+          node.nextSibling.nodeType === dom.TEXT_NODE &&
+          node.nextSibling.length === 0
+        ) {
           node = node.nextSibling;
           continue;
         }
@@ -469,8 +584,14 @@ dom.getNextContentNode = (node, container) => {
   if (node) {
     while (node.parentNode) {
       if (node === container) return null;
-      if (node.nextSibling && dom.canContainTextElement(dom.getBlockParent(node))) {
-        if (node.nextSibling.nodeType === dom.TEXT_NODE && node.nextSibling.length === 0) {
+      if (
+        node.nextSibling &&
+        dom.canContainTextElement(dom.getBlockParent(node))
+      ) {
+        if (
+          node.nextSibling.nodeType === dom.TEXT_NODE &&
+          node.nextSibling.length === 0
+        ) {
           node = node.nextSibling;
           continue;
         }
@@ -493,8 +614,14 @@ dom.getPrevContentNode = (node, container) => {
   if (node) {
     while (node.parentNode) {
       if (node === container) return null;
-      if (node.previousSibling && dom.canContainTextElement(dom.getBlockParent(node))) {
-        if (node.previousSibling.nodeType === dom.TEXT_NODE && node.previousSibling.length === 0) {
+      if (
+        node.previousSibling &&
+        dom.canContainTextElement(dom.getBlockParent(node))
+      ) {
+        if (
+          node.previousSibling.nodeType === dom.TEXT_NODE &&
+          node.previousSibling.length === 0
+        ) {
           node = node.previousSibling;
           continue;
         }
@@ -512,13 +639,18 @@ dom.getPrevContentNode = (node, container) => {
  * @param {Element} element - The element to check.
  * @returns {boolean} True if the element can contain text.
  */
-dom.canContainTextElement = element => !!(element && element.nodeName && dom.TEXT_CONTAINER_ELEMENTS.includes(element.nodeName.toLowerCase()));
+dom.canContainTextElement = (element) =>
+  !!(
+    element &&
+    element.nodeName &&
+    dom.TEXT_CONTAINER_ELEMENTS.includes(element.nodeName.toLowerCase())
+  );
 /**
  * Returns the first child node that is not an element.
  * @param {Node} node - The node to start from.
  * @returns {Node} The first non-element child node or the node itself.
  */
-dom.getFirstChild = node => {
+dom.getFirstChild = (node) => {
   if (!node) return null;
   let child = node.firstChild;
   while (child && child.nodeType === dom.ELEMENT_NODE && child.firstChild) {
@@ -531,7 +663,7 @@ dom.getFirstChild = node => {
  * @param {Node} node - The node to start from.
  * @returns {Node} The last non-element child node or the node itself.
  */
-dom.getLastChild = node => {
+dom.getLastChild = (node) => {
   if (!node) return null;
   let child = node.lastChild;
   while (child && child.nodeType === dom.ELEMENT_NODE && child.lastChild) {
@@ -545,7 +677,7 @@ dom.getLastChild = node => {
  * @param {Function} [callback] - Optional callback for each node.
  */
 dom.removeEmptyNodes = (parent, callback) => {
-  let elems = jQuery(parent).find(':empty');
+  let elems = jQuery(parent).find(":empty");
   let i = elems.length;
   while (i > 0) {
     i--;
@@ -561,7 +693,7 @@ dom.removeEmptyNodes = (parent, callback) => {
  * @param {string} html - The HTML string.
  * @returns {Element} The created element.
  */
-dom.create = html => jQuery(html)[0];
+dom.create = (html) => jQuery(html)[0];
 /**
  * Finds elements within the parent element that match the selector using jQuery.find().
  * @param {Element} parent - The parent element.
@@ -648,19 +780,25 @@ dom.hasClass = (element, className) => element.classList.contains(className);
  * @param {Element} element - The element to modify.
  * @param {string} classNames - Space-separated class names.
  */
-dom.addClass = (element, classNames) => element.classList.add(...classNames.split(' '));
+dom.addClass = (element, classNames) =>
+  element.classList.add(...classNames.split(" "));
 /**
  * Prevents the default action of an event and stops propagation.
  * @param {Event} e - The event to handle.
  * @see __tests__/playwright/dom.spec.js
  */
-dom.preventDefault = e => { e.preventDefault(); dom.stopPropagation(e); };
+dom.preventDefault = (e) => {
+  e.preventDefault();
+  dom.stopPropagation(e);
+};
 /**
  * Stops the propagation of an event.
  * @param {Event} e - The event to handle.
  * @see __tests__/playwright/dom.spec.js
  */
-dom.stopPropagation = e => { e.stopPropagation(); };
+dom.stopPropagation = (e) => {
+  e.stopPropagation();
+};
 /**
  * Inherits the properties of the parent object, excluding inclusion in the prototype chain.
  * @param {Function|string} child - The child constructor or name.
@@ -668,9 +806,11 @@ dom.stopPropagation = e => { e.stopPropagation(); };
  * @see __tests__/playwright/dom.spec.js
  */
 dom.noInclusionInherits = (child, parent) => {
-  if (parent instanceof String || typeof parent === 'string') parent = window[parent];
-  if (child instanceof String || typeof child === 'string') child = window[child];
-  const above = function () { };
+  if (parent instanceof String || typeof parent === "string")
+    parent = window[parent];
+  if (child instanceof String || typeof child === "string")
+    child = window[child];
+  const above = function () {};
   if (dom.isset(parent)) {
     for (const value in parent.prototype) {
       if (child.prototype[value]) {
@@ -682,7 +822,7 @@ dom.noInclusionInherits = (child, parent) => {
   }
   if (child.prototype) {
     above.prototype.constructor = parent;
-    child.prototype['super'] = new above();
+    child.prototype["super"] = new above();
   }
 };
 /**
@@ -702,7 +842,7 @@ dom.each = (val, callback) => {
  * @returns {boolean} True if set.
  * @see __tests__/playwright/dom.spec.js
  */
-dom.isset = v => typeof v !== 'undefined' && v !== null;
+dom.isset = (v) => typeof v !== "undefined" && v !== null;
 /**
  * Returns the difference between two arrays.
  * @param {Array} array1 - The first array.
@@ -712,9 +852,9 @@ dom.isset = v => typeof v !== 'undefined' && v !== null;
  * @see __tests__/playwright/dom.spec.js
  */
 dom.arrayDiff = (array1, array2, firstOnly) => {
-  let res = array1.filter(x => !array2.includes(x));
+  let res = array1.filter((x) => !array2.includes(x));
   if (!firstOnly) {
-    res = res.concat(array2.filter(x => !array1.includes(x)));
+    res = res.concat(array2.filter((x) => !array1.includes(x)));
   }
   return res;
 };
@@ -737,17 +877,18 @@ dom.arrayMerge = (array1, array2) => {
  * @see __tests__/playwright/dom.spec.js
  */
 dom.stripTags = (content, allowedTags) => {
-  if (typeof allowedTags === 'string') {
-    const c = jQuery('<div>' + content + '</div>');
-    c.find('*').not(allowedTags).remove();
+  if (typeof allowedTags === "string") {
+    const c = jQuery("<div>" + content + "</div>");
+    c.find("*").not(allowedTags).remove();
     return c.html();
   } else {
     let match;
-    const re = /<\/?(\w+)((\s+\w+(\s*=\s*(?:".*?"|'.*?'|[^'">\s]+))?)+\s*|\s*)\/?/gim;
+    const re =
+      /<\/?(\w+)((\s+\w+(\s*=\s*(?:".*?"|'.*?'|[^'">\s]+))?)+\s*|\s*)\/?/gim;
     let resCont = content;
     while ((match = re.exec(content)) != null) {
       if (!dom.isset(allowedTags) || !allowedTags.includes(match[1])) {
-        resCont = resCont.replace(match[0], '');
+        resCont = resCont.replace(match[0], "");
       }
     }
     return resCont;
@@ -762,23 +903,26 @@ dom.browser = () => {
   const result = {};
   let match;
   if ((match = userAgent.match(/(firefox)\/([\d.]+)/i))) {
-    result.type = 'mozilla';
+    result.type = "mozilla";
     result.version = match[2];
-  } else if ((match = userAgent.match(/(msie) ([\d.]+)/i)) || (match = userAgent.match(/trident.*rv:([\d.]+)/i))) {
-    result.type = 'msie';
+  } else if (
+    (match = userAgent.match(/(msie) ([\d.]+)/i)) ||
+    (match = userAgent.match(/trident.*rv:([\d.]+)/i))
+  ) {
+    result.type = "msie";
     result.version = match[2] || match[1];
   } else if ((match = userAgent.match(/(opera|opr)\/([\d.]+)/i))) {
-    result.type = 'opera';
+    result.type = "opera";
     result.version = match[2];
   } else if ((match = userAgent.match(/(chrome)\/([\d.]+)/i))) {
-    result.type = 'webkit';
+    result.type = "webkit";
     result.version = match[2];
   } else if ((match = userAgent.match(/(safari)\/([\d.]+)/i))) {
-    result.type = 'webkit';
+    result.type = "webkit";
     result.version = match[2];
   } else {
-    result.type = 'other';
-    result.version = '0';
+    result.type = "other";
+    result.version = "0";
   }
   return result;
 };
@@ -787,7 +931,7 @@ dom.browser = () => {
  * @param {string} browser
  * @returns {boolean}
  */
-dom.isBrowser = browser => dom.browser().type === browser;
+dom.isBrowser = (browser) => dom.browser().type === browser;
 /**
  * Returns the block parent of a node.
  * @param {Node} node
@@ -814,8 +958,14 @@ dom.getBlockParent = (node, container) => {
  */
 dom.onBlockBoundary = (leftContainer, rightContainer, blockEls) => {
   if (!leftContainer || !rightContainer) return false;
-  const bleft = dom.isChildOfTagNames(leftContainer, blockEls) || (dom.is(leftContainer, blockEls.join(', ')) && leftContainer) || null;
-  const bright = dom.isChildOfTagNames(rightContainer, blockEls) || (dom.is(rightContainer, blockEls.join(', ')) && rightContainer) || null;
+  const bleft =
+    dom.isChildOfTagNames(leftContainer, blockEls) ||
+    (dom.is(leftContainer, blockEls.join(", ")) && leftContainer) ||
+    null;
+  const bright =
+    dom.isChildOfTagNames(rightContainer, blockEls) ||
+    (dom.is(rightContainer, blockEls.join(", ")) && rightContainer) ||
+    null;
   return bleft !== bright;
 };
 /**
@@ -827,8 +977,14 @@ dom.onBlockBoundary = (leftContainer, rightContainer, blockEls) => {
  */
 dom.isOnBlockBoundary = (leftContainer, rightContainer, container) => {
   if (!leftContainer || !rightContainer) return false;
-  const bleft = dom.getBlockParent(leftContainer, container) || (dom.isBlockElement(leftContainer, container) && leftContainer) || null;
-  const bright = dom.getBlockParent(rightContainer, container) || (dom.isBlockElement(rightContainer, container) && rightContainer) || null;
+  const bleft =
+    dom.getBlockParent(leftContainer, container) ||
+    (dom.isBlockElement(leftContainer, container) && leftContainer) ||
+    null;
+  const bright =
+    dom.getBlockParent(rightContainer, container) ||
+    (dom.isBlockElement(rightContainer, container) && rightContainer) ||
+    null;
   return bleft !== bright;
 };
 /**
@@ -857,7 +1013,9 @@ dom.mergeContainers = (node, mergeToNode) => {
  * @returns {boolean}
  */
 dom.mergeBlockWithSibling = (range, block, next) => {
-  const siblingBlock = next ? jQuery(block).next().get(0) : jQuery(block).prev().get(0);
+  const siblingBlock = next
+    ? jQuery(block).next().get(0)
+    : jQuery(block).prev().get(0);
   if (next) dom.mergeContainers(siblingBlock, block);
   else dom.mergeContainers(block, siblingBlock);
   range.collapse(true);
@@ -876,15 +1034,15 @@ dom.date = (format, timestamp, tsIso8601) => {
     timestamp = dom.tsIso8601ToTimestamp(tsIso8601);
     if (!timestamp) return;
   }
-  if (typeof timestamp !== 'number') return;
+  if (typeof timestamp !== "number") return;
   const date = new Date(timestamp);
   return format
     .replace(/Y/g, date.getFullYear())
-    .replace(/m/g, String(date.getMonth() + 1).padStart(2, '0'))
-    .replace(/d/g, String(date.getDate()).padStart(2, '0'))
-    .replace(/H/g, String(date.getHours()).padStart(2, '0'))
-    .replace(/i/g, String(date.getMinutes()).padStart(2, '0'))
-    .replace(/s/g, String(date.getSeconds()).padStart(2, '0'));
+    .replace(/m/g, String(date.getMonth() + 1).padStart(2, "0"))
+    .replace(/d/g, String(date.getDate()).padStart(2, "0"))
+    .replace(/H/g, String(date.getHours()).padStart(2, "0"))
+    .replace(/i/g, String(date.getMinutes()).padStart(2, "0"))
+    .replace(/s/g, String(date.getSeconds()).padStart(2, "0"));
 };
 /**
  * Converts an ISO 8601 timestamp string to a Unix timestamp (ms since epoch).
@@ -892,7 +1050,7 @@ dom.date = (format, timestamp, tsIso8601) => {
  * @returns {number|null} The timestamp or null if invalid.
  * @see __tests__/playwright/dom.spec.js
  */
-dom.tsIso8601ToTimestamp = tsIso8601 => {
+dom.tsIso8601ToTimestamp = (tsIso8601) => {
   const d = Date.parse(tsIso8601);
   return isNaN(d) ? null : d;
 };
@@ -901,14 +1059,14 @@ dom.tsIso8601ToTimestamp = tsIso8601 => {
  * Exports the dom object for CommonJS and attaches it to the global ice object in browsers.
  * @module dom
  */
-if (typeof module !== 'undefined' && module.exports) {
+if (typeof module !== "undefined" && module.exports) {
   module.exports = dom;
 }
 /**
  * Attaches dom utilities to the global ice object in browsers.
  * @global
  */
-if (typeof window !== 'undefined') {
+if (typeof window !== "undefined") {
   window.ice = window.ice || {};
   window.ice.dom = dom;
 }

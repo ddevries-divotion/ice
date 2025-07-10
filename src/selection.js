@@ -4,7 +4,6 @@
 // Licensed under the GNU General Public License v2.0 or later
 
 (function () {
-
   var exports = this,
     Selection;
 
@@ -17,18 +16,15 @@
   };
 
   Selection.prototype = {
-
     /**
      * Returns the selection object for the current browser.
      */
     _getSelection: function () {
       if (this._selection) {
         this._selection.refresh();
-      }
-      else if (this.env.frame) {
+      } else if (this.env.frame) {
         this._selection = rangy.getSelection(this.env.frame);
-      }
-      else {
+      } else {
         this._selection = rangy.getSelection();
       }
       return this._selection;
@@ -50,7 +46,7 @@
       this._selection.refresh();
       try {
         return this._selection.getRangeAt(pos);
-      } catch (e) {
+      } catch {
         this._selection = null;
         return this._getSelection().getRangeAt(0);
       }
@@ -138,33 +134,33 @@
        * test <em>|it</em> out
        * test| <em>it</em> out
        * tes|t <em>it</em> out
-       * 
+       *
        * A range could be mapped in one of two ways:
-       * 
+       *
        * (1) If a startContainer is a Node of type Text, Comment, or CDATASection, then startOffset
        * is the number of characters from the start of startNode. For example, the following
        * are the range properties for `<p>te|st</p>` (where "|" is the collapsed range):
-       * 
+       *
        * startContainer: <TEXT>test<TEXT>
        * startOffset: 2
        * endContainer: <TEXT>test<TEXT>
        * endOffset: 2
-       * 
+       *
        * (2) For other Node types, startOffset is the number of child nodes between the start of
        * the startNode. Take the following html fragment:
-       * 
+       *
        * `<p>some <span>test</span> text</p>`
-       * 
+       *
        * If we were working with the following range properties:
-       * 
+       *
        * startContainer: <p>
        * startOffset: 2
        * endContainer: <p>
        * endOffset: 2
-       * 
+       *
        * Since <p> is an Element node, the offsets are based on the offset in child nodes of <p> and
        * the range is selecting the second child - the <span> tag.
-       * 
+       *
        * <p><TEXT>some </TEXT><SPAN>test</SPAN><TEXT> text</TEXT></p>
        */
       rangy.rangePrototype.moveCharLeft = function (moveStart, units) {
@@ -186,7 +182,11 @@
             container = this.getPreviousTextNode(container);
 
             // Get the previous text container that is not an empty text node.
-            while (container && container.nodeType == ice.dom.TEXT_NODE && container.nodeValue === "") {
+            while (
+              container &&
+              container.nodeType == ice.dom.TEXT_NODE &&
+              container.nodeValue === ""
+            ) {
               container = this.getPreviousTextNode(container);
             }
 
@@ -233,33 +233,33 @@
        * test <em>i|t</em> out
        * test <em>it|</em> out
        * test <em>it</em> |out
-       * 
+       *
        * A range could be mapped in one of two ways:
-       * 
+       *
        * (1) If a startContainer is a Node of type Text, Comment, or CDATASection, then startOffset
        * is the number of characters from the start of startNode. For example, the following
        * are the range properties for `<p>te|st</p>` (where "|" is the collapsed range):
-       * 
+       *
        * startContainer: <TEXT>test<TEXT>
        * startOffset: 2
        * endContainer: <TEXT>test<TEXT>
        * endOffset: 2
-       * 
+       *
        * (2) For other Node types, startOffset is the number of child nodes between the start of
        * the startNode. Take the following html fragment:
-       * 
+       *
        * `<p>some <span>test</span> text</p>`
-       * 
+       *
        * If we were working with the following range properties:
-       * 
+       *
        * startContainer: <p>
        * startOffset: 2
        * endContainer: <p>
        * endOffset: 2
-       * 
+       *
        * Since <p> is an Element node, the offsets are based on the offset in child nodes of <p> and
        * the range is selecting the second child - the <span> tag.
-       * 
+       *
        * <p><TEXT>some </TEXT><SPAN>test</SPAN><TEXT> text</TEXT></p>
        */
       rangy.rangePrototype.moveCharRight = function (moveStart, units) {
@@ -284,7 +284,7 @@
           offset += units;
         }
 
-        var diff = (offset - container.data.length);
+        var diff = offset - container.data.length;
         if (diff > 0) {
           var skippedBlockElem = [];
           // We need to move to the next selectable container.
@@ -316,7 +316,10 @@
        * For example, if the next container is an element that contains text nodes,
        * the the container's firstChild is returned.
        */
-      rangy.rangePrototype.getNextContainer = function (container, skippedBlockElem) {
+      rangy.rangePrototype.getNextContainer = function (
+        container,
+        skippedBlockElem,
+      ) {
         if (!container) {
           return null;
         }
@@ -345,7 +348,10 @@
         container = container.nextSibling;
         if (this.isSelectable(container) === true) {
           return container;
-        } else if (skippedBlockElem && ice.dom.isBlockElement(container) === true) {
+        } else if (
+          skippedBlockElem &&
+          ice.dom.isBlockElement(container) === true
+        ) {
           skippedBlockElem.push(container);
         }
 
@@ -362,7 +368,10 @@
        * For example, if the previous container is an element that contains text nodes,
        * then the container's lastChild is returned.
        */
-      rangy.rangePrototype.getPreviousContainer = function (container, skippedBlockElem) {
+      rangy.rangePrototype.getPreviousContainer = function (
+        container,
+        skippedBlockElem,
+      ) {
         if (!container) {
           return null;
         }
@@ -395,7 +404,10 @@
         container = container.previousSibling;
         if (this.isSelectable(container) === true) {
           return container;
-        } else if (skippedBlockElem && ice.dom.isBlockElement(container) === true) {
+        } else if (
+          skippedBlockElem &&
+          ice.dom.isBlockElement(container) === true
+        ) {
           skippedBlockElem.push(container);
         }
 
@@ -421,7 +433,10 @@
         return this.getNextTextNode(container);
       };
 
-      rangy.rangePrototype.getPreviousTextNode = function (container, skippedBlockEl) {
+      rangy.rangePrototype.getPreviousTextNode = function (
+        container,
+        skippedBlockEl,
+      ) {
         container = this.getPreviousContainer(container, skippedBlockEl);
         if (container.nodeType === ice.dom.TEXT_NODE) {
           return container;
@@ -485,7 +500,11 @@
       };
 
       rangy.rangePrototype.isSelectable = function (container) {
-        if (container && container.nodeType === ice.dom.TEXT_NODE && container.data.length !== 0) {
+        if (
+          container &&
+          container.nodeType === ice.dom.TEXT_NODE &&
+          container.data.length !== 0
+        ) {
           return true;
         }
         return false;
@@ -495,7 +514,7 @@
         if (!clonedSelection) {
           clonedSelection = this.cloneContents();
         }
-        var div = self.env.document.createElement('div');
+        var div = self.env.document.createElement("div");
         div.appendChild(clonedSelection.cloneNode(true));
         return div.innerHTML;
       };
@@ -503,9 +522,8 @@
       rangy.rangePrototype.getHTMLContentsObj = function () {
         return this.cloneContents();
       };
-    }
+    },
   };
 
   exports.Selection = Selection;
-
 }).call(this.ice);
