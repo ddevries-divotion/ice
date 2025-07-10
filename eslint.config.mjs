@@ -17,6 +17,7 @@ export default defineConfig([
         ice: "readonly",
         module: "writable", // Allow module for Node/CommonJS environments
         exports: "writable", // Allow exports for Node/CommonJS environments
+        rangy: "readonly", // Allow rangy for browser environments
         require: "readonly" // Optional: allow require if used
       }
     }
