@@ -4,7 +4,7 @@
 // Licensed under the GNU General Public License v2.0 or later
 
 (function () {
-  var exports = this,
+  let exports = this,
     defaults,
     InlineChangeEditor;
 
@@ -132,7 +132,7 @@
 
       // If we are handling events setup the delegate to handle various events on `this.element`.
       if (this.handleEvents) {
-        var self = this;
+        const self = this;
         ice.dom.bind(
           self.element,
           "keyup.ice keydown.ice keypress.ice mousedown.ice mouseup.ice",
@@ -159,7 +159,7 @@
 
       // If we are handling events setup the delegate to handle various events on `this.element`.
       if (this.handleEvents) {
-        var self = this;
+        const self = this;
         ice.dom.unbind(
           self.element,
           "keyup.ice keydown.ice keypress.ice mousedown.ice mouseup.ice",
@@ -192,7 +192,7 @@
      * Initializes the internal range object and sets focus to the editing element.
      */
     initializeRange: function () {
-      var range = this.selection.createRange();
+      const range = this.selection.createRange();
       range.setStart(
         ice.dom.find(this.element, this.blockEls.join(", "))[0],
         0,
@@ -209,7 +209,7 @@
     initializeEditor: function () {
       // Clean the element html body - add an empty block if there is no body, or remove any
       // content between elements.
-      var body = this.env.document.createElement("div");
+      const body = this.env.document.createElement("div");
       if (this.element.childNodes.length) {
         body.innerHTML = this.element.innerHTML;
         ice.dom.removeWhitespace(body);
@@ -234,31 +234,31 @@
      */
     findTrackTags: function () {
       // Grab class for each changeType
-      var self = this,
-        changeTypeClasses = [];
-      for (var changeType in this.changeTypes) {
+      const self = this;
+      const changeTypeClasses = [];
+      for (const changeType in this.changeTypes) {
         changeTypeClasses.push(this._getIceNodeClass(changeType));
       }
 
       ice.dom.each(
         ice.dom.find(this.element, "." + changeTypeClasses.join(", .")),
         function (i, el) {
-          var styleIndex = 0;
-          var ctnType = "";
-          var classList = el.className.split(" ");
-          for (var x = 0; x < classList.length; x++) {
-            var styleReg = new RegExp(self.stylePrefix + "-(\\d+)").exec(
+          let styleIndex = 0;
+          let ctnType = "";
+          const classList = el.className.split(" ");
+          for (let x = 0; x < classList.length; x++) {
+            const styleReg = new RegExp(self.stylePrefix + "-(\\d+)").exec(
               classList[x],
             );
             if (styleReg) styleIndex = styleReg[1];
-            var ctnReg = new RegExp(
+            const ctnReg = new RegExp(
               "(" + changeTypeClasses.join("|") + ")",
             ).exec(classList[x]);
             if (ctnReg) ctnType = self._getChangeTypeFromAlias(ctnReg[1]);
           }
-          var userid = ice.dom.attr(el, self.userIdAttribute);
+          const userid = ice.dom.attr(el, self.userIdAttribute);
           self.setUserStyle(userid, Number(styleIndex));
-          var changeid = ice.dom.attr(el, self.changeIdAttribute);
+          const changeid = ice.dom.attr(el, self.changeIdAttribute);
           self._changes[changeid] = {
             type: ctnType,
             userid: userid,
@@ -302,7 +302,7 @@
     handleEvent: function (e) {
       if (!this.isTracking) return;
       if (e.type == "mouseup") {
-        var self = this;
+        const self = this;
         setTimeout(function () {
           self.mouseUp(e);
         }, 200);
@@ -322,7 +322,7 @@
     },
     visible: function (el) {
       if (el.nodeType === ice.dom.TEXT_NODE) el = el.parentNode;
-      var rect = el.getBoundingClientRect();
+      const rect = el.getBoundingClientRect();
       return rect.top > 0 && rect.left > 0;
     },
 
@@ -330,7 +330,7 @@
      * Returns a tracking tag for the given `changeType`, with the optional `childNode` appended.
      */
     createIceNode: function (changeType, childNode) {
-      var node = this.env.document.createElement(
+      const node = this.env.document.createElement(
         this.changeTypes[changeType].tag,
       );
       ice.dom.addClass(node, this._getIceNodeClass(changeType));
@@ -354,7 +354,7 @@
     insert: function (node, range) {
       // If the node is not defined, then we need to insert an
       // invisible space and force propagation to the browser.
-      var isPropagating = !node;
+      let isPropagating = !node;
       node || (node = "\uFEFF");
 
       if (range) this.selection.addRange(range);
@@ -373,7 +373,7 @@
         ) {
           // The whole editable element is selected. Need to remove everything and init its contents.
           ice.dom.empty(this.element);
-          var firstSelectable = range.getLastSelectableChild(this.element);
+          const firstSelectable = range.getLastSelectableChild(this.element);
           range.setStartAfter(firstSelectable);
           range.collapse(true);
         }
@@ -381,7 +381,7 @@
       // If we are in a non-tracking/void element, move the range to the end/outside.
       this._moveRangeToValidTrackingPos(range);
 
-      var changeid = this.startBatchChange();
+      const changeid = this.startBatchChange();
       // Send a dummy node to be inserted, if node is undefined
       this._insertNode(node, range, isPropagating);
       this.pluginsManager.fireNodeInserted(node, range);
@@ -399,13 +399,13 @@
      * original delete node is stored.
      */
     placeholdDeletes: function () {
-      var self = this;
+      const self = this;
       if (this.isPlaceholdingDeletes) {
         this.revertDeletePlaceholders();
       }
       this.isPlaceholdingDeletes = true;
       this._deletes = [];
-      var deleteSelector = "." + this._getIceNodeClass("deleteType");
+      const deleteSelector = "." + this._getIceNodeClass("deleteType");
       ice.dom.each(
         ice.dom.find(this.element, deleteSelector),
         function (i, el) {
@@ -433,7 +433,7 @@
      * original delete node is stored.
      */
     revertDeletePlaceholders: function () {
-      var self = this;
+      const self = this;
       if (!this.isPlaceholdingDeletes) {
         return false;
       }
@@ -453,8 +453,8 @@
      * @return true if deletion was handled.
      */
     deleteContents: function (right, range) {
-      var prevent = true;
-      var browser = ice.dom.browser();
+      let prevent = true;
+      const browser = ice.dom.browser();
 
       if (range) {
         this.selection.addRange(range);
@@ -462,7 +462,7 @@
         range = this.getCurrentRange();
       }
 
-      var changeid = this.startBatchChange(
+      const changeid = this.startBatchChange(
         this.changeTypes["deleteType"].alias,
       );
       if (range.collapsed === false) {
@@ -509,7 +509,7 @@
               range.endOffset ===
               ice.dom.getNodeCharacterLength(range.endContainer)
             ) {
-              var next = range.startContainer.nextSibling;
+              let next = range.startContainer.nextSibling;
               if (ice.dom.is(next, "." + this._getIceNodeClass("deleteType"))) {
                 while (next) {
                   if (
@@ -571,7 +571,7 @@
                 range.endOffset ===
                 ice.dom.getNodeCharacterLength(range.endContainer)
               ) {
-                var prev = range.startContainer.previousSibling;
+                let prev = range.startContainer.previousSibling;
                 if (
                   ice.dom.is(prev, "." + this._getIceNodeClass("deleteType"))
                 ) {
@@ -614,10 +614,10 @@
      * Returns an array with the user ids who made the changes
      */
     getChangeUserids: function () {
-      var result = [];
-      var keys = Object.keys(this._changes);
+      const result = [];
+      const keys = Object.keys(this._changes);
 
-      for (var key in keys) result.push(this._changes[keys[key]].userid);
+      for (const key in keys) result.push(this._changes[keys[key]].userid);
 
       return result.sort().filter(function (el, i, a) {
         if (i == a.indexOf(el)) return 1;
@@ -643,8 +643,8 @@
      * prepare gets run before the body is cleaned by ice.
      */
     getCleanContent: function (body, callback, prepare) {
-      var classList = "";
-      var self = this;
+      let classList = "";
+      const self = this;
       ice.dom.each(this.changeTypes, function (type, i) {
         if (type != "deleteType") {
           if (i > 0) classList += ",";
@@ -659,11 +659,11 @@
         body = ice.dom.cloneNode(this.element, false)[0];
       }
       body = prepare ? prepare.call(this, body) : body;
-      var changes = ice.dom.find(body, classList);
+      const changes = ice.dom.find(body, classList);
       ice.dom.each(changes, function () {
         ice.dom.replaceWith(this, ice.dom.contents(this));
       });
-      var deletes = ice.dom.find(
+      const deletes = ice.dom.find(
         body,
         "." + this._getIceNodeClass("deleteType"),
       );
@@ -687,8 +687,8 @@
      * delete tags keeping the inner content in place.*
      */
     rejectAll: function () {
-      var insSel = "." + this._getIceNodeClass("insertType");
-      var delSel = "." + this._getIceNodeClass("deleteType");
+      const insSel = "." + this._getIceNodeClass("insertType");
+      const delSel = "." + this._getIceNodeClass("deleteType");
 
       ice.dom.remove(ice.dom.find(this.element, insSel));
       ice.dom.each(ice.dom.find(this.element, delSel), function (i, el) {
@@ -720,7 +720,7 @@
      * Handles accepting or rejecting tracking changes
      */
     acceptRejectChange: function (node, isAccept) {
-      var delSel,
+      let delSel,
         insSel,
         selector,
         removeSel,
@@ -730,7 +730,7 @@
         dom = ice.dom;
 
       if (!node) {
-        var range = this.getCurrentRange();
+        const range = this.getCurrentRange();
         if (!range.collapsed) return;
         else node = range.startContainer;
       }
@@ -769,7 +769,7 @@
      * node; otherwise, false.
      */
     isInsideChange: function (node) {
-      var selector =
+      let selector =
         "." +
         this._getIceNodeClass("insertType") +
         ", ." +
@@ -786,7 +786,7 @@
      * Add a new change tracking typeName with the given tag and alias.
      */
     addChangeType: function (typeName, tag, alias, action) {
-      var changeType = {
+      let changeType = {
         tag: tag,
         alias: alias,
       };
@@ -800,7 +800,7 @@
      * Returns this `node` or the first parent tracking node with the given `changeType`.
      */
     getIceNode: function (node, changeType) {
-      var selector = "." + this._getIceNodeClass(changeType);
+      let selector = "." + this._getIceNodeClass(changeType);
       return ice.dom.getNode(node, selector);
     },
 
@@ -809,8 +809,8 @@
      * void elements.
      */
     _moveRangeToValidTrackingPos: function (range) {
-      var onEdge = false;
-      var voidEl = this._getVoidElement(range.endContainer);
+      let onEdge = false;
+      let voidEl = this._getVoidElement(range.endContainer);
       while (voidEl) {
         // Move end of range to position it inside of any potential adjacent containers
         // E.G.:  test|<em>text</em>  ->  test<em>|text</em>
@@ -852,8 +852,8 @@
      * Returns the given `node` or the first parent node that matches against the list of no track elements.
      */
     _getNoTrackElement: function (node) {
-      var noTrackSelector = this._getNoTrackSelector();
-      var parent = ice.dom.is(node, noTrackSelector)
+      const noTrackSelector = this._getNoTrackSelector();
+      const parent = ice.dom.is(node, noTrackSelector)
         ? node
         : ice.dom.parents(node, noTrackSelector)[0] || null;
       return parent;
@@ -870,7 +870,7 @@
      * Returns the given `node` or the first parent node that matches against the list of void elements.
      */
     _getVoidElement: function (node) {
-      var voidSelector = this._getVoidElSelector();
+      const voidSelector = this._getVoidElSelector();
       return ice.dom.is(node, voidSelector)
         ? node
         : ice.dom.parents(node, voidSelector)[0] || null;
@@ -895,7 +895,7 @@
      * associated key for the alias.
      */
     _getChangeTypeFromAlias: function (alias) {
-      var type,
+      let type,
         ctnType = null;
       for (type in this.changeTypes) {
         if (Object.prototype.hasOwnProperty.call(this.changeTypes, type)) {
@@ -913,20 +913,20 @@
     },
 
     getUserStyle: function (userid) {
-      var styleIndex = null;
+      let styleIndex = null;
       if (this._userStyles[userid]) styleIndex = this._userStyles[userid];
       else styleIndex = this.setUserStyle(userid, this.getNewStyleId());
       return styleIndex;
     },
 
     setUserStyle: function (userid, styleIndex) {
-      var style = this.stylePrefix + "-" + styleIndex;
+      const style = this.stylePrefix + "-" + styleIndex;
       if (!this._styles[styleIndex]) this._styles[styleIndex] = true;
       return (this._userStyles[userid] = style);
     },
 
     getNewStyleId: function () {
-      var id = ++this._uniqueStyleIndex;
+      let id = ++this._uniqueStyleIndex;
       if (this._styles[id]) {
         // Dupe.. create another..
         return this.getNewStyleId();
@@ -937,7 +937,7 @@
     },
 
     addChange: function (ctnType, ctNodes) {
-      var changeid = this._batchChangeid || this.getNewChangeId();
+      let changeid = this._batchChangeid || this.getNewChangeId();
       if (!this._changes[changeid]) {
         // Create the change object.
         this._changes[changeid] = {
@@ -947,7 +947,7 @@
           username: this.currentUser.name,
         };
       }
-      var self = this;
+      const self = this;
       (ctNodes || []).forEach(function (node) {
         self.addNodeToChange(changeid, node);
       });
@@ -963,7 +963,7 @@
     addNodeToChange: function (changeid, ctNode) {
       if (this._batchChangeid !== null) changeid = this._batchChangeid;
 
-      var change = this.getChange(changeid);
+      const change = this.getChange(changeid);
 
       if (!ctNode.getAttribute(this.changeIdAttribute))
         ctNode.setAttribute(this.changeIdAttribute, changeid);
@@ -980,12 +980,12 @@
       if (!ice.dom.hasClass(ctNode, this._getIceNodeClass(change.type)))
         ice.dom.addClass(ctNode, this._getIceNodeClass(change.type));
 
-      var style = this.getUserStyle(change.userid);
+      const style = this.getUserStyle(change.userid);
       if (!ice.dom.hasClass(ctNode, style)) ice.dom.addClass(ctNode, style);
     },
 
     getChange: function (changeid) {
-      var change = null;
+      let change = null;
       if (this._changes[changeid]) {
         change = this._changes[changeid];
       }
@@ -993,7 +993,7 @@
     },
 
     getNewChangeId: function () {
-      var id = ++this._uniqueIDIndex;
+      let id = ++this._uniqueIDIndex;
       if (this._changes[id]) {
         // Dupe.. create another..
         id = this.getNewChangeId();
@@ -1025,13 +1025,13 @@
       ) {
         range.setStart(range.startContainer.previousSibling, 0);
       }
-      var parentBlock =
+      const parentBlock =
         (ice.dom.isBlockElement(range.startContainer) &&
           range.startContainer) ||
         ice.dom.getBlockParent(range.startContainer, this.element) ||
         null;
       if (parentBlock === this.element) {
-        var firstPar = document.createElement(this.blockEl);
+        const firstPar = document.createElement(this.blockEl);
         parentBlock.appendChild(firstPar);
         range.setStart(firstPar, 0);
         range.collapse();
@@ -1043,8 +1043,8 @@
         range.setStart(parentBlock, 0);
       }
 
-      var ctNode = this.getIceNode(range.startContainer, "insertType");
-      var inCurrentUserInsert = this._currentUserIceNode(ctNode);
+      const ctNode = this.getIceNode(range.startContainer, "insertType");
+      const inCurrentUserInsert = this._currentUserIceNode(ctNode);
 
       // Do nothing, let this bubble-up to insertion handler.
       if (insertingDummy && inCurrentUserInsert) return;
@@ -1069,7 +1069,7 @@
     _handleVoidEl: function (el, range) {
       // If `el` is or is in a void element, but not a delete
       // then collapse the `range` and return `true`.
-      var voidEl = this._getVoidElement(el);
+      const voidEl = this._getVoidElement(el);
       if (voidEl && !this.getIceNode(voidEl, "deleteType")) {
         range.collapse(true);
         return true;
@@ -1079,19 +1079,19 @@
 
     _deleteSelection: function (range) {
       // Bookmark the range and get elements between.
-      var bookmark = new ice.Bookmark(this.env, range),
+      const bookmark = new ice.Bookmark(this.env, range),
         elements = ice.dom.getElementsBetween(bookmark.start, bookmark.end),
         b1 = ice.dom.parents(range.startContainer, this.blockEls.join(", "))[0],
         b2 = ice.dom.parents(range.endContainer, this.blockEls.join(", "))[0],
         betweenBlocks = new Array();
 
-      for (var i = 0; i < elements.length; i++) {
-        var elem = elements[i];
+      for (let i = 0; i < elements.length; i++) {
+        const elem = elements[i];
         if (ice.dom.isBlockElement(elem)) {
           betweenBlocks.push(elem);
           if (!ice.dom.canContainTextElement(elem)) {
             // Ignore containers that are not supposed to contain text. Check children instead.
-            for (var k = 0; k < elem.childNodes.length; k++) {
+            for (let k = 0; k < elem.childNodes.length; k++) {
               elements.push(elem.childNodes[k]);
             }
             continue;
@@ -1121,12 +1121,12 @@
             }
 
             for (let j = 0; j < elem.childNodes.length; j++) {
-              var child = elem.childNodes[j];
+              const child = elem.childNodes[j];
               elements.push(child);
             }
             continue;
           }
-          var parentBlock = ice.dom.getBlockParent(elem);
+          const parentBlock = ice.dom.getBlockParent(elem);
           this._addNodeTracking(elem, false, true, true);
           if (ice.dom.hasNoTextOrStubContent(parentBlock)) {
             ice.dom.remove(parentBlock);
@@ -1149,7 +1149,7 @@
 
     // Delete
     _deleteRight: function (range) {
-      var parentBlock =
+      let parentBlock =
           (ice.dom.isBlockElement(range.startContainer) &&
             range.startContainer) ||
           ice.dom.getBlockParent(range.startContainer, this.element) ||
@@ -1179,7 +1179,7 @@
           ice.dom.isBlockElement(commonAncestor) &&
           !ice.dom.canContainTextElement(commonAncestor)
         ) {
-          var firstItem = commonAncestor.firstElementChild;
+          const firstItem = commonAncestor.firstElementChild;
           if (firstItem) {
             range.setStart(firstItem, 0);
             range.collapse();
@@ -1188,7 +1188,7 @@
         }
 
         if (commonAncestor.childNodes.length > initialOffset) {
-          var tempTextContainer = document.createTextNode(" ");
+          const tempTextContainer = document.createTextNode(" ");
           commonAncestor.insertBefore(
             tempTextContainer,
             commonAncestor.childNodes[initialOffset],
@@ -1243,7 +1243,7 @@
         // If the next container is non-editable, enclose it with a delete ice node and add an empty text node after it to position the caret.
         if (!nextContainer.isContentEditable) {
           returnValue = this._addNodeTracking(nextContainer, false, false);
-          var emptySpaceNode = document.createTextNode("");
+          const emptySpaceNode = document.createTextNode("");
           nextContainer.parentNode.insertBefore(
             emptySpaceNode,
             nextContainer.nextSibling,
@@ -1295,15 +1295,15 @@
             range.setEnd(nextBlock, 0);
           }
           // The browsers like to auto-insert breaks into empty paragraphs - remove them.
-          var elements = ice.dom.getElementsBetween(
+          const elements = ice.dom.getElementsBetween(
             range.startContainer,
             range.endContainer,
           );
-          for (var i = 0; i < elements.length; i++) {
+          for (let i = 0; i < elements.length; i++) {
             ice.dom.remove(elements[i]);
           }
-          var startContainer = range.startContainer;
-          var endContainer = range.endContainer;
+          const startContainer = range.startContainer;
+          const endContainer = range.endContainer;
           ice.dom.remove(ice.dom.find(startContainer, "br"));
           ice.dom.remove(ice.dom.find(endContainer, "br"));
           return ice.dom.mergeBlockWithSibling(
@@ -1326,8 +1326,8 @@
         }
       }
 
-      var entireTextNode = range.endContainer;
-      var deletedCharacter = entireTextNode.splitText(range.endOffset);
+      const entireTextNode = range.endContainer;
+      const deletedCharacter = entireTextNode.splitText(range.endOffset);
       deletedCharacter.splitText(1);
 
       return this._addNodeTracking(deletedCharacter, range, false);
@@ -1335,7 +1335,7 @@
 
     // Backspace
     _deleteLeft: function (range) {
-      var parentBlock =
+      let parentBlock =
           (ice.dom.isBlockElement(range.startContainer) &&
             range.startContainer) ||
           ice.dom.getBlockParent(range.startContainer, this.element) ||
@@ -1367,14 +1367,14 @@
           !ice.dom.canContainTextElement(commonAncestor)
         ) {
           if (initialOffset === 0) {
-            var firstItem = commonAncestor.firstElementChild;
+            const firstItem = commonAncestor.firstElementChild;
             if (firstItem) {
               range.setStart(firstItem, 0);
               range.collapse();
               return this._deleteLeft(range);
             }
           } else {
-            var lastItem = commonAncestor.lastElementChild;
+            const lastItem = commonAncestor.lastElementChild;
             if (lastItem) {
               lastSelectable = range.getLastSelectableChild(lastItem);
               if (lastSelectable) {
@@ -1420,8 +1420,8 @@
 
         // If the previous container is non-editable, enclose it with a delete ice node and add an empty text node before it to position the caret.
         if (!prevContainer.isContentEditable) {
-          var returnValue = this._addNodeTracking(prevContainer, false, true);
-          var emptySpaceNode = document.createTextNode("");
+          const returnValue = this._addNodeTracking(prevContainer, false, true);
+          const emptySpaceNode = document.createTextNode("");
           prevContainer.parentNode.insertBefore(emptySpaceNode, prevContainer);
           range.selectNode(emptySpaceNode);
           range.collapse(true);
@@ -1540,15 +1540,15 @@
             range.setStart(prevBlock, prevBlock.childNodes.length);
           }
           // The browsers like to auto-insert breaks into empty paragraphs - remove them.
-          var elements = ice.dom.getElementsBetween(
+          const elements = ice.dom.getElementsBetween(
             range.startContainer,
             range.endContainer,
           );
-          for (var i = 0; i < elements.length; i++) {
+          for (let i = 0; i < elements.length; i++) {
             ice.dom.remove(elements[i]);
           }
-          var startContainer = range.startContainer;
-          var endContainer = range.endContainer;
+          const startContainer = range.startContainer;
+          const endContainer = range.endContainer;
           ice.dom.remove(ice.dom.find(startContainer, "br"));
           ice.dom.remove(ice.dom.find(endContainer, "br"));
           return ice.dom.mergeBlockWithSibling(
@@ -1582,8 +1582,8 @@
         return true;
       }
 
-      var entireTextNode = range.startContainer;
-      var deletedCharacter = entireTextNode.splitText(range.startOffset - 1);
+      const entireTextNode = range.startContainer;
+      const deletedCharacter = entireTextNode.splitText(range.startOffset - 1);
       deletedCharacter.splitText(1);
 
       return this._addNodeTracking(deletedCharacter, range, true);
@@ -1591,21 +1591,21 @@
 
     // Marks text and other nodes for deletion
     _addNodeTracking: function (contentNode, range, moveLeft) {
-      var contentAddNode = this.getIceNode(contentNode, "insertType");
+      const contentAddNode = this.getIceNode(contentNode, "insertType");
 
       if (contentAddNode && this._currentUserIceNode(contentAddNode)) {
         if (range && moveLeft) {
           range.selectNode(contentNode);
         }
         contentNode.parentNode.removeChild(contentNode);
-        var cleanNode = ice.dom.cloneNode(contentAddNode);
+        const cleanNode = ice.dom.cloneNode(contentAddNode);
         ice.dom.remove(ice.dom.find(cleanNode, ".iceBookmark"));
         // Remove a potential empty tracking container
         if (
           contentAddNode !== null &&
           ice.dom.hasNoTextOrStubContent(cleanNode[0])
         ) {
-          var newstart = this.env.document.createTextNode("");
+          const newstart = this.env.document.createTextNode("");
           ice.dom.insertBefore(contentAddNode, newstart);
           if (range) {
             range.setStart(newstart, 0);
@@ -1619,15 +1619,15 @@
         // It if the contentNode a text node, unite it with text nodes before and after it.
         contentNode.normalize();
 
-        var found = false;
+        let found = false;
         if (moveLeft) {
           // Move to the left until there is valid sibling.
-          var previousSibling = ice.dom.getPrevContentNode(
+          let previousSibling = ice.dom.getPrevContentNode(
             contentNode,
             this.element,
           );
           while (!found) {
-            ctNode = this.getIceNode(previousSibling, "deleteType");
+            const ctNode = this.getIceNode(previousSibling, "deleteType");
             if (!ctNode) {
               found = true;
             } else {
@@ -1638,7 +1638,8 @@
             }
           }
           if (previousSibling) {
-            var lastSelectable = range.getLastSelectableChild(previousSibling);
+            const lastSelectable =
+              range.getLastSelectableChild(previousSibling);
             if (lastSelectable) {
               previousSibling = lastSelectable;
             }
@@ -1652,12 +1653,12 @@
         } else {
           // Move the range to the right until there is valid sibling.
 
-          var nextSibling = ice.dom.getNextContentNode(
+          let nextSibling = ice.dom.getNextContentNode(
             contentNode,
             this.element,
           );
           while (!found) {
-            ctNode = this.getIceNode(nextSibling, "deleteType");
+            const ctNode = this.getIceNode(nextSibling, "deleteType");
             if (!ctNode) {
               found = true;
             } else {
@@ -1690,18 +1691,18 @@
       ) {
         contentNode.parentNode.removeChild(contentNode.nextSibling);
       }
-      var prevDelNode = this.getIceNode(
+      let prevDelNode = this.getIceNode(
         contentNode.previousSibling,
         "deleteType",
       );
-      var nextDelNode = this.getIceNode(contentNode.nextSibling, "deleteType");
-      var ctNode;
+      let nextDelNode = this.getIceNode(contentNode.nextSibling, "deleteType");
+      let ctNode;
 
       if (prevDelNode && this._currentUserIceNode(prevDelNode)) {
         ctNode = prevDelNode;
         ctNode.appendChild(contentNode);
         if (nextDelNode && this._currentUserIceNode(nextDelNode)) {
-          var nextDelContents = ice.dom.extractContent(nextDelNode);
+          const nextDelContents = ice.dom.extractContent(nextDelNode);
           ice.dom.append(ctNode, nextDelContents);
           nextDelNode.parentNode.removeChild(nextDelNode);
         }
@@ -1737,11 +1738,11 @@
      * return {void|boolean} Returns false if default event needs to be blocked.
      */
     _handleAncillaryKey: function (e) {
-      var key = e.keyCode ? e.keyCode : e.which;
-      var browser = ice.dom.browser();
-      var preventDefault = true;
-      var self = this;
-      var range = self.getCurrentRange();
+      const key = e.keyCode ? e.keyCode : e.which;
+      const browser = ice.dom.browser();
+      let preventDefault = true;
+      const self = this;
+      const range = self.getCurrentRange();
       switch (key) {
         case ice.dom.DOM_VK_DELETE:
           preventDefault = this.deleteContents();
@@ -1800,15 +1801,16 @@
         /** END: Handling of caret movements inside hidden .ins/.del elements ***************/
         /************************************************************************************/
 
-        case 32:
+        case 32: {
           preventDefault = true;
-          var spaceRange = this.getCurrentRange();
+          const spaceRange = this.getCurrentRange();
           this._moveRangeToValidTrackingPos(
             spaceRange,
             spaceRange.startContainer,
           );
           this.insert("\u00A0", spaceRange);
           break;
+        }
         default:
           // Ignore key.
           preventDefault = false;
@@ -1827,7 +1829,7 @@
         ice.dom.preventDefault(e);
         return false;
       }
-      var preventDefault = false;
+      let preventDefault = false;
 
       if (this._handleSpecialKey(e) === false) {
         if (ice.dom.isBrowser("msie") !== true) {
@@ -1875,7 +1877,7 @@
 
       if (!this.pluginsManager.fireKeyPress(e)) return false;
 
-      var c = null;
+      let c = null;
       if (e.which == null) {
         // IE.
         c = String.fromCharCode(e.keyCode);
@@ -1884,8 +1886,8 @@
       }
 
       // Inside a br - most likely in a placeholder of a new block - delete before handling.
-      var range = this.getCurrentRange();
-      var br = ice.dom.parents(range.startContainer, "br")[0] || null;
+      const range = this.getCurrentRange();
+      const br = ice.dom.parents(range.startContainer, "br")[0] || null;
       if (br) {
         range.moveToNextEl(br);
         br.parentNode.removeChild(br);
@@ -1893,7 +1895,7 @@
 
       // Ice will ignore the keyPress event if CMD or CTRL key is also pressed
       if (c !== null && e.ctrlKey !== true && e.metaKey !== true) {
-        var key = e.keyCode ? e.keyCode : e.which;
+        const key = e.keyCode ? e.keyCode : e.which;
         switch (key) {
           case ice.dom.DOM_VK_DELETE:
             // Handle delete key for Firefox.
@@ -1913,29 +1915,29 @@
     },
 
     _handleEnter: function () {
-      var range = this.getCurrentRange();
+      const range = this.getCurrentRange();
       if (!range.collapsed) this.deleteContents();
       return true;
     },
 
     _handleSpecialKey: function (e) {
-      var keyCode = e.which;
+      let keyCode = e.which;
       if (keyCode === null) {
         // IE.
         keyCode = e.keyCode;
       }
 
-      var preventDefault = false;
+      let preventDefault = false;
       switch (keyCode) {
         case 65:
           // Check for CTRL/CMD + A (select all).
           if (e.ctrlKey === true || e.metaKey === true) {
             preventDefault = true;
-            var range = this.getCurrentRange();
+            const range = this.getCurrentRange();
 
             if (ice.dom.isBrowser("msie") === true) {
-              var selStart = this.env.document.createTextNode("");
-              var selEnd = this.env.document.createTextNode("");
+              const selStart = this.env.document.createTextNode("");
+              const selEnd = this.env.document.createTextNode("");
 
               if (this.element.firstChild) {
                 ice.dom.insertBefore(this.element.firstChild, selStart);
@@ -1949,7 +1951,7 @@
               range.setEnd(selEnd, 0);
             } else {
               range.setStart(range.getFirstSelectableChild(this.element), 0);
-              var lastSelectable = range.getLastSelectableChild(this.element);
+              const lastSelectable = range.getLastSelectableChild(this.element);
               range.setEnd(lastSelectable, lastSelectable.length);
             } //end if
 
