@@ -25,11 +25,12 @@
     "format:fix": "prettier --write ./src/**/*.js"
   },
   "keywords": [
-    "tinymce",
-    "track changes",
-    "contenteditable",
     "editor",
-    "ice"
+    "tinymce",
+    "contenteditable",
+    "ice",
+    "tinymce plugin",
+    "track changes"
   ],
   "devDependencies": {
     "@eslint/js": "^9.30.1",
