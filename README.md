@@ -101,7 +101,7 @@ A live demo is included in the `demo/` directory. To try it locally, run:
 
 ```sh
 npm run build
-npm run prepare:demo
+npm run demo:prepare
 npx serve demo
 ```
 
@@ -134,9 +134,22 @@ The demo uses the TinyMCE Cloud CDN, which requires an API key for production us
 
 ## Build & Development
 
-- Build: `npm run build` (runs Grunt, outputs to `dist/`)
-- Source: See `src/` for core and plugin code
-- Distribution: Only `dist/`, `LICENSE`, and `README.md` are published to npm
+- **Build**: `npm run build` (runs Rollup, outputs to `dist/`)
+- **Development**: `npm run build:dev` (development build with sourcemaps)
+- **Clean**: `npm run clean` (removes build artifacts)
+- **Source**: See `src/` for core and plugin code
+- **Distribution**: Only `dist/`, `LICENSE`, and `README.md` are published to npm
+
+### Build System
+
+The project uses **Rollup** for modern, efficient bundling:
+
+- Creates both regular (`ice.js`) and minified (`ice.min.js`) versions
+- Includes TinyMCE plugin assets
+- Generates distribution archives
+- Supports development and production builds
+- See `BUILD.md` for detailed build system documentation
+- See `MIGRATION.md` for detailed build system migration documentation
 
 ---
 
