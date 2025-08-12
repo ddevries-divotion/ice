@@ -11,49 +11,7 @@ export async function setupIceEditor(page) {
     url: "https://code.jquery.com/jquery-3.7.1.min.js",
   });
   await page.addScriptTag({
-    path: path.resolve(__dirname, "../../node_modules/rangy/lib/rangy-core.js"),
-  });
-  await page.addScriptTag({
-    path: path.resolve(__dirname, "../../src/ice.js"),
-  });
-  await page.addScriptTag({
-    path: path.resolve(__dirname, "../../src/dom.js"),
-  });
-  await page.addScriptTag({
-    path: path.resolve(__dirname, "../../src/icePlugin.js"),
-  });
-  await page.addScriptTag({
-    path: path.resolve(__dirname, "../../src/icePluginManager.js"),
-  });
-  await page.addScriptTag({
-    path: path.resolve(__dirname, "../../src/selection.js"),
-  });
-  await page.addScriptTag({
-    path: path.resolve(__dirname, "../../src/bookmark.js"),
-  });
-  await page.addScriptTag({
-    path: path.resolve(
-      __dirname,
-      "../../src/plugins/IceAddTitlePlugin/IceAddTitlePlugin.js",
-    ),
-  });
-  await page.addScriptTag({
-    path: path.resolve(
-      __dirname,
-      "../../src/plugins/IceCopyPastePlugin/IceCopyPastePlugin.js",
-    ),
-  });
-  await page.addScriptTag({
-    path: path.resolve(
-      __dirname,
-      "../../src/plugins/IceEmdashPlugin/IceEmdashPlugin.js",
-    ),
-  });
-  await page.addScriptTag({
-    path: path.resolve(
-      __dirname,
-      "../../src/plugins/IceSmartQuotesPlugin/IceSmartQuotesPlugin.js",
-    ),
+    path: path.resolve(__dirname, "../../dist/ice.min.js"),
   });
   await page.addScriptTag({
     path: path.resolve(__dirname, "./setupPlaywrightGetIce.js"),
