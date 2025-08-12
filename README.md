@@ -1,6 +1,6 @@
 # @divotion/ice
 
-A modern fork of [NYTimes/ice](https://github.com/nytimes/ice): Track changes for contenteditable elements and TinyMCE 7+ plugins in JavaScript.
+A modern fork of [NYTimes/ice](https://github.com/nytimes/ice): Track changes for contenteditable elements and TinyMCE 8+ plugins in JavaScript.
 
 ---
 
@@ -11,14 +11,14 @@ A modern fork of [NYTimes/ice](https://github.com/nytimes/ice): Track changes fo
 
 ## About
 
-This project is a maintained and modernized fork of the original NYTimes/ice, updated for compatibility with TinyMCE 7.x and modern JavaScript workflows. It provides robust track changes functionality for any `contenteditable` element and integrates as a TinyMCE plugin.
+This project is a maintained and modernized fork of the original NYTimes/ice, updated for compatibility with TinyMCE 8.x and modern JavaScript workflows. It provides robust track changes functionality for any `contenteditable` element and integrates as a TinyMCE plugin.
 
 ## Features
 
 - Track multi-user inserts and deletes, with toggles for tracking and highlighting
 - Accept/reject changes individually or in bulk
 - Clean API for extracting untracked content
-- TinyMCE 7+ plugin support
+- TinyMCE 8+ plugin support
 - Optional plugins: copy-paste tracking, smart quotes, em-dash conversion, add title to changes
 
 ---
@@ -112,18 +112,18 @@ Open [http://localhost:3000](http://localhost:3000) (or the port shown in your t
 The demo uses the TinyMCE Cloud CDN, which requires an API key for production use. For local testing, the demo works with the default `no-api-key`, but you may see a warning or have limited features. To use all features and remove warnings, obtain a free API key:
 
 1. **Register for a TinyMCE API Key:**
-   - Go to [https://www.tiny.cloud/docs/tinymce/7/cloud-quick-start/#add-your-api-key](https://www.tiny.cloud/docs/tinymce/7/cloud-quick-start/#add-your-api-key)
+   - Go to [https://www.tiny.cloud/docs/tinymce/8/cloud-quick-start/#add-your-api-key](https://www.tiny.cloud/docs/tinymce/8/cloud-quick-start/#add-your-api-key)
    - Sign up for a free account and copy your API key.
 
 2. **Update the Demo HTML:**
    - Open `demo/index.html`.
    - Find the following line near the top:
      ```html
-     <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
+     <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/8/tinymce.min.js" referrerpolicy="origin"></script>
      ```
    - Replace `no-api-key` with your actual API key. For example:
      ```html
-     <script src="https://cdn.tiny.cloud/1/YOUR_API_KEY/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
+     <script src="https://cdn.tiny.cloud/1/YOUR_API_KEY/tinymce/8/tinymce.min.js" referrerpolicy="origin"></script>
      ```
 
 3. **Save and reload the demo** in your browser. The warning should disappear, and all TinyMCE features will be enabled.
@@ -191,7 +191,7 @@ npx playwright show-report
 
 ## Known Issues
 
-- **`icesearchreplace` plugin does not work:** The current implementation of the `icesearchreplace` plugin is non-functional, as it does not correctly hook into the [TinyMCE `searchreplace` plugin](https://github.com/tinymce/tinymce/tree/release/6.7/modules/tinymce/src/plugins/searchreplace). It has only been updated for compatibility with TinyMCE version 7, and redundant logic has been removed. This is a known issue, and contributions to fix or modernize this plugin are welcome.
+- **`icesearchreplace` plugin does not work:** The current implementation of the `icesearchreplace` plugin is non-functional, as it does not correctly hook into the [TinyMCE `searchreplace` plugin](https://github.com/tinymce/tinymce/tree/release/6.7/modules/tinymce/src/plugins/searchreplace). It has only been updated for compatibility with TinyMCE version 8, and redundant logic has been removed. This is a known issue, and contributions to fix or modernize this plugin are welcome.
 - **Outdated tests:** The tests in this project have not been updated to reflect all recent changes. Test coverage and reliability are currently limited.
 
 ---

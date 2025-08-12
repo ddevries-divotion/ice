@@ -1,7 +1,7 @@
 /**
- * ICE SearchReplace Plugin for TinyMCE 7
+ * ICE SearchReplace Plugin for TinyMCE 8
  * Hooks into the opensource searchreplace plugin to wrap replaced content in ICE del/ins tags.
- * Compatible with TinyMCE 7 plugin API. No custom dialog logic is required; hooks into the replace command or event.
+ * Compatible with TinyMCE 8 plugin API. No custom dialog logic is required; hooks into the replace command or event.
  */
 
 (() => {
@@ -34,7 +34,7 @@
           return origReplace.call(this, replaceText, matchCase, wholeWord);
         };
       } else {
-        // If TinyMCE 7 exposes a command, override it
+        // If TinyMCE 8 exposes a command, override it
         const origCmd = editor.execCommand;
         editor.execCommand = function (cmd, ui, value) {
           if (cmd === "mceSearchReplace" && iceReplace(value)) return;
