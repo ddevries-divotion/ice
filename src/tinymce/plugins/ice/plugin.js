@@ -1,5 +1,5 @@
 /**
- * Refactored IcePlugin for TinyMCE 6 with modern JavaScript and native DOM APIs.
+ * Refactored IcePlugin for TinyMCE 8 with modern JavaScript and native DOM APIs.
  */
 
 (() => {
