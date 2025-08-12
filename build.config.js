@@ -4,6 +4,7 @@ export const BUILD_CONFIG = {
   BUILD_DIR: "dist",
   DEMO_DIR: "demo",
   SRC_DIR: "src",
+  PLUGIN_SUBDIRS: ['css', 'img', 'js'],
   
   // Entry points
   MAIN_ENTRY: "src/ice-bundle.js",
@@ -25,7 +26,7 @@ export const BUILD_CONFIG = {
       src: "src/tinymce/plugins/icesearchreplace/**/*",
     }
   ],
-  
+
   // Environment-specific settings
   DEVELOPMENT: {
     sourcemap: true,
