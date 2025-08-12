@@ -113,7 +113,7 @@ test.describe("dom.js utility functions", () => {
       return {
         zero: dom.isset(0),
         nullVal: dom.isset(null),
-        undefinedVal: dom.isset(undefined)
+        undefinedVal: dom.isset(undefined),
       };
     });
     expect(result.zero).toBe(true);
@@ -128,7 +128,7 @@ test.describe("dom.js utility functions", () => {
       const b = [2, 3, 4];
       return {
         firstOnly: dom.arrayDiff(a, b, true),
-        bothArrays: dom.arrayDiff(a, b, false)
+        bothArrays: dom.arrayDiff(a, b, false),
       };
     });
     expect(result.firstOnly).toEqual([1]);
