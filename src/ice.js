@@ -775,7 +775,7 @@
         ", ." +
         this._getIceNodeClass("deleteType");
       if (!node) {
-        range = this.getCurrentRange();
+        let range = this.getCurrentRange();
         if (!range.collapsed) return false;
         else node = range.startContainer;
       }

@@ -21,7 +21,7 @@
     "clean": "rm -rf dist demo/dist",
     "demo:prepare": "pnpm build && pnpm demo:copy",
     "demo:copy": "mkdir -p demo/dist && cp -r dist/* demo/dist/",
-    "test": "playwright test",
+    "test": "playwright test --reporter=line",
     "test:headed": "playwright test --headed",
     "lint": "eslint ./src/ --fix",
     "lint:check": "eslint ./src/",
