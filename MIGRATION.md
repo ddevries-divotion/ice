@@ -40,11 +40,11 @@ The project has been successfully migrated from Grunt to Rollup with all Grunt-r
 
 ### Available Scripts:
 ```bash
-pnpm build        # Production build with zip archive
-pnpm build:dev    # Development build with sourcemaps
-pnpm clean        # Remove build artifacts
-pnpm demo:prepare # Build and setup demo
-pnpm ci          # Complete CI pipeline
+npm run build        # Production build with zip archive
+npm run build:dev    # Development build with sourcemaps
+npm run clean        # Remove build artifacts
+npm run demo:prepare # Build and setup demo
+npm run ci          # Complete CI pipeline
 ```
 
 ## 🎯 Benefits of Migration
@@ -71,6 +71,6 @@ All Grunt references have been completely removed:
 - ✅ No Grunt dependencies in package.json
 - ✅ No Grunt references in source code
 - ✅ Updated documentation in README.md
-- ✅ Clean pnpm-lock.yaml without Grunt packages
+- ✅ Clean package-lock.json without Grunt packages
 
 The migration is **complete** and the project now uses **Rollup exclusively** for all build operations.

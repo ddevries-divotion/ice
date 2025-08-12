@@ -26,7 +26,7 @@ This project is a maintained and modernized fork of the original NYTimes/ice, up
 ## Installation
 
 ```sh
-pnpm install @divotion/ice
+npm install @divotion/ice
 ```
 
 ---
@@ -100,8 +100,8 @@ tinymce.init({
 A live demo is included in the `demo/` directory. To try it locally, run:
 
 ```sh
-pnpm build
-pnpm prepare:demo
+npm run build
+npm run demo:prepare
 npx serve demo
 ```
 
@@ -134,11 +134,11 @@ The demo uses the TinyMCE Cloud CDN, which requires an API key for production us
 
 ## Build & Development
 
-- **Build**: `pnpm build` (runs Rollup, outputs to `dist/`)
-- **Development**: `pnpm build:dev` (development build with sourcemaps)
-- **Clean**: `pnpm clean` (removes build artifacts)
+- **Build**: `npm run build` (runs Rollup, outputs to `dist/`)
+- **Development**: `npm run build:dev` (development build with sourcemaps)
+- **Clean**: `npm run clean` (removes build artifacts)
 - **Source**: See `src/` for core and plugin code
-- **Distribution**: Only `dist/`, `LICENSE`, and `README.md` are published to pnpm
+- **Distribution**: Only `dist/`, `LICENSE`, and `README.md` are published to npm
 
 ### Build System
 
@@ -162,9 +162,9 @@ This project uses [Playwright](https://playwright.dev/) for automated end-to-end
 To run the test suite:
 
 ```sh
-pnpm install  # if you haven't already
+npm install  # if you haven't already
 npx playwright install  # install browser dependencies
-pnpm test     # or: npx playwright test
+npm test     # or: npx playwright test
 ```
 
 Test files are located in the `__tests__/playwright/` directory. Playwright will generate a detailed HTML report in the `playwright-report/` directory after each run. To view the report:

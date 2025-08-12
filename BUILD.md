@@ -22,24 +22,24 @@ The build process creates:
 ## Available Scripts
 
 ### Core Build Commands
-- `pnpm build` - Production build
-- `pnpm build:dev` - Development build (preserves debugging)
-- `pnpm clean` - Remove all build artifacts
+- `npm run build` - Production build
+- `npm run build:dev` - Development build (preserves debugging)
+- `npm run clean` - Remove all build artifacts
 
 ### Demo Commands
-- `pnpm demo:prepare` - Build and prepare demo files
-- `pnpm demo:copy` - Copy dist files to demo directory
+- `npm run demo:prepare` - Build and prepare demo files
+- `npm run demo:copy` - Copy dist files to demo directory
 
 ### Quality Assurance
-- `pnpm lint` - Fix code style issues
-- `pnpm lint:check` - Check code style
-- `pnpm format` - Fix code formatting
-- `pnpm format:check` - Check code formatting
-- `pnpm test` - Run tests
-- `pnpm test:headed` - Run tests with browser UI
+- `npm run lint` - Fix code style issues
+- `npm run lint:check` - Check code style
+- `npm run format` - Fix code formatting
+- `npm run format:check` - Check code formatting
+- `npm test` - Run tests
+- `npm run test:headed` - Run tests with browser UI
 
 ### CI/CD
-- `pnpm ci` - Complete CI pipeline (lint + format + build + test)
+- `npm run ci` - Complete CI pipeline (lint + format + build + test)
 
 ## Configuration
 

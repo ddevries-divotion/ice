@@ -17,9 +17,9 @@
   "scripts": {
     "build": "NODE_ENV=production rollup -c",
     "build:dev": "NODE_ENV=development rollup -c",
-    "prepare": "pnpm build",
+    "prepare": "npm run build",
     "clean": "rm -rf dist demo/dist",
-    "demo:prepare": "pnpm build && pnpm demo:copy",
+    "demo:prepare": "npm run build && npm run demo:copy",
     "demo:copy": "mkdir -p demo/dist && cp -r dist/* demo/dist/",
     "test": "playwright test --reporter=line",
     "test:headed": "playwright test --headed",
@@ -27,7 +27,7 @@
     "lint:check": "eslint ./src/",
     "format": "prettier --write ./src/**/*.js",
     "format:check": "prettier --check ./src/**/*.js",
-    "ci": "pnpm lint && pnpm format && pnpm build && pnpm test"
+    "ci": "npm run lint && npm run format && npm run build && npm test"
   },
   "keywords": [
     "editor",
@@ -58,6 +58,5 @@
   "bugs": {
     "url": "https://github.com/ddevries-divotion/ice/issues"
   },
-  "license": "GPL-2.0-or-later",
-  "packageManager": "pnpm@10.14.0"
+  "license": "GPL-2.0-or-later"
 }
