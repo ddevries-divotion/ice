@@ -65,8 +65,25 @@ class Selection {
    */
   addRange(range) {
     this._selection || (this._selection = this._getSelection());
-    this._selection.setSingleRange(range);
-    this._selection.ranges = [range];
+
+    try {
+      // Validate that the range is in the correct document
+      if (
+        range &&
+        range.startContainer &&
+        range.startContainer.ownerDocument === this.env.document
+      ) {
+        this._selection.setSingleRange(range);
+        this._selection.ranges = [range];
+      } else {
+        console.warn(
+          "ICE: Range not in correct document context, skipping addRange",
+          range,
+        );
+      }
+    } catch (error) {
+      console.error("ICE: Failed to add range to selection", error);
+    }
     return;
   }
 
