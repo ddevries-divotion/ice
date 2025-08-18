@@ -121,6 +121,119 @@ InlineChangeEditor.prototype = {
   isPlaceHoldingDeletes: false,
 
   /**
+   * Safely sets the start position of a range with proper validation.
+   * @param {Object} range - The range object to modify.
+   * @param {Node} node - The node to set as start container.
+   * @param {number} offset - The offset within the node.
+   * @returns {boolean} True if successful, false if failed.
+   */
+  _safeSetRangeStart: function (range, node, offset) {
+    if (!range || !node) {
+      return false;
+    }
+
+    // Validate that the node belongs to the correct document
+    if (node.ownerDocument !== this.env.document) {
+      console.warn(
+        "ICE: Node does not belong to the correct document context",
+        node.ownerDocument,
+        this.env.document,
+      );
+      return false;
+    }
+
+    // Validate that the node is a proper DOM node
+    if (
+      !node.nodeType ||
+      (node.nodeType !== ice.dom.ELEMENT_NODE &&
+        node.nodeType !== ice.dom.TEXT_NODE)
+    ) {
+      console.warn("ICE: Invalid node type for range start", node.nodeType);
+      return false;
+    }
+
+    try {
+      range.setStart(node, offset);
+      return true;
+    } catch (error) {
+      console.warn("ICE: Failed to set range start", error);
+      return false;
+    }
+  },
+
+  /**
+   * Safely sets the start position after a node with proper validation.
+   * @param {Object} range - The range object to modify.
+   * @param {Node} node - The node to set start after.
+   * @returns {boolean} True if successful, false if failed.
+   */
+  _safeSetRangeStartAfter: function (range, node) {
+    if (!range || !node) {
+      return false;
+    }
+
+    // Validate that the node belongs to the correct document
+    if (node.ownerDocument !== this.env.document) {
+      console.warn("ICE: Node does not belong to the correct document context");
+      return false;
+    }
+
+    // Validate that the node is a proper DOM node
+    if (
+      !node.nodeType ||
+      (node.nodeType !== ice.dom.ELEMENT_NODE &&
+        node.nodeType !== ice.dom.TEXT_NODE)
+    ) {
+      console.warn("ICE: Invalid node type for range start after");
+      return false;
+    }
+
+    try {
+      range.setStartAfter(node);
+      return true;
+    } catch (error) {
+      console.warn("ICE: Failed to set range start after", error);
+      return false;
+    }
+  },
+
+  /**
+   * Safely sets the end position after a node with proper validation.
+   * @param {Object} range - The range object to modify.
+   * @param {Node} node - The node to set end after.
+   * @returns {boolean} True if successful, false if failed.
+   */
+  _safeSetRangeEndAfter: function (range, node) {
+    if (!range || !node) {
+      return false;
+    }
+
+    // Validate that the node belongs to the correct document
+    if (node.ownerDocument !== this.env.document) {
+      console.warn("ICE: Node does not belong to the correct document context");
+      return false;
+    }
+
+    // Validate that the node is a proper DOM node
+    if (
+      !node.nodeType ||
+      (node.nodeType !== ice.dom.ELEMENT_NODE &&
+        node.nodeType !== ice.dom.TEXT_NODE)
+    ) {
+      console.warn("ICE: Invalid node type for range end after");
+      return false;
+    }
+
+    try {
+      range.setEndAfter(node);
+      return true;
+    } catch (error) {
+      console.warn("ICE: Failed to set range end after", error);
+      return false;
+    }
+  },
+
+  /**
    * Turns on change tracking - sets up events, if needed, and initializes the environment,
    * range, and editor.
    */
@@ -188,9 +301,34 @@ InlineChangeEditor.prototype = {
    */
   initializeRange: function () {
     const range = this.selection.createRange();
-    range.setStart(ice.dom.find(this.element, this.blockEls.join(", "))[0], 0);
-    range.collapse(true);
-    this.selection.addRange(range);
+
+    // Find the first block element within this editor's element
+    const blockElements = ice.dom.find(this.element, this.blockEls.join(", "));
+    let startNode = blockElements.length > 0 ? blockElements[0] : null;
+
+    // Validate that the start node exists and belongs to the correct document
+    if (!startNode || startNode.ownerDocument !== this.env.document) {
+      // Fallback: use the editor element itself if no valid block element is found
+      startNode = this.element;
+    }
+
+    // Use the safe range setter
+    if (this._safeSetRangeStart(range, startNode, 0)) {
+      range.collapse(true);
+      this.selection.addRange(range);
+    } else {
+      // Final fallback: try with the editor element
+      if (this._safeSetRangeStart(range, this.element, 0)) {
+        range.collapse(true);
+        this.selection.addRange(range);
+      } else {
+        console.error(
+          "ICE: Failed to initialize range - no valid start node found",
+        );
+        return;
+      }
+    }
+
     if (this.env.frame) this.env.frame.contentWindow.focus();
     else this.element.focus();
   },
