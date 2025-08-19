@@ -149,17 +149,29 @@ dom.remove = (element) => (element ? jQuery(element).remove() : undefined);
 /**
  * Prepends an element as the first child.
  * @param {Element} parent - The parent element.
- * @param {Element} elem - The element to prepend.
+ * @param {Element|string} elem - The element to prepend or HTML string.
  * @see __tests__/playwright/dom.spec.js
  */
-dom.prepend = (parent, elem) => parent.prepend(elem);
+dom.prepend = (parent, elem) => {
+  // If elem is a string, create DOM element(s) from HTML
+  if (typeof elem === "string") {
+    elem = dom.create(elem);
+  }
+  parent.prepend(elem);
+};
 /**
  * Appends an element as the last child.
  * @param {Element} parent - The parent element.
- * @param {Element} elem - The element to append.
+ * @param {Element|string} elem - The element to append or HTML string.
  * @see __tests__/playwright/dom.spec.js
  */
-dom.append = (parent, elem) => parent.append(elem);
+dom.append = (parent, elem) => {
+  // If elem is a string, create DOM element(s) from HTML
+  if (typeof elem === "string") {
+    elem = dom.create(elem);
+  }
+  parent.append(elem);
+};
 /**
  * Inserts an element before the reference node.
  * @param {Element} before - The reference node.

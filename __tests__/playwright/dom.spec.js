@@ -392,4 +392,47 @@ test.describe("jQuery-based dom.js functions", () => {
     );
     expect(text).toContain("hello");
   });
+
+  test("dom.append properly handles HTML strings", async ({ page }) => {
+    const result = await page.evaluate(() => {
+      const dom = window.ice.dom;
+      const div = document.createElement("div");
+      
+      // Test appending HTML string
+      dom.append(div, "<br>");
+      
+      return {
+        innerHTML: div.innerHTML,
+        childNodeType: div.firstChild ? div.firstChild.nodeType : null,
+        childNodeName: div.firstChild ? div.firstChild.nodeName : null
+      };
+    });
+    
+    // Should create a proper BR element, not text content
+    expect(result.innerHTML).toBe("<br>");
+    expect(result.childNodeType).toBe(1); // ELEMENT_NODE
+    expect(result.childNodeName).toBe("BR");
+  });
+
+  test("dom.prepend properly handles HTML strings", async ({ page }) => {
+    const result = await page.evaluate(() => {
+      const dom = window.ice.dom;
+      const div = document.createElement("div");
+      div.innerHTML = "<span>text</span>";
+      
+      // Test prepending HTML string
+      dom.prepend(div, "<br>");
+      
+      return {
+        innerHTML: div.innerHTML,
+        firstChildNodeType: div.firstChild ? div.firstChild.nodeType : null,
+        firstChildNodeName: div.firstChild ? div.firstChild.nodeName : null
+      };
+    });
+    
+    // Should create a proper BR element, not text content
+    expect(result.innerHTML).toBe("<br><span>text</span>");
+    expect(result.firstChildNodeType).toBe(1); // ELEMENT_NODE
+    expect(result.firstChildNodeName).toBe("BR");
+  });
 });
