@@ -167,6 +167,42 @@
           },
         ],
       });
+
+      // Context toolbar to accept/reject a single change
+      editor.ui.registry.addContextToolbar("acceptreject", {
+        predicate: (node) => {
+          try {
+            // Ensure we have a valid node and body
+            if (!node || !node.classList) {
+              return false;
+            }
+
+            const body = editor.getBody();
+            if (!body) {
+              return false;
+            }
+
+            // Check if tracking is enabled and changes are visible
+            const isTrackingEnabled =
+              changeEditor?.isTracking ?? config.isTracking;
+            const changesVisible = !editor.dom.hasClass(body, "CT-hide");
+
+            // Check if node or any parent has change tracking classes
+            const hasChangeClass =
+              node.classList.contains(config.deleteClass) ||
+              node.classList.contains(config.insertClass) ||
+              !!isInsideChangeTag(node);
+
+            return isTrackingEnabled && changesVisible && hasChangeClass;
+          } catch (error) {
+            console.error("Error in context toolbar predicate:", error);
+            return false;
+          }
+        },
+        items: "iceaccept icereject",
+        position: "node",
+        scope: "node",
+      });
     }
 
     // Patch to ensure `setDisabled` is always available on toggle buttons
@@ -281,15 +317,63 @@
     });
 
     registerCommand("iceaccept", () => {
-      editor.undoManager.add();
-      changeEditor.acceptChange(editor.selection.getNode());
-      cleanup();
+      try {
+        if (!changeEditor) {
+          console.warn("Change editor not initialized");
+          return;
+        }
+
+        const selectedNode = editor.selection.getNode();
+        const changeNode = isInsideChangeTag(selectedNode) || selectedNode;
+
+        if (
+          !changeNode ||
+          (!changeNode.classList.contains(config.deleteClass) &&
+            !changeNode.classList.contains(config.insertClass))
+        ) {
+          editor.windowManager.alert("Please select a change to accept.");
+          return;
+        }
+
+        editor.undoManager.add();
+        changeEditor.acceptChange(changeNode);
+        cleanup();
+      } catch (error) {
+        console.error("Error accepting change:", error);
+        editor.windowManager.alert(
+          "Failed to accept change. Please try again.",
+        );
+      }
     });
 
     registerCommand("icereject", () => {
-      editor.undoManager.add();
-      changeEditor.rejectChange(editor.selection.getNode());
-      cleanup();
+      try {
+        if (!changeEditor) {
+          console.warn("Change editor not initialized");
+          return;
+        }
+
+        const selectedNode = editor.selection.getNode();
+        const changeNode = isInsideChangeTag(selectedNode) || selectedNode;
+
+        if (
+          !changeNode ||
+          (!changeNode.classList.contains(config.deleteClass) &&
+            !changeNode.classList.contains(config.insertClass))
+        ) {
+          editor.windowManager.alert("Please select a change to reject.");
+          return;
+        }
+
+        editor.undoManager.add();
+        changeEditor.rejectChange(changeNode);
+        cleanup();
+      } catch (error) {
+        console.error("Error rejecting change:", error);
+        editor.windowManager.alert(
+          "Failed to reject change. Please try again.",
+        );
+      }
     });
 
     registerCommand("iceacceptall", () => {
