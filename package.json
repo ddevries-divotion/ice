@@ -15,12 +15,11 @@
     "README.md"
   ],
   "scripts": {
+    "dev": "vite",
     "build": "NODE_ENV=production rollup -c",
     "build:dev": "NODE_ENV=development rollup -c",
     "prepare": "npm run build",
-    "clean": "rm -rf dist demo/dist",
-    "demo:prepare": "npm run build && npm run demo:copy",
-    "demo:copy": "mkdir -p demo/dist && cp -r dist/* demo/dist/",
+    "clean": "rm -rf dist",
     "test": "playwright test --reporter=line",
     "test:headed": "playwright test --headed",
     "lint": "eslint ./src/ --fix",
@@ -53,7 +52,8 @@
     "prettier": "3.6.2",
     "rollup": "^4.46.2",
     "rollup-plugin-copy": "^3.5.0",
-    "rollup-plugin-delete": "^3.0.1"
+    "rollup-plugin-delete": "^3.0.1",
+    "vite": "^7.1.5"
   },
   "bugs": {
     "url": "https://github.com/ddevries-divotion/ice/issues"

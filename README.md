@@ -101,11 +101,10 @@ A live demo is included in the `demo/` directory. To try it locally, run:
 
 ```sh
 npm run build
-npm run demo:prepare
-npx serve demo
+npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) (or the port shown in your terminal) to interact with the demo editor and see track changes in action.
+Open [http://localhost:5173](http://localhost:5173) (or the port shown in your terminal) to interact with the demo editor and see track changes in action.
 
 ### TinyMCE API Key for Demo
 
