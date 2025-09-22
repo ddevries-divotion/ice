@@ -10,7 +10,11 @@
 const dom = {};
 
 /** @constant {number} */
-dom.DOM_VK_DELETE = 8;
+dom.DOM_VK_DELETE = 8; // Backspace
+/** @constant {string} */
+dom.DOM_EVENT_DELETE_FWD = "deleteContentForward";
+/** @constant {string} */
+dom.DOM_EVENT_DELETE_BWD = "deleteContentBackward";
 /** @constant {number} */
 dom.DOM_VK_LEFT = 37;
 /** @constant {number} */

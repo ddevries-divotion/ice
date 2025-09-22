@@ -35,6 +35,9 @@ jobs:
     
     - name: Run Playwright tests
       run: npx playwright test
+      env:
+        CI: true
+        VITE_TINYMCE_API_KEY: ${{ secrets.VITE_TINYMCE_API_KEY }}
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
       with:
