@@ -429,23 +429,41 @@ InlineChangeEditor.prototype = {
    */
   handleEvent: function (e) {
     if (!this.isTracking) return;
-    if (e.type == "mouseup") {
-      const self = this;
-      setTimeout(function () {
-        self.mouseUp(e);
-      }, 200);
-    } else if (e.type == "mousedown") {
-      return this.mouseDown(e);
-    } else if (e.type == "keypress") {
-      const needsToBubble = this.keyPress(e);
-      if (!needsToBubble) e.preventDefault();
-      return needsToBubble;
-    } else if (e.type == "keydown") {
-      const needsToBubble = this.keyDown(e);
-      if (!needsToBubble) e.preventDefault();
-      return needsToBubble;
-    } else if (e.type == "keyup") {
-      this.pluginsManager.fireCaretUpdated();
+
+    let needsToBubble = true;
+
+    switch (e.type) {
+      case "mouseup":
+        setTimeout(() => {
+          this.mouseUp(e);
+        }, 200);
+        break;
+
+      case "mousedown":
+        return this.mouseDown(e);
+
+      case "keypress":
+        needsToBubble = this.keyPress(e);
+        if (!needsToBubble) e.preventDefault();
+        return needsToBubble;
+
+      case "keydown":
+        needsToBubble = this.keyDown(e);
+        if (!needsToBubble) e.preventDefault();
+        return needsToBubble;
+
+      case "keyup":
+        this.pluginsManager.fireCaretUpdated();
+        break;
+
+      // Handle `beforeinput` for deletions as `isOnBlockBoundary` would otherwise get executed too late
+      case "beforeinput":
+        needsToBubble = this.keyDown(e);
+        if (!needsToBubble) e.preventDefault();
+        return needsToBubble;
+
+      default:
+        break;
     }
   },
   visible: function (el) {
@@ -1388,13 +1406,13 @@ InlineChangeEditor.prototype = {
       return false;
     }
 
-    if (
-      ice.dom.isOnBlockBoundary(
-        range.startContainer,
-        range.endContainer,
-        this.element,
-      )
-    ) {
+    const isOnBlockBoundary = ice.dom.isOnBlockBoundary(
+      range.startContainer,
+      range.endContainer,
+      this.element,
+    );
+
+    if (isOnBlockBoundary) {
       if (
         this.mergeBlocks &&
         ice.dom.is(
@@ -1918,6 +1936,15 @@ InlineChangeEditor.prototype = {
         preventDefault = false;
         break;
     } //end switch
+
+    // Handle Backspace and Delete keys within `beforeinput` event
+    if (e.inputType === ice.dom.DOM_EVENT_DELETE_FWD) {
+      preventDefault = this.deleteContents(true, range);
+      this.pluginsManager.fireKeyPressed(e);
+    } else if (e.inputType === ice.dom.DOM_EVENT_DELETE_BWD) {
+      preventDefault = this.deleteContents(false, range);
+      this.pluginsManager.fireKeyPressed(e);
+    }
 
     if (preventDefault === true) {
       ice.dom.preventDefault(e);

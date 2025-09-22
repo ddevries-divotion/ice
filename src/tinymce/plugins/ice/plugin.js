@@ -269,9 +269,11 @@
       // Make the changeEditor available for other plugins
       editor.iceChangeEditor = changeEditor;
 
-      ["mousedown", "keyup", "keydown", "keypress"].forEach((eventType) => {
-        editor.on(eventType, (e) => changeEditor.handleEvent(e));
-      });
+      ["mousedown", "keyup", "keydown", "keypress", "beforeinput"].forEach(
+        (eventType) => {
+          editor.on(eventType, (e) => changeEditor.handleEvent(e));
+        },
+      );
 
       setTimeout(() => config.afterInit.call(config), 10);
     });
