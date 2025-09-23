@@ -1052,14 +1052,69 @@ dom.date = (format, timestamp, tsIso8601) => {
   }
   if (typeof timestamp !== "number") return;
   const date = new Date(timestamp);
-  return format
-    .replace(/Y/g, date.getFullYear())
-    .replace(/m/g, String(date.getMonth() + 1).padStart(2, "0"))
-    .replace(/d/g, String(date.getDate()).padStart(2, "0"))
-    .replace(/H/g, String(date.getHours()).padStart(2, "0"))
-    .replace(/i/g, String(date.getMinutes()).padStart(2, "0"))
-    .replace(/s/g, String(date.getSeconds()).padStart(2, "0"));
+  const names = [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+  ];
+  const months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+
+  const dateStr = format.replace(/Y|y|m|d|F|M|D|l|S|H|h|i|a/g, (f) => {
+    switch (f) {
+      case "Y":
+        return date.getFullYear();
+      case "y":
+        return date.getFullYear().toString().slice(-2);
+      case "m":
+        return String(date.getMonth() + 1).padStart(2, "0");
+      case "d":
+        return String(date.getDate()).padStart(2, "0");
+      case "F":
+        return months[date.getMonth()];
+      case "M":
+        return months[date.getMonth()].slice(0, 3);
+      case "D":
+        return names[date.getDay()].slice(0, 3);
+      case "l":
+        return names[date.getDay()];
+      case "S":
+        return dom.getOrdinalSuffix(date.getDate());
+      case "H":
+        return String(date.getHours()).padStart(2, "0");
+      case "h": {
+        let h = date.getHours();
+        h = h === 0 ? 12 : h > 12 ? h - 12 : h;
+        return String(h);
+      }
+      case "i":
+        return String(date.getMinutes()).padStart(2, "0");
+      case "a":
+        return date.getHours() >= 12 ? "pm" : "am";
+      default:
+        return f;
+    }
+  });
+
+  return dateStr;
 };
+
 /**
  * Converts an ISO 8601 timestamp string to a Unix timestamp (ms since epoch).
  * @param {string} tsIso8601 - The ISO 8601 string.
