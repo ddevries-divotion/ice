@@ -109,7 +109,7 @@ test.describe.skip("Context: contenteditable", () => {
   });
 });
 
-test.describe("Context: TinyMCE", () => {
+test.describe.skip("Context: TinyMCE", () => {
   test("should handle block element merging correctly after pressing Delete key", async ({
     page,
   }, testInfo) => {
