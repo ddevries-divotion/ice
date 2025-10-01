@@ -54,10 +54,6 @@
       emptyNodes.forEach((node) => editor.dom.remove(node));
     }
 
-    function registerCommand(name, fn) {
-      editor.addCommand(name, fn);
-    }
-
     function setupButtons() {
       const buttons = [
         {
@@ -235,8 +231,7 @@
       setupButtons();
     });
 
-    // Remaining commands now added
-    registerCommand("initializeice", () => {
+    const initializeIce = () => {
       changeEditor = new ice.InlineChangeEditor({
         element: editor.getBody(),
         isTracking: config.isTracking,
@@ -276,18 +271,24 @@
       );
 
       setTimeout(() => config.afterInit.call(config), 10);
-    });
+    };
 
-    registerCommand("icecleanbody", (el) => {
+    editor.addCommand("initialize_ice", initializeIce);
+    editor.addCommand("initializeice", initializeIce); // Legacy command name for backward compatibility
+
+    const iceCleanBody = (el) => {
       const body = changeEditor.getCleanContent(
         el || editor.getContent(),
         config.afterClean,
         config.beforeClean,
       );
       return body;
-    });
+    };
 
-    registerCommand("ice_changeuser", (user) => {
+    editor.addCommand("ice_cleanbody", iceCleanBody);
+    editor.addCommand("icecleanbody", iceCleanBody); // Legacy command name for backward compatibility
+
+    editor.addCommand("ice_changeuser", (user) => {
       changeEditor.setCurrentUser(user);
     });
 
@@ -299,9 +300,12 @@
      * Where `item` is the item to insert (string, or textnode)
      * and `range` is an optional range to insert into.
      */
-    registerCommand("iceinsert", (insert = {}) => {
+    const iceInsert = (insert = {}) => {
       changeEditor.insert(insert.item, insert.range);
-    });
+    };
+
+    editor.addCommand("ice_insert", iceInsert);
+    editor.addCommand("iceinsert", iceInsert); // Legacy command name for backward compatibility
 
     /**
      * Deletes content with change tracking tags.
@@ -314,11 +318,14 @@
      * If the current Selection isn't collapsed then the `right` param is ignored
      * and a selection delete is performed.
      */
-    registerCommand("icedelete", (del = {}) => {
+    const iceDelete = (del = {}) => {
       changeEditor.deleteContents(del.right, del.range);
-    });
+    };
 
-    registerCommand("iceaccept", () => {
+    editor.addCommand("ice_delete", iceDelete);
+    editor.addCommand("icedelete", iceDelete); // Legacy command name for backward compatibility
+
+    const iceAccept = () => {
       try {
         if (!changeEditor) {
           console.warn("Change editor not initialized");
@@ -346,9 +353,12 @@
           "Failed to accept change. Please try again.",
         );
       }
-    });
+    };
 
-    registerCommand("icereject", () => {
+    editor.addCommand("ice_accept", iceAccept);
+    editor.addCommand("iceaccept", iceAccept); // Legacy command name for backward compatibility
+
+    const iceReject = () => {
       try {
         if (!changeEditor) {
           console.warn("Change editor not initialized");
@@ -376,21 +386,30 @@
           "Failed to reject change. Please try again.",
         );
       }
-    });
+    };
 
-    registerCommand("iceacceptall", () => {
+    editor.addCommand("ice_reject", iceReject);
+    editor.addCommand("icereject", iceReject); // Legacy command name for backward compatibility
+
+    const iceAcceptAll = () => {
       editor.undoManager.add();
       changeEditor.acceptAll();
       cleanup();
-    });
+    };
 
-    registerCommand("icerejectall", () => {
+    editor.addCommand("ice_acceptall", iceAcceptAll);
+    editor.addCommand("iceacceptall", iceAcceptAll); // Legacy command name for backward compatibility
+
+    const iceRejectAll = () => {
       editor.undoManager.add();
       changeEditor.rejectAll();
       cleanup();
-    });
+    };
 
-    registerCommand("ice_enable", () => {
+    editor.addCommand("ice_rejectall", iceRejectAll);
+    editor.addCommand("icerejectall", iceRejectAll); // Legacy command name for backward compatibility
+
+    editor.addCommand("ice_enable", () => {
       changeEditor.enableChangeTracking();
       editor.plugins.ice.trackChangesButton.setActive(true);
       safeSetDisabled(editor.plugins.ice.showChangesButton, false);
@@ -398,7 +417,7 @@
       config.isTracking = true;
     });
 
-    registerCommand("ice_disable", () => {
+    editor.addCommand("ice_disable", () => {
       editor.dom.addClass(editor.getBody(), "CT-hide");
       editor.plugins.ice.trackChangesButton.setActive(false);
       editor.plugins.ice.showChangesButton.setActive(false);
@@ -416,13 +435,13 @@
       config.isTracking = false;
     });
 
-    registerCommand("ice_togglechanges", () => {
+    editor.addCommand("ice_togglechanges", () => {
       editor.execCommand(
         changeEditor.isTracking ? "ice_disable" : "ice_enable",
       );
     });
 
-    registerCommand("ice_toggleshowchanges", () => {
+    editor.addCommand("ice_toggleshowchanges", () => {
       const body = editor.getBody();
       const isHidden = editor.dom.hasClass(body, "CT-hide");
       editor.dom.toggleClass(body, "CT-hide");
@@ -438,7 +457,7 @@
       editor.execCommand("mceRepaint");
     });
 
-    registerCommand("ice_smartquotes", () => {
+    editor.addCommand("ice_smartquotes", () => {
       changeEditor.pluginsManager.plugins.IceSmartQuotesPlugin.convert(
         editor.getBody(),
       );
@@ -447,37 +466,39 @@
       );
     });
 
-    registerCommand("ice_strippaste", (html) => {
+    editor.addCommand("ice_strippaste", (html) => {
       return changeEditor.pluginsManager.plugins.IceCopyPastePlugin.stripPaste(
         html,
       );
     });
 
-    registerCommand("ice_handlepaste", () => {
+    editor.addCommand("ice_handlepaste", () => {
       return changeEditor.pluginsManager.plugins.IceCopyPastePlugin.handlePaste();
     });
 
-    registerCommand("ice_handleemdash", () => {
+    editor.addCommand("ice_handleemdash", () => {
       return changeEditor.pluginsManager.plugins.IceEmdashPlugin.convertEmdash()
         ? 1
         : 0;
     });
 
-    registerCommand("ice_isTracking", () => (changeEditor.isTracking ? 1 : 0));
+    editor.addCommand("ice_isTracking", () =>
+      changeEditor.isTracking ? 1 : 0,
+    );
 
-    registerCommand("ice_hasDeletePlaceholders", () => {
+    editor.addCommand("ice_hasDeletePlaceholders", () => {
       return changeEditor.isPlaceholdingDeletes;
     });
 
-    registerCommand("ice_addDeletePlaceholders", () => {
+    editor.addCommand("ice_addDeletePlaceholders", () => {
       return changeEditor.placeholdDeletes();
     });
 
-    registerCommand("ice_removeDeletePlaceholders", () => {
+    editor.addCommand("ice_removeDeletePlaceholders", () => {
       return changeEditor.revertDeletePlaceholders();
     });
 
-    registerCommand("ice_initenv", () => {
+    editor.addCommand("ice_initenv", () => {
       changeEditor.initializeEnvironment();
       changeEditor.initializeRange();
     });
