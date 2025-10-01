@@ -21,9 +21,22 @@ class IceAddTitlePlugin extends ice.IcePlugin {
    * @param {Object} option - Options containing action.
    */
   nodeCreated(node, option) {
-    const format = { weekday: 'long', year: 'numeric', month: '2-digit', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
-    const formattedDate = new Date(parseInt(node.getAttribute(this._ice.timeAttribute))).toLocaleDateString( undefined, format);
-    node.setAttribute('title', `${(option.action || 'Modified')} by ${node.getAttribute(this._ice.userNameAttribute)} - ${formattedDate}`);
+    const format = {
+      weekday: "long",
+      year: "numeric",
+      month: "2-digit",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    };
+    const formattedDate = new Date(
+      parseInt(node.getAttribute(this._ice.timeAttribute)),
+    ).toLocaleDateString(undefined, format);
+    node.setAttribute(
+      "title",
+      `${option.action || "Modified"} by ${node.getAttribute(this._ice.userNameAttribute)} - ${formattedDate}`,
+    );
   }
 }
 
