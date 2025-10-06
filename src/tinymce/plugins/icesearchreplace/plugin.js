@@ -17,8 +17,8 @@
       const ice = editor.iceChangeEditor;
       if (ice && ice.isTracking) {
         const rng = editor.selection.getRng();
-        editor.execCommand("icedelete", { right: null, range: rng });
-        editor.execCommand("iceinsert", { item: replaceText, range: rng });
+        editor.execCommand("ice_delete", { right: null, range: rng });
+        editor.execCommand("ice_insert", { item: replaceText, range: rng });
         return true;
       }
       return false;
@@ -48,12 +48,22 @@
     }, 100);
 
     // Add ICE-specific buttons or menu items
-    editor.ui.registry.addButton("icesearch", {
+    editor.ui.registry.addButton("icesearch", { // Legacy command name for backward compatibility
       tooltip: "ICE Search",
       icon: "search",
       onAction: () => editor.execCommand("SearchReplace"),
     });
-    editor.ui.registry.addMenuItem("icesearch", {
+    editor.ui.registry.addButton("ice_search", {
+      tooltip: "ICE Search",
+      icon: "search",
+      onAction: () => editor.execCommand("SearchReplace"),
+    });
+    editor.ui.registry.addMenuItem("icesearch", { // Legacy command name for backward compatibility
+      text: "ICE Search",
+      icon: "search",
+      onAction: () => editor.execCommand("SearchReplace"),
+    });
+    editor.ui.registry.addMenuItem("ice_search", { // Legacy command name for backward compatibility
       text: "ICE Search",
       icon: "search",
       onAction: () => editor.execCommand("SearchReplace"),

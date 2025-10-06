@@ -74,7 +74,7 @@ Copy the plugin files from `dist/tinymce/plugins/ice/` to your TinyMCE plugins d
 ```javascript
 tinymce.init({
   plugins: 'ice',
-  toolbar: 'ice_togglechanges ice_toggleshowchanges iceacceptall icerejectall iceaccept icereject',
+  toolbar: 'ice_togglechanges ice_toggleshowchanges ice_acceptall ice_rejectall ice_accept ice_reject',
   ice: {
     user: { name: 'Miss T', id: 1 },
     preserveOnPaste: 'p,a[href],i,em,strong',

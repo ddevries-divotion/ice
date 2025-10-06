@@ -57,7 +57,7 @@
     function setupButtons() {
       const buttons = [
         {
-          name: "iceaccept",
+          name: "iceaccept", // Legacy command name for backward compatibility
           tooltip: "Accept Change",
           icon: "checkmark",
           command: "iceaccept",
@@ -65,7 +65,15 @@
           setup: "acceptButton",
         },
         {
-          name: "icereject",
+          name: "ice_accept",
+          tooltip: "Accept Change",
+          icon: "checkmark",
+          command: "ice_accept",
+          isToggle: true,
+          setup: "acceptButton",
+        },
+        {
+          name: "icereject", // Legacy command name for backward compatibility
           tooltip: "Reject Change",
           icon: "close",
           command: "icereject",
@@ -73,7 +81,15 @@
           setup: "rejectButton",
         },
         {
-          name: "iceacceptall",
+          name: "ice_reject",
+          tooltip: "Reject Change",
+          icon: "close",
+          command: "ice_reject",
+          isToggle: true,
+          setup: "rejectButton",
+        },
+        {
+          name: "iceacceptall", // Legacy command name for backward compatibility
           tooltip: "Accept All Changes",
           icon: "checklist-rtl",
           command: "iceacceptall",
@@ -81,10 +97,26 @@
           setup: "acceptAllButton",
         },
         {
-          name: "icerejectall",
+          name: "ice_acceptall",
+          tooltip: "Accept All Changes",
+          icon: "checklist-rtl",
+          command: "ice_acceptall",
+          isToggle: false,
+          setup: "acceptAllButton",
+        },
+        {
+          name: "icerejectall", // Legacy command name for backward compatibility
           tooltip: "Reject All Changes",
           icon: "close",
           command: "icerejectall",
+          isToggle: false,
+          setup: "rejectAllButton",
+        },
+        {
+          name: "ice_rejectall",
+          tooltip: "Reject All Changes",
+          icon: "close",
+          command: "ice_rejectall",
           isToggle: false,
           setup: "rejectAllButton",
         },
@@ -153,13 +185,13 @@
             type: "menuitem",
             icon: "checkmark",
             text: "Accept Change",
-            onAction: () => editor.execCommand("iceaccept"),
+            onAction: () => editor.execCommand("ice_accept"),
           },
           {
             type: "menuitem",
             icon: "close",
             text: "Reject Change",
-            onAction: () => editor.execCommand("icereject"),
+            onAction: () => editor.execCommand("ice_reject"),
           },
         ],
       });
@@ -195,7 +227,7 @@
             return false;
           }
         },
-        items: "iceaccept icereject",
+        items: "ice_accept ice_reject",
         position: "node",
         scope: "node",
       });
@@ -223,7 +255,7 @@
         `${pluginUrl}/js/ice.min.js?version=${config.scriptVersion}`,
         () => {
           if (!config.manualInit) {
-            editor.execCommand("initializeice");
+            editor.execCommand("initialize_ice");
           }
         },
       );
