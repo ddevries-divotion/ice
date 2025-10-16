@@ -18,6 +18,7 @@
       userNameAttribute: "data-username",
       timeAttribute: "data-time",
       preserveOnPaste: "p",
+      preventScrollOnFocus: false,
       user: { name: "Unknown User", id: Math.random() },
       isTracking: true,
       contentEditable: true,
@@ -280,6 +281,7 @@
           {
             name: "IceCopyPastePlugin",
             settings: {
+              preventScrollOnFocus: config.preventScrollOnFocus,
               pasteType: "formattedClean",
               preserve: config.preserveOnPaste,
               beforePasteClean: config.beforePasteClean,

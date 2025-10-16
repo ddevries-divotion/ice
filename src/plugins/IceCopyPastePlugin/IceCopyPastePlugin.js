@@ -24,6 +24,8 @@ class IceCopyPastePlugin extends ice.IcePlugin {
     //    and tags not found in `preserve` will be stripped.
     this.pasteType = "formattedClean";
 
+    this.preventScrollOnFocus = false;
+
     // Subset of tags that will not be stripped when pasteType
     // is set to 'formattedClean'. Parameter is of type string with
     // comma delimited tag and attribute definitions. For example:
@@ -129,7 +131,7 @@ class IceCopyPastePlugin extends ice.IcePlugin {
       }, 0);
       event.stopPropagation();
     };
-    div.focus();
+    div.focus({ preventScroll: this.preventScrollOnFocus });
     return true;
   }
 
@@ -304,7 +306,7 @@ class IceCopyPastePlugin extends ice.IcePlugin {
     crange.setStart(this.cutElement.firstChild, 0);
     crange.setEndAfter(this.cutElement.lastChild);
     setTimeout(() => {
-      this.cutElement.focus();
+      this.cutElement.focus({ preventScroll: this.preventScrollOnFocus });
       // After the browser cuts out of the `cutElement`, reset the range and remove the cut element.
       setTimeout(() => {
         ice.dom.remove(this.cutElement);
@@ -431,8 +433,12 @@ class IceCopyPastePlugin extends ice.IcePlugin {
   _cleanup(moveTo) {
     try {
       // Set focus back to ice element.
-      if (this._ice.env.frame) this._ice.env.frame.contentWindow.focus();
-      else this._ice.element.focus();
+      if (this._ice.env.frame)
+        this._ice.env.frame.contentWindow.focus({
+          preventScroll: this.preventScrollOnFocus,
+        });
+      else
+        this._ice.element.focus({ preventScroll: this.preventScrollOnFocus });
       moveTo = (moveTo && moveTo.lastChild) || moveTo || this._tmpNode;
       // Move the range to the end of moveTo so that the cursor will be at the end of the paste.
       let range = this._ice.getCurrentRange();
