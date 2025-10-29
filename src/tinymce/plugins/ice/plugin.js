@@ -206,6 +206,16 @@
               return false;
             }
 
+            // Ensure the node is an insert or delete tag
+            if (
+              ![config.insertTag, config.deleteTag].includes(
+                node.tagName.toLowerCase(),
+              )
+            ) {
+              return false;
+            }
+
+            // Ensure the editor body is available
             const body = editor.getBody();
             if (!body) {
               return false;
@@ -214,7 +224,11 @@
             // Check if tracking is enabled and changes are visible
             const isTrackingEnabled =
               changeEditor?.isTracking ?? config.isTracking;
-            const changesVisible = !editor.dom.hasClass(body, "CT-hide");
+            const changesVisible = !body.classList.contains("CT-hide");
+
+            if (!isTrackingEnabled || !changesVisible) {
+              return false;
+            }
 
             // Check if node or any parent has change tracking classes
             const hasChangeClass =
@@ -222,14 +236,14 @@
               node.classList.contains(config.insertClass) ||
               !!isInsideChangeTag(node);
 
-            return isTrackingEnabled && changesVisible && hasChangeClass;
+            return hasChangeClass;
           } catch (error) {
             console.error("Error in context toolbar predicate:", error);
             return false;
           }
         },
         items: "ice_accept ice_reject",
-        position: "node",
+        position: "selection",
         scope: "node",
       });
     }
