@@ -1,7 +1,7 @@
 {
   "name": "@divotion/ice",
   "description": "Track changes in JavaScript. Compatible with TinyMCE up to version 8. Forked from NYTimes/ice.",
-  "version": "1.4.5",
+  "version": "1.4.6",
   "type": "module",
   "author": "Dennis de Vries <dennis.de.vries@divotion.com>",
   "repository": {
