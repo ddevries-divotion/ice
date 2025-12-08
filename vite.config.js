@@ -9,4 +9,7 @@ const PUB_DIR = 'dist';
 export default defineConfig({
   root: resolve(__dirname, 'demo'),
   publicDir: resolve(__dirname, PUB_DIR),
+  server: {
+    port: 5173,
+  },
 });

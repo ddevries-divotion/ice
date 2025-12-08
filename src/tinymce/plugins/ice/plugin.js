@@ -318,7 +318,10 @@
         },
       );
 
-      setTimeout(() => config.afterInit.call(config), 10);
+      setTimeout(async () => {
+        await config.afterInit?.();
+        editor.dispatch("ice_init");
+      }, 10);
     };
 
     editor.addCommand("initialize_ice", initializeIce);

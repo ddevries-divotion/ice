@@ -62,7 +62,7 @@ The new Rollup build produces the same output files with identical functionality
 - `dist/ice.js` - Full library with banner (~231KB)
 - `dist/ice.min.js` - Minified version (~104KB)  
 - `dist/tinymce/` - TinyMCE plugin assets
-- `dist/ice_1.2.1.zip` - Distribution archive (~122KB)
+- `dist/ice_<version>.zip` - Distribution archive (~122KB)
 
 ## 🔍 Verification
 
@@ -72,5 +72,3 @@ All Grunt references have been completely removed:
 - ✅ No Grunt references in source code
 - ✅ Updated documentation in README.md
 - ✅ Clean package-lock.json without Grunt packages
-
-The migration is **complete** and the project now uses **Rollup exclusively** for all build operations.
