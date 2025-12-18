@@ -1451,6 +1451,10 @@ InlineChangeEditor.prototype = {
         if (
           nextBlock !== ice.dom.getBlockParent(range.endContainer, this.element)
         ) {
+          if (!nextBlock) {
+            range.collapse(false);
+            return false;
+          }
           range.setEnd(nextBlock, 0);
         }
         // The browsers like to auto-insert breaks into empty paragraphs - remove them.
@@ -1479,6 +1483,10 @@ InlineChangeEditor.prototype = {
         }
 
         // Place the caret at the start of the next block.
+        if (!nextBlock) {
+          range.collapse(false);
+          return false;
+        }
         range.setStart(nextBlock, 0);
         range.collapse(true);
         return true;
@@ -1681,6 +1689,7 @@ InlineChangeEditor.prototype = {
 
       // Merge blocks: If mergeBlocks is enabled, merge the previous and current block.
       if (
+        prevContainer &&
         this.mergeBlocks &&
         ice.dom.is(
           ice.dom.getBlockParent(prevContainer, this.element),
@@ -1693,7 +1702,12 @@ InlineChangeEditor.prototype = {
           prevBlock !==
           ice.dom.getBlockParent(range.startContainer, this.element)
         ) {
-          range.setStart(prevBlock, prevBlock.childNodes.length);
+          if (prevBlock) {
+            range.setStart(prevBlock, prevBlock.childNodes.length);
+          } else {
+            range.collapse(true);
+            return true;
+          }
         }
         // The browsers like to auto-insert breaks into empty paragraphs - remove them.
         const elements = ice.dom.getElementsBetween(
@@ -1726,12 +1740,16 @@ InlineChangeEditor.prototype = {
       }
 
       // Place the caret at the end of the previous block.
-      lastSelectable = range.getLastSelectableChild(prevBlock);
+      lastSelectable = prevBlock
+        ? range.getLastSelectableChild(prevBlock)
+        : null;
       if (lastSelectable) {
         range.setStart(lastSelectable, lastSelectable.data.length);
         range.collapse(true);
       } else if (prevBlock) {
         range.setStart(prevBlock, prevBlock.childNodes.length);
+        range.collapse(true);
+      } else {
         range.collapse(true);
       }
 
