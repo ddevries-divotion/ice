@@ -1,14 +1,6 @@
 // ICE Bundle Entry Point - Concatenates all dependencies in the correct order
 // This file defines the module loading order for the complete ICE library
 
-// Import rangy core first and expose it globally
-import rangy from "rangy";
-
-// Expose rangy globally for ice modules to use
-if (typeof window !== "undefined") {
-  window.rangy = rangy;
-}
-
 // Import and expose all ICE modules to maintain global compatibility
 import "./ice.js";
 import "./dom.js";
