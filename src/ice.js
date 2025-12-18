@@ -467,7 +467,9 @@ InlineChangeEditor.prototype = {
     }
   },
   visible: function (el) {
+    if (!el) return false;
     if (el.nodeType === ice.dom.TEXT_NODE) el = el.parentNode;
+    if (!el) return false;
     const rect = el.getBoundingClientRect();
     return rect.top > 0 && rect.left > 0;
   },
@@ -1368,14 +1370,20 @@ InlineChangeEditor.prototype = {
       // If the next container is <br> element find the next node
       if (ice.dom.BREAK_ELEMENT == ice.dom.getTagName(nextContainer)) {
         nextContainer = ice.dom.getNextNode(nextContainer, this.element);
+        // Check if nextContainer is null after getting next node from BR element
+        if (!nextContainer) {
+          range.selectNodeContents(initialContainer);
+          range.collapse();
+          return false;
+        }
       }
       // If the next container is a text node, look at the parent node instead.
-      if (nextContainer.nodeType === ice.dom.TEXT_NODE) {
+      if (nextContainer && nextContainer.nodeType === ice.dom.TEXT_NODE) {
         nextContainer = nextContainer.parentNode;
       }
 
       // If the next container is non-editable, enclose it with a delete ice node and add an empty text node after it to position the caret.
-      if (!nextContainer.isContentEditable) {
+      if (nextContainer && !nextContainer.isContentEditable) {
         returnValue = this._addNodeTracking(nextContainer, false, false);
         const emptySpaceNode = document.createTextNode("");
         nextContainer.parentNode.insertBefore(
@@ -1387,10 +1395,12 @@ InlineChangeEditor.prototype = {
         return returnValue;
       }
 
-      if (this._handleVoidEl(nextContainer, range)) return true;
+      if (nextContainer && this._handleVoidEl(nextContainer, range))
+        return true;
 
       // If the caret was placed directly before a stub element, enclose the element with a delete ice node.
       if (
+        nextContainer &&
         ice.dom.isChildOf(nextContainer, parentBlock) &&
         ice.dom.isStubElement(nextContainer)
       ) {
@@ -1398,7 +1408,7 @@ InlineChangeEditor.prototype = {
       }
     }
 
-    if (this._handleVoidEl(nextContainer, range)) return true;
+    if (nextContainer && this._handleVoidEl(nextContainer, range)) return true;
 
     // If we are deleting into a no tracking containiner, then remove the content
     if (this._getNoTrackElement(range.endContainer.parentElement)) {

@@ -287,8 +287,16 @@ class Selection {
       }
       if (container.nodeType === ice.dom.ELEMENT_NODE) {
         container = container.childNodes[offset];
+        if (!container) {
+          // No child node at the specified offset, we're at the end
+          return;
+        }
         if (container.nodeType !== ice.dom.TEXT_NODE) {
           container = this.getNextTextNode(container);
+          if (!container) {
+            // No next text node found
+            return;
+          }
         }
         offset = units;
       } else {
@@ -300,6 +308,10 @@ class Selection {
         // We need to move to the next selectable container.
         while (diff > 0) {
           container = this.getNextContainer(container, skippedBlockElem);
+          if (!container) {
+            // No next container found, we're at the end of content
+            return;
+          }
           if (container.nodeType === ice.dom.ELEMENT_NODE) continue;
           if (container.data.length >= diff) {
             // We found a container with enough content to select.
@@ -398,12 +410,14 @@ class Selection {
     };
 
     rangy.rangePrototype.getNextTextNode = (container) => {
+      if (!container) return null;
       if (container.nodeType === ice.dom.ELEMENT_NODE) {
         if (container.childNodes.length !== 0) {
           return rangy.rangePrototype.getFirstSelectableChild(container);
         }
       }
       container = rangy.rangePrototype.getNextContainer(container);
+      if (!container) return null;
       if (container.nodeType === ice.dom.TEXT_NODE) {
         return container;
       }
@@ -415,6 +429,7 @@ class Selection {
         container,
         skippedBlockEl,
       );
+      if (!container) return null;
       if (container.nodeType === ice.dom.TEXT_NODE) {
         return container;
       }
