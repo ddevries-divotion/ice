@@ -1,44 +1,62 @@
-// selection.js - ES6 version
+// selection.js - Selection helper
 // Copyright (c) The New York Times, CMS Group, Matthew DeLambo
 // Copyright (c) Divotion B.V., Conflux, Dennis de Vries
 // Licensed under the GNU General Public License v2.0 or later
 
 /**
  * @class Selection
- * @description Selection utility for ice.js, wraps rangy selection/range with custom logic.
+ * @description Selection utility for ice.js built on native Selection/Range APIs with ICE-specific helpers.
  */
 class Selection {
   /**
    * @param {Object} env - The environment object (contains document, frame, etc).
    */
   constructor(env) {
-    this._selection = null;
     this.env = env;
-    this._initializeRangeLibrary();
+    this._selection = null;
+    this._rangeCtor =
+      (env &&
+        env.document &&
+        env.document.defaultView &&
+        env.document.defaultView.Range) ||
+      (typeof Range !== "undefined" ? Range : null);
+    this._patchRangePrototype();
     this._getSelection();
   }
 
   /**
    * Returns the selection object for the current browser.
-   * @returns {Object} The rangy selection object.
+   * @returns {Selection|null} The native selection object.
    */
   _getSelection() {
-    if (this._selection) {
-      this._selection.refresh();
-    } else if (this.env.frame) {
-      this._selection = rangy.getSelection(this.env.frame);
-    } else {
-      this._selection = rangy.getSelection();
+    const win =
+      (this.env && this.env.window) ||
+      (this.env && this.env.document && this.env.document.defaultView) ||
+      (typeof window !== "undefined" ? window : null);
+
+    if (!win || typeof win.getSelection !== "function") {
+      console.warn("ICE: Selection API unavailable");
+      return null;
     }
+
+    this._selection = win.getSelection();
     return this._selection;
   }
 
   /**
    * Creates a range object.
-   * @returns {Object} The rangy range object.
+   * @returns {Range} The native range object.
    */
   createRange() {
-    return rangy.createRange(this.env.document);
+    const doc =
+      (this.env && this.env.document) ||
+      (typeof document !== "undefined" ? document : null);
+
+    if (!doc || typeof doc.createRange !== "function") {
+      throw new Error("ICE: Range API unavailable");
+    }
+
+    return doc.createRange();
   }
 
   /**
@@ -46,175 +64,231 @@ class Selection {
    * is at position 0. Note - currently only setting single range in `addRange` so
    * position 0 will be the only allocation filled.
    * @param {number} pos - The range position (usually 0).
-   * @returns {Object} The rangy range object at the given position.
+   * @returns {Range} The native range object at the given position.
    */
-  getRangeAt(pos) {
-    this._selection.refresh();
+  getRangeAt(pos = 0) {
+    const selection = this._selection || this._getSelection();
+
+    if (!selection) {
+      return this.createRange();
+    }
+
+    if (selection.rangeCount === 0) {
+      return this.createRange();
+    }
+
+    const index = Math.min(pos, selection.rangeCount - 1);
+
     try {
-      return this._selection.getRangeAt(pos);
-    } catch {
-      this._selection = null;
-      return this._getSelection().getRangeAt(0);
+      return selection.getRangeAt(index);
+    } catch (error) {
+      console.warn("ICE: Failed to read selection range, recreating", error);
+      if (typeof selection.removeAllRanges === "function") {
+        selection.removeAllRanges();
+      }
+      return this.createRange();
     }
   }
 
   /**
    * Adds the specified range to the current selection. Note - only supporting setting
    * a single range, so the previous range gets evicted.
-   * @param {Object} range - The rangy range object to add.
+   * @param {Range} range - The range object to add.
    */
   addRange(range) {
-    this._selection || (this._selection = this._getSelection());
+    this._selection || this._getSelection();
+
+    if (!this._selection || !range) return;
+
+    if (
+      range.startContainer &&
+      range.startContainer.ownerDocument !== this.env.document
+    ) {
+      console.warn(
+        "ICE: Range not in correct document context, skipping addRange",
+        range,
+      );
+      return;
+    }
 
     try {
-      // Validate that the range is in the correct document
-      if (
-        range &&
-        range.startContainer &&
-        range.startContainer.ownerDocument === this.env.document
-      ) {
-        this._selection.setSingleRange(range);
-        this._selection.ranges = [range];
-      } else {
-        console.warn(
-          "ICE: Range not in correct document context, skipping addRange",
-          range,
-        );
+      if (typeof this._selection.removeAllRanges === "function") {
+        this._selection.removeAllRanges();
       }
+      this._selection.addRange(range);
     } catch (error) {
       console.error("ICE: Failed to add range to selection", error);
     }
-    return;
   }
 
   /**
-   * Initialize and extend the `rangy` library with some custom functionality.
-   * Adds movement and selection helpers to rangy.rangePrototype.
+   * Initialize range helpers on the native Range prototype.
    * @private
    */
-  _initializeRangeLibrary() {
-    const self = this;
-    rangy.init();
-    rangy.config.checkSelectionRanges = false;
+  _patchRangePrototype() {
+    const RangeCtor = this._rangeCtor;
+    if (!RangeCtor || RangeCtor.__iceRangePatched) return;
 
-    /**
-     * Moves the start or end of the range using the specified `unitType`, by the specified
-     * number of `units`. Defaults to `CHARACTER_UNIT` and units of 1.
-     * @param {Object} range - The rangy range object.
-     * @param {string} unitType - The unit type (CHARACTER_UNIT, WORD_UNIT).
-     * @param {number} units - Number of units to move.
-     * @param {boolean} isStart - Whether to move the start (true) or end (false).
-     */
-    const move = (range, unitType, units, isStart) => {
-      if (units === 0) return;
-      switch (unitType) {
-        case ice.dom.CHARACTER_UNIT:
-          if (units > 0) {
-            range.moveCharRight(isStart, units);
-          } else {
-            range.moveCharLeft(isStart, units * -1);
+    const proto = RangeCtor.prototype;
+
+    const isSelectable = (node) =>
+      !!(
+        node &&
+        node.nodeType === ice.dom.TEXT_NODE &&
+        node.data &&
+        node.data.length !== 0
+      );
+
+    const setBoundary = (range, isStart, container, offset) => {
+      if (isStart) {
+        range.setStart(container, offset);
+      } else {
+        range.setEnd(container, offset);
+      }
+    };
+
+    const getFirstSelectableChild = (element) => {
+      if (!element) return null;
+      if (element.nodeType === ice.dom.TEXT_NODE) return element;
+      let child = element.firstChild;
+      while (child) {
+        if (isSelectable(child)) {
+          return child;
+        } else if (child.firstChild) {
+          const res = getFirstSelectableChild(child);
+          if (res !== null) {
+            return res;
           }
-          break;
-        case ice.dom.WORD_UNIT:
-        default:
-          // Removed. TODO: possibly refactor or re-implement.
-          break;
+        }
+        child = child.nextSibling;
       }
+      return null;
     };
 
-    /**
-     * Moves the start of the range using the specified `unitType`, by the specified
-     * number of `units`.
-     */
-    rangy.rangePrototype.moveStart = function (unitType, units) {
-      move(this, unitType, units, true);
-    };
-    /**
-     * Moves the end of the range using the specified `unitType`, by the specified
-     * number of `units`.
-     */
-    rangy.rangePrototype.moveEnd = function (unitType, units) {
-      move(this, unitType, units, false);
-    };
-    /**
-     * Sets the start or end containers to the given `container` with `offset` units.
-     * @param {boolean} start - If true, set start; else set end.
-     * @param {Node} container - The container node.
-     * @param {number} offset - The offset.
-     */
-    rangy.rangePrototype.setRange = function (start, container, offset) {
-      if (start) {
-        this.setStart(container, offset);
-      } else {
-        this.setEnd(container, offset);
+    const getLastSelectableChild = (element) => {
+      if (!element) return null;
+      if (element.nodeType === ice.dom.TEXT_NODE) return element;
+      let child = element.lastChild;
+      while (child) {
+        if (isSelectable(child)) {
+          return child;
+        } else if (child.lastChild) {
+          const res = getLastSelectableChild(child);
+          if (res !== null) {
+            return res;
+          }
+        }
+        child = child.previousSibling;
       }
+      return null;
     };
 
-    /**
-     * Depending on the given `moveStart` boolean, moves the start or end containers
-     * to the left by the given number of character `units`. Use the following
-     * example as a demonstration for where the range will fall as it moves in and
-     * out of tag boundaries (where "|" is the marked range):
-     *
-     * test <em>it</em> o|ut
-     * test <em>it</em> |out
-     * test <em>it</em>| out
-     * test <em>i|t</em> out
-     * test <em>|it</em> out
-     * test| <em>it</em> out
-     * tes|t <em>it</em> out
-     *
-     * A range could be mapped in one of two ways:
-     *
-     * (1) If a startContainer is a Node of type Text, Comment, or CDATASection, then startOffset
-     * is the number of characters from the start of startNode. For example, the following
-     * are the range properties for `<p>te|st</p>` (where "|" is the collapsed range):
-     *
-     * startContainer: <TEXT>test<TEXT>
-     * startOffset: 2
-     * endContainer: <TEXT>test<TEXT>
-     * endOffset: 2
-     *
-     * (2) For other Node types, startOffset is the number of child nodes between the start of
-     * the startNode. Take the following html fragment:
-     *
-     * `<p>some <span>test</span> text</p>`
-     *
-     * If we were working with the following range properties:
-     *
-     * startContainer: <p>
-     * startOffset: 2
-     * endContainer: <p>
-     * endOffset: 2
-     *
-     * Since <p> is an Element node, the offsets are based on the offset in child nodes of <p> and
-     * the range is selecting the second child - the <span> tag.
-     *
-     * <p><TEXT>some </TEXT><SPAN>test</SPAN><TEXT> text</TEXT></p>
-     */
-    rangy.rangePrototype.moveCharLeft = function (moveStart, units) {
-      let container, offset;
+    const getNextContainer = (container, skippedBlockElem) => {
+      if (!container) return null;
+      let cursor = container;
+      while (cursor.nextSibling) {
+        cursor = cursor.nextSibling;
+        if (cursor.nodeType !== ice.dom.TEXT_NODE) {
+          const child = getFirstSelectableChild(cursor);
+          if (child !== null) return child;
+        } else if (isSelectable(cursor) === true) {
+          return cursor;
+        }
+      }
+      while (cursor && !cursor.nextSibling) {
+        cursor = cursor.parentNode;
+      }
+      if (!cursor) return null;
+      cursor = cursor.nextSibling;
+      if (isSelectable(cursor) === true) {
+        return cursor;
+      } else if (skippedBlockElem && ice.dom.isBlockElement(cursor) === true) {
+        skippedBlockElem.push(cursor);
+      }
+      const selChild = getFirstSelectableChild(cursor);
+      if (selChild !== null) return selChild;
+      return getNextContainer(cursor, skippedBlockElem);
+    };
+
+    const getPreviousContainer = (container, skippedBlockElem) => {
+      if (!container) return null;
+      let cursor = container;
+      while (cursor.previousSibling) {
+        cursor = cursor.previousSibling;
+        if (cursor.nodeType !== ice.dom.TEXT_NODE) {
+          if (ice.dom.isStubElement(cursor) === true) {
+            return cursor;
+          } else {
+            const child = getLastSelectableChild(cursor);
+            if (child !== null) return child;
+          }
+        } else if (isSelectable(cursor) === true) {
+          return cursor;
+        }
+      }
+      while (cursor && !cursor.previousSibling) {
+        cursor = cursor.parentNode;
+      }
+      if (!cursor) return null;
+      cursor = cursor.previousSibling;
+      if (isSelectable(cursor) === true) {
+        return cursor;
+      } else if (skippedBlockElem && ice.dom.isBlockElement(cursor) === true) {
+        skippedBlockElem.push(cursor);
+      }
+      const selChild = getLastSelectableChild(cursor);
+      if (selChild !== null) return selChild;
+      return getPreviousContainer(cursor, skippedBlockElem);
+    };
+
+    const getNextTextNode = (container) => {
+      if (!container) return null;
+      if (container.nodeType === ice.dom.ELEMENT_NODE) {
+        if (container.childNodes.length !== 0) {
+          return getFirstSelectableChild(container);
+        }
+      }
+      const next = getNextContainer(container);
+      if (!next) return null;
+      if (next.nodeType === ice.dom.TEXT_NODE) {
+        return next;
+      }
+      return getNextTextNode(next);
+    };
+
+    const getPreviousTextNode = (container, skippedBlockEl) => {
+      const prev = getPreviousContainer(container, skippedBlockEl);
+      if (!prev) return null;
+      if (prev.nodeType === ice.dom.TEXT_NODE) {
+        return prev;
+      }
+      return getPreviousTextNode(prev, skippedBlockEl);
+    };
+
+    const moveCharLeft = (range, moveStart, units) => {
+      let container;
+      let offset;
       if (moveStart) {
-        container = this.startContainer;
-        offset = this.startOffset;
+        container = range.startContainer;
+        offset = range.startOffset;
       } else {
-        container = this.endContainer;
-        offset = this.endOffset;
+        container = range.endContainer;
+        offset = range.endOffset;
       }
-      // Handle the case where the range conforms to (2) (noted in the comment above).
+      if (!container) return;
+
       if (container.nodeType === ice.dom.ELEMENT_NODE) {
         if (container.hasChildNodes()) {
-          container = container.childNodes[offset];
-          container = this.getPreviousTextNode(container);
-          // Get the previous text container that is not an empty text node.
+          container = container.childNodes[offset] || container.lastChild;
+          container = getPreviousTextNode(container);
           while (
             container &&
             container.nodeType === ice.dom.TEXT_NODE &&
             container.nodeValue === ""
           ) {
-            container = this.getPreviousTextNode(container);
+            container = getPreviousTextNode(container);
           }
-          offset = container.data.length - units;
+          offset = container ? container.data.length - units : units * -1;
         } else {
           offset = units * -1;
         }
@@ -222,281 +296,182 @@ class Selection {
         offset -= units;
       }
       if (offset < 0) {
-        // We need to move to a previous selectable container.
         while (offset < 0) {
           const skippedBlockElem = [];
-          container = this.getPreviousTextNode(container, skippedBlockElem);
-          // We are at the beginning/out of the editable - break.
+          container = getPreviousTextNode(container, skippedBlockElem);
           if (!container) return;
-          if (container.nodeType === ice.dom.ELEMENT_NODE) continue;
+          if (container.nodeType === ice.dom.ELEMENT_NODE) {
+            // Land the caret just before the stub/element to avoid infinite looping
+            const parent = container.parentNode;
+            if (parent) {
+              const idx = Array.prototype.indexOf.call(
+                parent.childNodes,
+                container,
+              );
+              setBoundary(range, moveStart, parent, Math.max(idx, 0));
+            }
+            return;
+          }
           offset += container.data.length;
         }
       }
-      this.setRange(moveStart, container, offset);
+      setBoundary(range, moveStart, container, offset);
     };
 
-    /**
-     * Moves the start or end containers to the right by the given number of character `units`.
-     * Use the following
-     * example as a demonstration for where the range will fall as it moves in and
-     * out of tag boundaries (where "|" is the marked range):
-     *
-     * tes|t <em>it</em> out
-     * test| <em>it</em> out
-     * test |<em>it</em> out
-     * test <em>i|t</em> out
-     * test <em>it|</em> out
-     * test <em>it</em> |out
-     *
-     * A range could be mapped in one of two ways:
-     *
-     * (1) If a startContainer is a Node of type Text, Comment, or CDATASection, then startOffset
-     * is the number of characters from the start of startNode. For example, the following
-     * are the range properties for `<p>te|st</p>` (where "|" is the collapsed range):
-     *
-     * startContainer: <TEXT>test<TEXT>
-     * startOffset: 2
-     * endContainer: <TEXT>test<TEXT>
-     * endOffset: 2
-     *
-     * (2) For other Node types, startOffset is the number of child nodes between the start of
-     * the startNode. Take the following html fragment:
-     *
-     * `<p>some <span>test</span> text</p>`
-     *
-     * If we were working with the following range properties:
-     *
-     * startContainer: <p>
-     * startOffset: 2
-     * endContainer: <p>
-     * endOffset: 2
-     *
-     * Since <p> is an Element node, the offsets are based on the offset in child nodes of <p> and
-     * the range is selecting the second child - the <span> tag.
-     *
-     * <p><TEXT>some </TEXT><SPAN>test</SPAN><TEXT> text</TEXT></p>
-     */
-    rangy.rangePrototype.moveCharRight = function (moveStart, units) {
-      let container, offset;
+    const moveCharRight = (range, moveStart, units) => {
+      let container;
+      let offset;
       if (moveStart) {
-        container = this.startContainer;
-        offset = this.startOffset;
+        container = range.startContainer;
+        offset = range.startOffset;
       } else {
-        container = this.endContainer;
-        offset = this.endOffset;
+        container = range.endContainer;
+        offset = range.endOffset;
       }
+      if (!container) return;
       if (container.nodeType === ice.dom.ELEMENT_NODE) {
-        container = container.childNodes[offset];
-        if (container.nodeType !== ice.dom.TEXT_NODE) {
-          container = this.getNextTextNode(container);
+        container = container.childNodes[offset] || container.lastChild;
+        if (container && container.nodeType !== ice.dom.TEXT_NODE) {
+          container = getNextTextNode(container);
         }
         offset = units;
       } else {
         offset += units;
       }
-      let diff = offset - container.data.length;
+      if (!container) return;
+      let diff = offset - (container.data ? container.data.length : 0);
       if (diff > 0) {
         const skippedBlockElem = [];
-        // We need to move to the next selectable container.
         while (diff > 0) {
-          container = this.getNextContainer(container, skippedBlockElem);
+          container = getNextContainer(container, skippedBlockElem);
+          if (!container) return;
           if (container.nodeType === ice.dom.ELEMENT_NODE) continue;
           if (container.data.length >= diff) {
-            // We found a container with enough content to select.
             break;
           } else if (container.data.length > 0) {
-            // Container does not have enough content, find the next one.
             diff -= container.data.length;
           }
         }
         offset = diff;
       }
-      this.setRange(moveStart, container, offset);
+      setBoundary(range, moveStart, container, offset);
     };
 
-    /**
-     * Returns the deepest next container that the range can be extended to.
-     * For example, if the next container is an element that contains text nodes,
-     * the container's firstChild is returned.
-     */
-    rangy.rangePrototype.getNextContainer = function (
-      container,
-      skippedBlockElem,
-    ) {
-      if (!container) return null;
-      while (container.nextSibling) {
-        container = container.nextSibling;
-        if (container.nodeType !== ice.dom.TEXT_NODE) {
-          const child = this.getFirstSelectableChild(container);
-          if (child !== null) return child;
-        } else if (this.isSelectable(container) === true) {
-          return container;
-        }
-      }
-      // Look at parents next sibling.
-      while (container && !container.nextSibling) {
-        container = container.parentNode;
-      }
-      if (!container) return null;
-      container = container.nextSibling;
-      if (this.isSelectable(container) === true) {
-        return container;
-      } else if (
-        skippedBlockElem &&
-        ice.dom.isBlockElement(container) === true
-      ) {
-        skippedBlockElem.push(container);
-      }
-      const selChild = this.getFirstSelectableChild(container);
-      if (selChild !== null) return selChild;
-      return this.getNextContainer(container, skippedBlockElem);
-    };
-
-    /**
-     * Returns the deepest previous container that the range can be extended to.
-     * For example, if the previous container is an element that contains text nodes,
-     * then the container's lastChild is returned.
-     */
-    rangy.rangePrototype.getPreviousContainer = (
-      container,
-      skippedBlockElem,
-    ) => {
-      if (!container) return null;
-      while (container.previousSibling) {
-        container = container.previousSibling;
-        if (container.nodeType !== ice.dom.TEXT_NODE) {
-          if (ice.dom.isStubElement(container) === true) {
-            return container;
+    const move = (range, unitType, units, isStart) => {
+      if (units === 0) return;
+      switch (unitType) {
+        case ice.dom.CHARACTER_UNIT:
+          if (units > 0) {
+            moveCharRight(range, isStart, units);
           } else {
-            const child =
-              rangy.rangePrototype.getLastSelectableChild(container);
-            if (child !== null) return child;
+            moveCharLeft(range, isStart, units * -1);
           }
-        } else if (rangy.rangePrototype.isSelectable(container) === true) {
-          return container;
-        }
+          break;
+        case ice.dom.WORD_UNIT:
+        default:
+          break;
       }
-      while (container && !container.previousSibling) {
-        container = container.parentNode;
-      }
-      if (!container) return null;
-      container = container.previousSibling;
-      if (rangy.rangePrototype.isSelectable(container) === true) {
-        return container;
-      } else if (
-        skippedBlockElem &&
-        ice.dom.isBlockElement(container) === true
-      ) {
-        skippedBlockElem.push(container);
-      }
-      const selChild = rangy.rangePrototype.getLastSelectableChild(container);
-      if (selChild !== null) return selChild;
-      return rangy.rangePrototype.getPreviousContainer(
-        container,
-        skippedBlockElem,
-      );
     };
 
-    rangy.rangePrototype.getNextTextNode = (container) => {
-      if (container.nodeType === ice.dom.ELEMENT_NODE) {
-        if (container.childNodes.length !== 0) {
-          return rangy.rangePrototype.getFirstSelectableChild(container);
-        }
+    const moveToNextEl = (range, element) => {
+      if (!element) return;
+      const anchor =
+        element.nodeType === ice.dom.TEXT_NODE ? element : element.parentNode;
+      let next = getNextContainer(anchor);
+      if (!next && anchor && anchor.parentNode) {
+        next = getNextContainer(anchor.parentNode);
       }
-      container = rangy.rangePrototype.getNextContainer(container);
-      if (container.nodeType === ice.dom.TEXT_NODE) {
-        return container;
+      if (!next) {
+        range.setStartAfter(element);
+        range.collapse(true);
+        return;
       }
-      return rangy.rangePrototype.getNextTextNode(container);
-    };
-
-    rangy.rangePrototype.getPreviousTextNode = (container, skippedBlockEl) => {
-      container = rangy.rangePrototype.getPreviousContainer(
-        container,
-        skippedBlockEl,
-      );
-      if (container.nodeType === ice.dom.TEXT_NODE) {
-        return container;
-      }
-      return rangy.rangePrototype.getPreviousTextNode(
-        container,
-        skippedBlockEl,
-      );
-    };
-
-    rangy.rangePrototype.getFirstSelectableChild = (element) => {
-      if (element) {
-        if (element.nodeType !== ice.dom.TEXT_NODE) {
-          let child = element.firstChild;
-          while (child) {
-            if (rangy.rangePrototype.isSelectable(child) === true) {
-              return child;
-            } else if (child.firstChild) {
-              // This node does have child nodes.
-              const res = rangy.rangePrototype.getFirstSelectableChild(child);
-              if (res !== null) {
-                return res;
-              } else {
-                child = child.nextSibling;
-              }
-            } else {
-              child = child.nextSibling;
-            }
-          }
+      if (next.nodeType === ice.dom.TEXT_NODE) {
+        range.setStart(next, 0);
+      } else {
+        const child = getFirstSelectableChild(next);
+        if (child) {
+          range.setStart(child, 0);
         } else {
-          // Given element is a text node so return it.
-          return element;
+          range.setStartAfter(element);
         }
       }
-      return null;
+      range.collapse(true);
     };
 
-    rangy.rangePrototype.getLastSelectableChild = (element) => {
-      if (element) {
-        if (element.nodeType !== ice.dom.TEXT_NODE) {
-          let child = element.lastChild;
-          while (child) {
-            if (rangy.rangePrototype.isSelectable(child) === true) {
-              return child;
-            } else if (child.lastChild) {
-              // This node does have child nodes.
-              const res = rangy.rangePrototype.getLastSelectableChild(child);
-              if (res !== null) {
-                return res;
-              } else {
-                child = child.previousSibling;
-              }
-            } else {
-              child = child.previousSibling;
-            }
-          }
-        } else {
-          // Given element is a text node so return it.
-          return element;
-        }
-      }
-      return null;
-    };
-
-    rangy.rangePrototype.isSelectable = (container) =>
-      !!(
-        container &&
-        container.nodeType === ice.dom.TEXT_NODE &&
-        container.data.length !== 0
-      );
-
-    rangy.rangePrototype.getHTMLContents = function (clonedSelection) {
-      if (!clonedSelection) {
-        clonedSelection = this.cloneContents();
-      }
-      const div = self.env.document.createElement("div");
-      div.appendChild(clonedSelection.cloneNode(true));
+    const getHTMLContents = (range, clonedSelection) => {
+      const doc =
+        (range.startContainer && range.startContainer.ownerDocument) ||
+        (range.endContainer && range.endContainer.ownerDocument) ||
+        (typeof document !== "undefined" ? document : null);
+      if (!doc) return "";
+      const fragment = clonedSelection || range.cloneContents();
+      const div = doc.createElement("div");
+      div.appendChild(fragment.cloneNode(true));
       return div.innerHTML;
     };
 
-    rangy.rangePrototype.getHTMLContentsObj = function () {
+    proto.moveStart = function (unitType, units) {
+      move(this, unitType, units, true);
+    };
+
+    proto.moveEnd = function (unitType, units) {
+      move(this, unitType, units, false);
+    };
+
+    proto.setRange = function (start, container, offset) {
+      setBoundary(this, start, container, offset);
+    };
+
+    proto.moveCharLeft = function (moveStart, units) {
+      moveCharLeft(this, moveStart, units);
+    };
+
+    proto.moveCharRight = function (moveStart, units) {
+      moveCharRight(this, moveStart, units);
+    };
+
+    proto.getNextContainer = function (container, skippedBlockElem) {
+      return getNextContainer(container, skippedBlockElem);
+    };
+
+    proto.getPreviousContainer = function (container, skippedBlockElem) {
+      return getPreviousContainer(container, skippedBlockElem);
+    };
+
+    proto.getNextTextNode = function (container) {
+      return getNextTextNode(container);
+    };
+
+    proto.getPreviousTextNode = function (container, skippedBlockEl) {
+      return getPreviousTextNode(container, skippedBlockEl);
+    };
+
+    proto.getFirstSelectableChild = function (element) {
+      return getFirstSelectableChild(element);
+    };
+
+    proto.getLastSelectableChild = function (element) {
+      return getLastSelectableChild(element);
+    };
+
+    proto.isSelectable = function (container) {
+      return isSelectable(container);
+    };
+
+    proto.getHTMLContents = function (clonedSelection) {
+      return getHTMLContents(this, clonedSelection);
+    };
+
+    proto.getHTMLContentsObj = function () {
       return this.cloneContents();
     };
+
+    proto.moveToNextEl = function (element) {
+      moveToNextEl(this, element);
+    };
+
+    RangeCtor.__iceRangePatched = true;
   }
 }
 

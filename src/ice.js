@@ -944,9 +944,24 @@ InlineChangeEditor.prototype = {
    * void elements.
    */
   _moveRangeToValidTrackingPos: function (range) {
+    const self = this;
+    const getLastContiguousVoid = function (node) {
+      let current = node;
+      while (current && current.nextSibling) {
+        const next = current.nextSibling;
+        if (self._getVoidElement(next) === next) {
+          current = next;
+          continue;
+        }
+        break;
+      }
+      return current;
+    };
     let onEdge = false;
     let voidEl = this._getVoidElement(range.endContainer);
     while (voidEl) {
+      const prevContainer = range.endContainer;
+      const prevOffset = range.endOffset;
       // Move end of range to position it inside of any potential adjacent containers
       // E.G.:  test|<em>text</em>  ->  test<em>|text</em>
       try {
@@ -964,7 +979,18 @@ InlineChangeEditor.prototype = {
           this.blockEls,
         )
       ) {
-        range.setStartAfter(voidEl);
+        const target = getLastContiguousVoid(voidEl);
+        range.setStartAfter(target);
+        range.collapse(true);
+        break;
+      }
+      if (
+        range.endContainer === prevContainer &&
+        range.endOffset === prevOffset
+      ) {
+        // We failed to move the caret; jump past the void element to avoid infinite loops
+        const target = getLastContiguousVoid(voidEl);
+        range.setStartAfter(target);
         range.collapse(true);
         break;
       }
