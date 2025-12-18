@@ -147,6 +147,10 @@ class Selection {
       }
     };
 
+    /**
+     * Returns the first selectable child for a given element, descending as needed
+     * to locate the deepest selectable text node.
+     */
     const getFirstSelectableChild = (element) => {
       if (!element) return null;
       if (element.nodeType === ice.dom.TEXT_NODE) return element;
@@ -165,6 +169,10 @@ class Selection {
       return null;
     };
 
+    /**
+     * Returns the last selectable child for a given element, descending as needed
+     * to locate the deepest selectable text node.
+     */
     const getLastSelectableChild = (element) => {
       if (!element) return null;
       if (element.nodeType === ice.dom.TEXT_NODE) return element;
@@ -183,6 +191,11 @@ class Selection {
       return null;
     };
 
+    /**
+     * Returns the deepest next container that the range can be extended to.
+     * For example, if the next container is an element that contains text nodes,
+     * the container's firstChild is returned.
+     */
     const getNextContainer = (container, skippedBlockElem) => {
       if (!container) return null;
       let cursor = container;
@@ -210,6 +223,11 @@ class Selection {
       return getNextContainer(cursor, skippedBlockElem);
     };
 
+    /**
+     * Returns the deepest previous container that the range can be extended to.
+     * For example, if the previous container is an element that contains text nodes,
+     * then the container's lastChild is returned.
+     */
     const getPreviousContainer = (container, skippedBlockElem) => {
       if (!container) return null;
       let cursor = container;
@@ -241,6 +259,9 @@ class Selection {
       return getPreviousContainer(cursor, skippedBlockElem);
     };
 
+    /**
+     * Finds the next selectable text node from the given container.
+     */
     const getNextTextNode = (container) => {
       if (!container) return null;
       if (container.nodeType === ice.dom.ELEMENT_NODE) {
@@ -256,6 +277,9 @@ class Selection {
       return getNextTextNode(next);
     };
 
+    /**
+     * Finds the previous selectable text node from the given container.
+     */
     const getPreviousTextNode = (container, skippedBlockEl) => {
       const prev = getPreviousContainer(container, skippedBlockEl);
       if (!prev) return null;
@@ -265,6 +289,48 @@ class Selection {
       return getPreviousTextNode(prev, skippedBlockEl);
     };
 
+    /**
+     * Depending on the given `moveStart` boolean, moves the start or end containers
+     * to the left by the given number of character `units`. Use the following
+     * example as a demonstration for where the range will fall as it moves in and
+     * out of tag boundaries (where "|" is the marked range):
+     *
+     * test <em>it</em> o|ut
+     * test <em>it</em> |out
+     * test <em>it</em>| out
+     * test <em>i|t</em> out
+     * test <em>|it</em> out
+     * test| <em>it</em> out
+     * tes|t <em>it</em> out
+     *
+     * A range could be mapped in one of two ways:
+     *
+     * (1) If a startContainer is a Node of type Text, Comment, or CDATASection, then startOffset
+     * is the number of characters from the start of startNode. For example, the following
+     * are the range properties for `<p>te|st</p>` (where "|" is the collapsed range):
+     *
+     * startContainer: <TEXT>test<TEXT>
+     * startOffset: 2
+     * endContainer: <TEXT>test<TEXT>
+     * endOffset: 2
+     *
+     * (2) For other Node types, startOffset is the number of child nodes between the start of
+     * the startNode. Take the following html fragment:
+     *
+     * `<p>some <span>test</span> text</p>`
+     *
+     * If we were working with the following range properties:
+     *
+     * startContainer: <p>
+     * startOffset: 2
+     * endContainer: <p>
+     * endOffset: 2
+     *
+     * Since <p> is an Element node, the offsets are based on the offset in child nodes of <p> and
+     * the range is selecting the second child - the <span> tag.
+     *
+     * <p><TEXT>some </TEXT><SPAN>test</SPAN><TEXT> text</TEXT></p>
+     */
     const moveCharLeft = (range, moveStart, units) => {
       let container;
       let offset;
@@ -318,6 +384,47 @@ class Selection {
       setBoundary(range, moveStart, container, offset);
     };
 
+    /**
+     * Moves the start or end containers to the right by the given number of character `units`.
+     * Use the following
+     * example as a demonstration for where the range will fall as it moves in and
+     * out of tag boundaries (where "|" is the marked range):
+     *
+     * tes|t <em>it</em> out
+     * test| <em>it</em> out
+     * test |<em>it</em> out
+     * test <em>i|t</em> out
+     * test <em>it|</em> out
+     * test <em>it</em> |out
+     *
+     * A range could be mapped in one of two ways:
+     *
+     * (1) If a startContainer is a Node of type Text, Comment, or CDATASection, then startOffset
+     * is the number of characters from the start of startNode. For example, the following
+     * are the range properties for `<p>te|st</p>` (where "|" is the collapsed range):
+     *
+     * startContainer: <TEXT>test<TEXT>
+     * startOffset: 2
+     * endContainer: <TEXT>test<TEXT>
+     * endOffset: 2
+     *
+     * (2) For other Node types, startOffset is the number of child nodes between the start of
+     * the startNode. Take the following html fragment:
+     *
+     * `<p>some <span>test</span> text</p>`
+     *
+     * If we were working with the following range properties:
+     *
+     * startContainer: <p>
+     * startOffset: 2
+     * endContainer: <p>
+     * endOffset: 2
+     *
+     * Since <p> is an Element node, the offsets are based on the offset in child nodes of <p> and
+     * the range is selecting the second child - the <span> tag.
+     *
+     * <p><TEXT>some </TEXT><SPAN>test</SPAN><TEXT> text</TEXT></p>
+     */
     const moveCharRight = (range, moveStart, units) => {
       let container;
       let offset;
@@ -357,6 +464,10 @@ class Selection {
       setBoundary(range, moveStart, container, offset);
     };
 
+    /**
+     * Moves the start or end of the range using the specified `unitType`, by the specified
+     * number of `units`. Defaults to `CHARACTER_UNIT` and units of 1.
+     */
     const move = (range, unitType, units, isStart) => {
       if (units === 0) return;
       switch (unitType) {
@@ -373,6 +484,10 @@ class Selection {
       }
     };
 
+    /**
+     * Moves the range to the next selectable element or places it after the given element
+     * when no further selectable content is found.
+     */
     const moveToNextEl = (range, element) => {
       if (!element) return;
       const anchor =
@@ -399,6 +514,9 @@ class Selection {
       range.collapse(true);
     };
 
+    /**
+     * Returns the HTML contents of the range, optionally using a cloned selection fragment.
+     */
     const getHTMLContents = (range, clonedSelection) => {
       const doc =
         (range.startContainer && range.startContainer.ownerDocument) ||
