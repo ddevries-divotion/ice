@@ -804,11 +804,7 @@ dom.addClass = (element, classNames) =>
  * @see __tests__/playwright/dom.spec.js
  */
 dom.preventDefault = (e) => {
-  try {
-    e.preventDefault();
-  } catch (error) {
-    console.warn("preventDefault:", error);
-  }
+  e.preventDefault();
   dom.stopPropagation(e);
 };
 /**
@@ -817,11 +813,7 @@ dom.preventDefault = (e) => {
  * @see __tests__/playwright/dom.spec.js
  */
 dom.stopPropagation = (e) => {
-  try {
-    e.stopPropagation();
-  } catch (error) {
-    console.warn("stopPropagation:", error);
-  }
+  e.stopPropagation();
 };
 /**
  * Inherits the properties of the parent object, excluding inclusion in the prototype chain.
