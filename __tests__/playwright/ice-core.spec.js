@@ -87,8 +87,8 @@ test.describe("ICE Core Functionality (Native DOM)", () => {
     const result = await page.evaluate(() => {
       let called = false;
       // Add a dummy plugin with setEnabled
-      window.ice._plugin.TestPlugin = function (ice) {
-        this.nodeInserted = function (node) {
+      window.ice._plugin.TestPlugin = function (_ice) {
+        this.nodeInserted = function (_node) {
           called = true;
         };
         this.start = function () {};
@@ -108,5 +108,66 @@ test.describe("ICE Core Functionality (Native DOM)", () => {
       return called;
     });
     expect(result).toBe(true);
+  });
+
+  test("allows composing space and adds composed punctuation", async ({
+    page,
+  }) => {
+    await page.setContent('<div id="el"><p>abc</p></div>');
+
+    const result = await page.evaluate(() => {
+      const el = document.querySelector("#el");
+      const changeEditor = getIce(el);
+      const p = el.querySelector("p");
+      const preventedSpaces = [];
+
+      for (let i = 0; i < 3; i++) {
+        const evt = new KeyboardEvent("keydown", {
+          key: " ",
+          code: "Space",
+          keyCode: 32,
+          which: 32,
+          bubbles: true,
+        });
+        Object.defineProperty(evt, "isComposing", { value: true });
+        changeEditor.handleEvent(evt);
+        preventedSpaces.push(evt.defaultPrevented);
+      }
+
+      const textAfterSpaces = el.textContent;
+
+      const chars = ["'", '"', "`"]; // single, double, backtick
+      const preventedChars = [];
+
+      for (const ch of chars) {
+        const evt = new KeyboardEvent("keydown", {
+          key: " ",
+          code: "Space",
+          keyCode: 32,
+          which: 32,
+          bubbles: true,
+        });
+        Object.defineProperty(evt, "isComposing", { value: true });
+        changeEditor.handleEvent(evt);
+        preventedChars.push(evt.defaultPrevented);
+
+        const range = changeEditor.env.selection.createRange();
+        range.setStart(p, p.childNodes.length);
+        range.collapse(true);
+        changeEditor.insert(ch, range);
+      }
+
+      return {
+        textAfterSpaces,
+        finalText: el.textContent,
+        preventedSpaces,
+        preventedChars,
+      };
+    });
+
+    expect(result.preventedSpaces.every((v) => v === false)).toBe(true);
+    expect(result.textAfterSpaces).toBe("abc");
+    expect(result.preventedChars.every((v) => v === false)).toBe(true);
+    expect(result.finalText).toBe("abc'\"`");
   });
 });
