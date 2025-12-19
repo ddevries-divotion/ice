@@ -1966,6 +1966,13 @@ InlineChangeEditor.prototype = {
       /************************************************************************************/
 
       case 32: {
+        const isActualSpace = !e.key || e.key === " ";
+        if (e.isComposing || !isActualSpace) {
+          // Allow dead-key compositions (e.g. ' + space -> ')
+          preventDefault = false;
+          break;
+        }
+
         preventDefault = true;
         const spaceRange = this.getCurrentRange();
         this._moveRangeToValidTrackingPos(
