@@ -83,9 +83,7 @@ class Selection {
       return selection.getRangeAt(index);
     } catch (error) {
       console.warn("ICE: Failed to read selection range, recreating", error);
-      if (typeof selection.removeAllRanges === "function") {
-        selection.removeAllRanges();
-      }
+      selection.removeAllRanges();
       return this.createRange();
     }
   }
@@ -112,9 +110,7 @@ class Selection {
     }
 
     try {
-      if (typeof this._selection.removeAllRanges === "function") {
-        this._selection.removeAllRanges();
-      }
+      this._selection.removeAllRanges();
       this._selection.addRange(range);
     } catch (error) {
       console.error("ICE: Failed to add range to selection", error);
