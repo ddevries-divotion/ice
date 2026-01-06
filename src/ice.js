@@ -626,7 +626,8 @@ InlineChangeEditor.prototype = {
           range.collapse(false);
         } else {
           if (!this.visible(range.endContainer)) {
-            range.setEnd(range.endContainer, range.endOffset - 1);
+            const endOffset = range.endOffset === 0 ? 0 : range.endOffset - 1;
+            range.setEnd(range.endContainer, endOffset);
             range.collapse(false);
           }
         }
