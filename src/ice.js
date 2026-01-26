@@ -958,22 +958,18 @@ InlineChangeEditor.prototype = {
       }
       return current;
     };
+
+    // Get the initial block parent to ensure we don't exceed block boundaries
+    const startBlock = ice.dom.getBlockParent(range.endContainer, this.element);
+
     let onEdge = false;
     let voidEl = this._getVoidElement(range.endContainer);
     while (voidEl) {
       const prevContainer = range.endContainer;
       const prevOffset = range.endOffset;
-      // Move end of range to position it inside of any potential adjacent containers
-      // E.G.:  test|<em>text</em>  ->  test<em>|text</em>
-      try {
-        range.moveEnd(ice.dom.CHARACTER_UNIT, 1);
-        range.moveEnd(ice.dom.CHARACTER_UNIT, -1);
-      } catch {
-        // Moving outside of the element and nothing is left on the page
-        onEdge = true;
-      }
+
+      // Check if we're already at a block boundary before moving
       if (
-        onEdge ||
         ice.dom.onBlockBoundary(
           range.endContainer,
           range.startContainer,
@@ -985,6 +981,30 @@ InlineChangeEditor.prototype = {
         range.collapse(true);
         break;
       }
+
+      // Move end of range to position it inside of any potential adjacent containers
+      // E.G.:  test|<em>text</em>  ->  test<em>|text</em>
+      try {
+        range.moveEnd(ice.dom.CHARACTER_UNIT, 1);
+        range.moveEnd(ice.dom.CHARACTER_UNIT, -1);
+      } catch {
+        // Moving outside of the element and nothing is left on the page
+        onEdge = true;
+      }
+
+      // Check if we've moved beyond the block boundary
+      const currentBlock = ice.dom.getBlockParent(
+        range.endContainer,
+        this.element,
+      );
+      if (onEdge || (startBlock && currentBlock !== startBlock)) {
+        // We've crossed a block boundary, revert to the void element position
+        const target = getLastContiguousVoid(voidEl);
+        range.setStartAfter(target);
+        range.collapse(true);
+        break;
+      }
+
       if (
         range.endContainer === prevContainer &&
         range.endOffset === prevOffset
