@@ -639,9 +639,18 @@ InlineChangeEditor.prototype = {
           prevent = this._deleteRight(range);
           // Handling track change show/hide
           if (!this.visible(range.endContainer)) {
-            if (range.endContainer.parentNode.nextSibling) {
-              //            range.setEnd(range.endContainer.parentNode.nextSibling, 0);
-              range.setEndBefore(range.endContainer.parentNode.nextSibling);
+            const nextSibling = range.endContainer.parentNode.nextSibling;
+            if (nextSibling) {
+              // Preserve leading space by converting to non-breaking space
+              // This prevents browser whitespace collapse when delete node is hidden
+              if (
+                nextSibling.nodeType === ice.dom.TEXT_NODE &&
+                nextSibling.data &&
+                nextSibling.data.charAt(0) === " "
+              ) {
+                nextSibling.data = "\u00A0" + nextSibling.data.substring(1);
+              }
+              range.setEndBefore(nextSibling);
             } else {
               range.setEndAfter(range.endContainer);
             }
@@ -688,6 +697,11 @@ InlineChangeEditor.prototype = {
               const nextNode = delNode.nextSibling;
               if (nextNode) {
                 if (nextNode.nodeType === ice.dom.TEXT_NODE) {
+                  // Preserve leading space by converting to non-breaking space
+                  // This prevents browser whitespace collapse when delete node is hidden
+                  if (nextNode.data && nextNode.data.charAt(0) === " ") {
+                    nextNode.data = "\u00A0" + nextNode.data.substring(1);
+                  }
                   range.setStart(nextNode, 0);
                 } else {
                   range.setStartAfter(delNode);
