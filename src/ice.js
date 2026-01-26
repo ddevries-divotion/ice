@@ -683,8 +683,18 @@ InlineChangeEditor.prototype = {
                   this._getIceNodeClass("deleteType"),
               )
             ) {
-              //            range.setStart(range.endContainer.parentNode.nextSibling, 0);
-              range.setStartAfter(range.endContainer.parentNode);
+              // Move cursor to the start of the next visible content
+              const delNode = range.endContainer.parentNode;
+              const nextNode = delNode.nextSibling;
+              if (nextNode) {
+                if (nextNode.nodeType === ice.dom.TEXT_NODE) {
+                  range.setStart(nextNode, 0);
+                } else {
+                  range.setStartAfter(delNode);
+                }
+              } else {
+                range.setStartAfter(delNode);
+              }
               range.collapse(true);
             }
           }
