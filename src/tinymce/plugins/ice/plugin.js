@@ -312,6 +312,42 @@
       // Make the changeEditor available for other plugins
       editor.iceChangeEditor = changeEditor;
 
+      // Intercept delete commands before TinyMCE processes them
+      // This is necessary because TinyMCE handles deletions in lists before dispatching DOM events
+      editor.on("BeforeExecCommand", (e) => {
+        if (e.command === "Delete" || e.command === "ForwardDelete") {
+          const range = changeEditor.getCurrentRange();
+          // Only intercept if we have a non-collapsed selection (text is selected)
+          if (range && !range.collapsed) {
+            // Let ICE handle the deletion with tracking
+            const isForward = e.command === "ForwardDelete";
+            changeEditor.deleteContents(isForward, range);
+            e.preventDefault();
+            return false;
+          }
+        }
+      });
+
+      // Add native beforeinput listener with capture to intercept before TinyMCE
+      // This is necessary because TinyMCE handles deletions in lists before dispatching events
+      const editorBody = editor.getBody();
+      editorBody.addEventListener(
+        "beforeinput",
+        (e) => {
+          if (
+            e.inputType === "deleteContentBackward" ||
+            e.inputType === "deleteContentForward"
+          ) {
+            const result = changeEditor.handleEvent(e);
+            if (result === false) {
+              e.preventDefault();
+              e.stopImmediatePropagation();
+            }
+          }
+        },
+        { capture: true },
+      );
+
       ["mousedown", "keyup", "keydown", "keypress", "beforeinput"].forEach(
         (eventType) => {
           editor.on(eventType, (e) => changeEditor.handleEvent(e));
